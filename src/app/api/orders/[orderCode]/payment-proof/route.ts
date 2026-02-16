@@ -1,0 +1,74 @@
+import { prisma } from "@/lib/prisma";
+import { OrderStatus } from "@/generated/prisma/client";
+import { apiSuccess, badRequest, notFound, serverError } from "@/lib/api-response";
+import { uploadToR2 } from "@/lib/r2";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ orderCode: string }> }
+) {
+  try {
+    const { orderCode } = await params;
+
+    const order = await prisma.order.findUnique({
+      where: { orderCode },
+    });
+
+    if (!order) return notFound("Order");
+
+    if (
+      order.status !== OrderStatus.PENDING_PAYMENT &&
+      order.status !== OrderStatus.AWAITING_VERIFICATION
+    ) {
+      return badRequest(
+        "Payment proof can only be uploaded for orders with PENDING_PAYMENT or AWAITING_VERIFICATION status"
+      );
+    }
+
+    const formData = await request.formData();
+    const file = formData.get("file") as File | null;
+
+    if (!file) return badRequest("File is required");
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return badRequest("Only JPEG, PNG, and WebP images are allowed");
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return badRequest("File size must be less than 5MB");
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const { url, key } = await uploadToR2(buffer, "payment-proofs", file.type);
+
+    const paymentProof = await prisma.$transaction(async (tx) => {
+      const proof = await tx.paymentProof.create({
+        data: {
+          orderId: order.id,
+          imageUrl: url,
+          imageKey: key,
+        },
+      });
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: { status: OrderStatus.AWAITING_VERIFICATION },
+      });
+
+      return proof;
+    });
+
+    return apiSuccess(
+      {
+        id: paymentProof.id,
+        imageUrl: paymentProof.imageUrl,
+        status: paymentProof.status,
+      },
+      201
+    );
+  } catch (error) {
+    console.error("POST /api/orders/[orderCode]/payment-proof error:", error);
+    return serverError();
+  }
+}
