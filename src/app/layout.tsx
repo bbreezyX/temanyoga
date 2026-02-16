@@ -1,26 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope, Archivo } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "@/contexts/cart-context";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "Temanyoga — Gantungan Kunci Handmade",
-    template: "%s | Temanyoga",
+    default: "dTeman Yoga — Menemani Perjalanan Yoga Anda",
+    template: "%s | dTeman Yoga",
   },
   description:
-    "Gantungan kunci handmade berkualitas dari Temanyoga. Temukan koleksi unik untuk souvenir, hadiah, dan koleksi pribadi.",
+    "Temukan boneka rajut yoga premium dari dTeman Yoga. Simbol kedamaian, kesadaran, dan teman setia dalam setiap asana Anda.",
+  icons: {
+    icon: "/images/brand-logo.png",
+    apple: "/images/brand-logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -31,12 +35,10 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${manrope.variable} ${archivo.variable} antialiased font-sans`}
       >
-        <CartProvider>
-          {children}
-        </CartProvider>
-        <Toaster richColors position="top-right" />
+        <CartProvider>{children}</CartProvider>
+        <Toaster richColors position="bottom-center" />
       </body>
     </html>
   );

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { NotificationType } from "@/generated/prisma/client";
 import {
   apiSuccess,
   badRequest,
@@ -37,6 +38,15 @@ export async function PATCH(
     const updated = await prisma.order.update({
       where: { id },
       data: { status: parsed.data.status },
+    });
+
+    await prisma.notification.create({
+      data: {
+        type: NotificationType.ORDER_STATUS_CHANGED,
+        title: "Status Pesanan Diperbarui",
+        message: `Status pesanan ${updated.orderCode} diubah menjadi ${parsed.data.status}`,
+        orderId: updated.id,
+      },
     });
 
     return apiSuccess(updated);

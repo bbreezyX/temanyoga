@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@/generated/prisma/client";
+import { OrderStatus, NotificationType } from "@/generated/prisma/client";
 import { apiSuccess, badRequest, notFound, serverError } from "@/lib/api-response";
 import { uploadToR2 } from "@/lib/r2";
 
@@ -57,6 +57,15 @@ export async function POST(
       });
 
       return proof;
+    });
+
+    await prisma.notification.create({
+      data: {
+        type: NotificationType.PAYMENT_PROOF_UPLOADED,
+        title: "Bukti Pembayaran Diunggah",
+        message: `Bukti pembayaran untuk pesanan ${order.orderCode} dari ${order.customerName} menunggu verifikasi`,
+        orderId: order.id,
+      },
     });
 
     return apiSuccess(

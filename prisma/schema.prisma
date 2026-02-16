@@ -30,6 +30,12 @@ enum PaymentProofStatus {
   REJECTED
 }
 
+enum NotificationType {
+  NEW_ORDER
+  PAYMENT_PROOF_UPLOADED
+  ORDER_STATUS_CHANGED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -69,26 +75,46 @@ model ProductImage {
   @@index([productId])
 }
 
+model ShippingZone {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Int
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+
+  @@index([isActive])
+}
+
 model Order {
-  id              String         @id @default(cuid())
-  orderCode       String         @unique
-  customerName    String
-  customerEmail   String
-  customerPhone   String
-  shippingAddress String
-  status          OrderStatus    @default(PENDING_PAYMENT)
-  totalAmount     Int
-  notes           String?
-  trackingNumber  String?
-  courier         String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  items           OrderItem[]
-  paymentProofs   PaymentProof[]
+  id                   String         @id @default(cuid())
+  orderCode            String         @unique
+  customerName         String
+  customerEmail        String
+  customerPhone        String
+  shippingAddress      String
+  status               OrderStatus    @default(PENDING_PAYMENT)
+  totalAmount          Int
+  shippingCost         Int            @default(0)
+  shippingZoneId       String?
+  shippingZoneSnapshot String?
+  notes                String?
+  trackingNumber       String?
+  courier              String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  items                OrderItem[]
+  paymentProofs        PaymentProof[]
+  notifications        Notification[]
+  shippingZone         ShippingZone?  @relation(fields: [shippingZoneId], references: [id], onDelete: SetNull)
 
   @@index([orderCode])
   @@index([status])
   @@index([createdAt])
+  @@index([shippingZoneId])
 }
 
 model OrderItem {
@@ -117,4 +143,18 @@ model PaymentProof {
 
   @@index([orderId])
   @@index([status])
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  type        NotificationType
+  title       String
+  message     String
+  orderId     String?
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  order       Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([isRead])
+  @@index([createdAt])
 }

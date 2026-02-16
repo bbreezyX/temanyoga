@@ -17,13 +17,16 @@ export default async function AdminLayout({
 
   return (
     <AuthProvider>
-      <div className="flex h-screen">
-        <div className="hidden lg:block">
+      <div className="flex h-screen w-full bg-background selection:bg-terracotta/10">
+        <div className="hidden lg:block h-full shrink-0">
           <AdminSidebar />
         </div>
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden relative">
           <AdminHeader />
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto p-4 md:p-10 no-scrollbar relative">
+            <div className="absolute inset-0 bg-[radial-gradient(#e8dcc8_1px,transparent_1px)] [background-size:40px_40px] opacity-[0.15] pointer-events-none"></div>
+            <div className="w-full relative z-10">{children}</div>
+          </main>
         </div>
       </div>
     </AuthProvider>

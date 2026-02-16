@@ -11,6 +11,7 @@ export const createOrderSchema = z.object({
   customerEmail: z.string().email("Invalid email"),
   customerPhone: z.string().min(1, "Phone is required").max(30),
   shippingAddress: z.string().min(1, "Address is required"),
+  shippingZoneId: z.string().min(1, "Shipping zone is required"),
   notes: z.string().max(1000).optional(),
   items: z.array(orderItemSchema).min(1, "At least one item is required"),
 });

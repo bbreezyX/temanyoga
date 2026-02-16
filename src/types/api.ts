@@ -1,5 +1,19 @@
 import type { OrderStatus, PaymentProofStatus } from "@/generated/prisma/enums";
 
+export interface ShippingZone {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+}
+
+export interface AdminShippingZone extends ShippingZone {
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ProductImage {
   id: string;
   productId: string;
@@ -67,6 +81,7 @@ export interface OrderItem {
 export interface CreateOrderResponse {
   orderCode: string;
   totalAmount: number;
+  shippingCost: number;
   status: OrderStatus;
   items: OrderItem[];
 }
@@ -96,6 +111,8 @@ export interface AdminOrderListItem {
   shippingAddress: string;
   status: OrderStatus;
   totalAmount: number;
+  shippingCost: number;
+  shippingZoneSnapshot: string | null;
   notes: string | null;
   trackingNumber: string | null;
   courier: string | null;
@@ -107,6 +124,12 @@ export interface AdminOrderListItem {
 export interface AdminOrderListResponse {
   orders: AdminOrderListItem[];
   pagination: Pagination;
+  orderStats: {
+    totalOrders: number;
+    pendingPayment: number;
+    processing: number;
+    completed: number;
+  };
 }
 
 export interface AdminOrderDetailItem extends OrderItem {
@@ -133,6 +156,8 @@ export interface AdminOrderDetail {
   shippingAddress: string;
   status: OrderStatus;
   totalAmount: number;
+  shippingCost: number;
+  shippingZoneSnapshot: string | null;
   notes: string | null;
   trackingNumber: string | null;
   courier: string | null;
@@ -140,4 +165,11 @@ export interface AdminOrderDetail {
   updatedAt: string;
   items: AdminOrderDetailItem[];
   paymentProofs: AdminPaymentProof[];
+}
+export interface AdminDashboardStats {
+  todayOrders: number;
+  pendingPayments: number;
+  totalRevenue: number;
+  totalProducts: number;
+  recentOrders: AdminOrderListItem[];
 }

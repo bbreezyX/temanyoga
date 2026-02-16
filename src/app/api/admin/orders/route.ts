@@ -7,7 +7,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
-    const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 20));
+    const limit = Math.min(
+      50,
+      Math.max(1, Number(searchParams.get("limit")) || 20),
+    );
     const skip = (page - 1) * limit;
 
     const status = searchParams.get("status") as OrderStatus | null;
@@ -32,22 +35,35 @@ export async function GET(request: NextRequest) {
 
     if (dateFrom || dateTo) {
       where.createdAt = {};
-      if (dateFrom) (where.createdAt as Record<string, unknown>).gte = new Date(dateFrom);
-      if (dateTo) (where.createdAt as Record<string, unknown>).lte = new Date(dateTo);
+      if (dateFrom)
+        (where.createdAt as Record<string, unknown>).gte = new Date(dateFrom);
+      if (dateTo)
+        (where.createdAt as Record<string, unknown>).lte = new Date(dateTo);
     }
 
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        where,
-        include: {
-          _count: { select: { items: true, paymentProofs: true } },
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      prisma.order.count({ where }),
-    ]);
+    const [orders, total, totalOrders, pendingPayment, processing, completed] =
+      await Promise.all([
+        prisma.order.findMany({
+          where,
+          include: {
+            _count: { select: { items: true, paymentProofs: true } },
+          },
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+        }),
+        prisma.order.count({ where }),
+        prisma.order.count(), // Total all-time
+        prisma.order.count({
+          where: { status: OrderStatus.PENDING_PAYMENT },
+        }),
+        prisma.order.count({
+          where: { status: OrderStatus.PROCESSING },
+        }),
+        prisma.order.count({
+          where: { status: OrderStatus.COMPLETED },
+        }),
+      ]);
 
     return apiSuccess({
       orders,
@@ -56,6 +72,12 @@ export async function GET(request: NextRequest) {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
+      },
+      orderStats: {
+        totalOrders,
+        pendingPayment,
+        processing,
+        completed,
       },
     });
   } catch (error) {

@@ -1,11 +1,74 @@
+import Link from "next/link";
+import Image from "next/image";
+
 export function Footer() {
   return (
     <footer className="border-t bg-muted/40">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col items-center gap-2 text-center text-sm text-muted-foreground">
-          <p className="font-semibold text-foreground">Temanyoga</p>
-          <p>Gantungan kunci handmade berkualitas</p>
-          <p>&copy; {new Date().getFullYear()} Temanyoga. All rights reserved.</p>
+      <div className="container mx-auto px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
+          <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
+            <div className="flex items-center gap-3">
+              <div className="relative h-14 w-14">
+                <Image
+                  src="/images/brand-logo.png"
+                  alt="TemanYoga Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <p className="text-xl font-medium tracking-tight text-slate-900">
+                dTeman <span className="font-black text-[#c85a2d]">Yoga</span>
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-[240px]">
+              Menemani setiap langkah dalam perjalanan yoga Anda dengan
+              kesadaran dan kebahagiaan.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
+            <p className="text-sm font-bold uppercase tracking-wider text-slate-900">
+              Tautan
+            </p>
+            <nav className="flex flex-col gap-2">
+              <Link
+                href="/products"
+                className="text-sm text-muted-foreground hover:text-[#c85a2d] transition-colors"
+              >
+                Semua Produk
+              </Link>
+              <Link
+                href="/track-order"
+                className="text-sm text-muted-foreground hover:text-[#c85a2d] transition-colors"
+              >
+                Lacak Pesanan
+              </Link>
+            </nav>
+          </div>
+
+          <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
+            <p className="text-sm font-bold uppercase tracking-wider text-slate-900">
+              Hubungi Kami
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Ada pertanyaan? Hubungi kami melalui kanal media sosial kami untuk
+              respon cepat.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-12 md:mt-16 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground text-center md:text-left">
+          <p>
+            &copy; {new Date().getFullYear()} dTeman Yoga. Semua hak dilindungi.
+          </p>
+          <div className="flex gap-6">
+            <span className="cursor-pointer hover:text-foreground">
+              Instagram
+            </span>
+            <span className="cursor-pointer hover:text-foreground">
+              WhatsApp
+            </span>
+          </div>
         </div>
       </div>
     </footer>

@@ -12,7 +12,7 @@ const s3 = new S3Client({
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ key: string[] }> }
+  { params }: { params: Promise<{ key: string[] }> },
 ) {
   const { key } = await params;
   const objectKey = key.join("/");
@@ -22,7 +22,7 @@ export async function GET(
       new GetObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME!,
         Key: objectKey,
-      })
+      }),
     );
 
     const body = res.Body;
@@ -32,7 +32,7 @@ export async function GET(
 
     const bytes = await body.transformToByteArray();
 
-    return new NextResponse(bytes, {
+    return new NextResponse(Buffer.from(bytes), {
       headers: {
         "Content-Type": res.ContentType || "application/octet-stream",
         "Cache-Control": "public, max-age=31536000, immutable",
