@@ -96,7 +96,7 @@ ${linkButton(`${siteUrl}/checkout/success/${order.orderCode}`, "Unggah Bukti Pem
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Terima kasih,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Pesanan Baru ${order.orderCode} - D'TEMAN YOGA`,
+    subject: `Pesanan Baru ${order.orderCode}`,
     html: emailWrapper(body),
     text: `Halo ${order.customerName}, pesanan Anda ${order.orderCode} berhasil dibuat. Total: ${formatRupiah(order.totalAmount)}. Silakan transfer ke ${bank?.bankName || "BCA"} ${bank?.accountNumber || "1234567890"} a/n ${bank?.accountName || "D'TEMAN YOGA Studio"}.`,
   };
