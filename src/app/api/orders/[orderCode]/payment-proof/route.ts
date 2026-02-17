@@ -1,17 +1,30 @@
 import { prisma } from "@/lib/prisma";
 import { OrderStatus, NotificationType } from "@prisma/client";
-import { apiSuccess, badRequest, notFound, serverError } from "@/lib/api-response";
+import {
+  apiSuccess,
+  apiError,
+  badRequest,
+  notFound,
+  serverError,
+} from "@/lib/api-response";
 import { uploadToR2 } from "@/lib/r2";
 import { broadcastNotification } from "@/lib/notification-broadcast";
+import { rateLimiters, getClientIp } from "@/lib/rate-limit";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ orderCode: string }> }
+  { params }: { params: Promise<{ orderCode: string }> },
 ) {
   try {
+    const ip = getClientIp(request);
+    const { success } = await rateLimiters.strict.limit(ip);
+    if (!success) {
+      return apiError("Too many requests. Please try again later.", 429);
+    }
+
     const { orderCode } = await params;
 
     const order = await prisma.order.findUnique({
@@ -25,11 +38,21 @@ export async function POST(
       order.status !== OrderStatus.AWAITING_VERIFICATION
     ) {
       return badRequest(
-        "Payment proof can only be uploaded for orders with PENDING_PAYMENT or AWAITING_VERIFICATION status"
+        "Payment proof can only be uploaded for orders with PENDING_PAYMENT or AWAITING_VERIFICATION status",
       );
     }
 
     const formData = await request.formData();
+
+    // Validate ownership via email
+    const email = formData.get("email") as string | null;
+    if (!email) {
+      return badRequest("Email is required for verification");
+    }
+    if (email.toLowerCase().trim() !== order.customerEmail.toLowerCase()) {
+      return badRequest("Email does not match order records");
+    }
+
     const file = formData.get("file") as File | null;
 
     if (!file) return badRequest("File is required");
@@ -85,7 +108,7 @@ export async function POST(
         imageUrl: paymentProof.imageUrl,
         status: paymentProof.status,
       },
-      201
+      201,
     );
   } catch (error) {
     console.error("POST /api/orders/[orderCode]/payment-proof error:", error);

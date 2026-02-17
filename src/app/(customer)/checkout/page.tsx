@@ -50,7 +50,7 @@ export default function CheckoutPage() {
 
   const discountAmount = appliedCoupon
     ? appliedCoupon.discountType === "PERCENTAGE"
-      ? Math.floor(cartTotal * appliedCoupon.discountValue / 100)
+      ? Math.floor((cartTotal * appliedCoupon.discountValue) / 100)
       : Math.min(appliedCoupon.discountValue, cartTotal)
     : 0;
   const totalAmount = cartTotal - discountAmount + shippingCost;
@@ -86,10 +86,9 @@ export default function CheckoutPage() {
     setCouponLoading(true);
     setCouponError(null);
 
-    const res = await apiPost<CouponValidationResult>(
-      "/api/coupons/validate",
-      { code }
-    );
+    const res = await apiPost<CouponValidationResult>("/api/coupons/validate", {
+      code,
+    });
     setCouponLoading(false);
 
     if (!res.success) {
@@ -171,6 +170,7 @@ export default function CheckoutPage() {
       shipping: String(res.data.shippingCost),
       discount: String(res.data.discountAmount),
       ...(res.data.couponCode ? { coupon: res.data.couponCode } : {}),
+      email: customerEmail,
     });
     router.push(`/checkout/success?${successParams.toString()}`);
   }
@@ -236,21 +236,27 @@ export default function CheckoutPage() {
                         <div className="w-10 h-10 rounded-2xl bg-[#c85a2d] text-white grid place-items-center shadow-lg shadow-[#c85a2d]/30">
                           <MapPin className="w-5 h-5" />
                         </div>
-                        <span className="text-[11px] font-bold text-[#c85a2d] uppercase tracking-wider text-center">Alamat</span>
+                        <span className="text-[11px] font-bold text-[#c85a2d] uppercase tracking-wider text-center">
+                          Alamat
+                        </span>
                       </div>
                       <div className="flex-1 h-0.5 bg-[#e8dcc8] -mt-6"></div>
                       <div className="flex-1 flex flex-col items-center gap-2">
                         <div className="w-10 h-10 rounded-2xl bg-[#f5f1ed] ring-2 ring-[#e8dcc8] text-[#b7a894] grid place-items-center">
                           <ShieldCheck className="w-5 h-5" />
                         </div>
-                        <span className="text-[11px] font-bold text-[#b7a894] uppercase tracking-wider text-center">Bayar</span>
+                        <span className="text-[11px] font-bold text-[#b7a894] uppercase tracking-wider text-center">
+                          Bayar
+                        </span>
                       </div>
                       <div className="flex-1 h-0.5 bg-[#e8dcc8] -mt-6"></div>
                       <div className="flex-1 flex flex-col items-center gap-2">
                         <div className="w-10 h-10 rounded-2xl bg-[#f5f1ed] ring-2 ring-[#e8dcc8] text-[#b7a894] grid place-items-center">
                           <ClipboardList className="w-5 h-5" />
                         </div>
-                        <span className="text-[11px] font-bold text-[#b7a894] uppercase tracking-wider text-center">Selesai</span>
+                        <span className="text-[11px] font-bold text-[#b7a894] uppercase tracking-wider text-center">
+                          Selesai
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -401,7 +407,9 @@ export default function CheckoutPage() {
                   {zonesLoading ? (
                     <div className="flex items-center justify-center py-8 gap-3">
                       <Loader2 className="w-5 h-5 animate-spin text-[#c85a2d]" />
-                      <span className="text-[14px] text-[#6b5b4b]">Memuat zona pengiriman...</span>
+                      <span className="text-[14px] text-[#6b5b4b]">
+                        Memuat zona pengiriman...
+                      </span>
                     </div>
                   ) : zones.length === 0 ? (
                     <p className="text-[14px] text-[#9a8772] text-center py-8">
@@ -596,7 +604,10 @@ export default function CheckoutPage() {
 
                 <div className="px-8 py-6 space-y-4 max-h-[400px] overflow-y-auto overflow-x-hidden scrollbar-thin">
                   {items.map((item) => {
-                    const accTotal = (item.accessories || []).reduce((s, a) => s + a.price, 0);
+                    const accTotal = (item.accessories || []).reduce(
+                      (s, a) => s + a.price,
+                      0,
+                    );
                     const unitPrice = item.price + accTotal;
                     return (
                       <div
@@ -627,7 +638,10 @@ export default function CheckoutPage() {
                           {item.accessories && item.accessories.length > 0 && (
                             <div className="mt-0.5 space-y-0.5">
                               {item.accessories.map((acc) => (
-                                <p key={acc.id} className="text-[11px] text-[#7a9d7f] font-medium">
+                                <p
+                                  key={acc.id}
+                                  className="text-[11px] text-[#7a9d7f] font-medium"
+                                >
                                   + {acc.name} ({formatCurrency(acc.price)})
                                 </p>
                               ))}
@@ -654,7 +668,9 @@ export default function CheckoutPage() {
                     </div>
                   )}
                   <div className="flex justify-between items-center text-[14px] opacity-80">
-                    <span>Ongkir{selectedZone ? ` (${selectedZone.name})` : ""}</span>
+                    <span>
+                      Ongkir{selectedZone ? ` (${selectedZone.name})` : ""}
+                    </span>
                     <span>
                       {selectedZone
                         ? selectedZone.price === 0

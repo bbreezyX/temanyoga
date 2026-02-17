@@ -1,6 +1,7 @@
 "use client";
 
 import { OrderStatus } from "@prisma/client";
+import { Search, CalendarRange, Filter } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -41,8 +42,12 @@ export function OrderFilters({
       <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto">
         <button className="flex-1 md:flex-none relative flex items-center justify-center gap-2 rounded-full bg-cream px-4 py-3 ring-1 ring-warm-sand/50 hover:bg-white transition-colors cursor-not-allowed opacity-70 whitespace-nowrap">
           <CalendarRange className="h-[18px] w-[18px] text-warm-gray" />
-          <span className="text-sm font-bold text-dark-brown hidden sm:inline">Rentang Tanggal</span>
-          <span className="text-sm font-bold text-dark-brown sm:hidden">Tanggal</span>
+          <span className="text-sm font-bold text-dark-brown hidden sm:inline">
+            Rentang Tanggal
+          </span>
+          <span className="text-sm font-bold text-dark-brown sm:hidden">
+            Tanggal
+          </span>
         </button>
 
         <div className="flex-1 md:flex-none min-w-[140px]">
@@ -74,5 +79,3 @@ export function OrderFilters({
     </div>
   );
 }
-
-import { Search, CalendarRange, Filter } from "lucide-react";

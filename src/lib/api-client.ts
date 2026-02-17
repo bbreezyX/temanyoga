@@ -1,14 +1,16 @@
-type ApiResponse<T> = {
-  success: true;
-  data: T;
-} | {
-  success: false;
-  error: string;
-};
+type ApiResponse<T> =
+  | {
+      success: true;
+      data: T;
+    }
+  | {
+      success: false;
+      error: string;
+    };
 
 async function request<T>(
   url: string,
-  options?: RequestInit
+  options?: RequestInit,
 ): Promise<ApiResponse<T>> {
   const res = await fetch(url, options);
   const json = await res.json();
@@ -21,7 +23,7 @@ export async function apiFetch<T>(url: string): Promise<ApiResponse<T>> {
 
 export async function apiPost<T>(
   url: string,
-  body: unknown
+  body: unknown,
 ): Promise<ApiResponse<T>> {
   return request<T>(url, {
     method: "POST",
@@ -32,7 +34,7 @@ export async function apiPost<T>(
 
 export async function apiPatch<T>(
   url: string,
-  body: unknown
+  body: unknown,
 ): Promise<ApiResponse<T>> {
   return request<T>(url, {
     method: "PATCH",
@@ -47,10 +49,16 @@ export async function apiDelete<T>(url: string): Promise<ApiResponse<T>> {
 
 export async function apiUpload<T>(
   url: string,
-  file: File
+  file: File,
+  extraFields?: Record<string, string>,
 ): Promise<ApiResponse<T>> {
   const formData = new FormData();
   formData.append("file", file);
+  if (extraFields) {
+    for (const [key, value] of Object.entries(extraFields)) {
+      formData.append(key, value);
+    }
+  }
   return request<T>(url, {
     method: "POST",
     body: formData,

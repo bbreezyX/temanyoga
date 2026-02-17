@@ -1,13 +1,25 @@
 import { prisma } from "@/lib/prisma";
 import type { Product } from "@prisma/client";
 import { NotificationType } from "@prisma/client";
-import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
+import {
+  apiSuccess,
+  apiError,
+  badRequest,
+  serverError,
+} from "@/lib/api-response";
 import { createOrderSchema } from "@/lib/validations/order";
 import { generateOrderCode } from "@/lib/order-code";
 import { broadcastNotification } from "@/lib/notification-broadcast";
+import { rateLimiters, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const { success } = await rateLimiters.standard.limit(ip);
+    if (!success) {
+      return apiError("Too many requests. Please try again later.", 429);
+    }
+
     const body = await request.json();
     const parsed = createOrderSchema.safeParse(body);
 
@@ -40,14 +52,12 @@ export async function POST(request: Request) {
     }
 
     // Validate stock
-    const productMap = new Map<string, Product>(
-      products.map((p) => [p.id, p])
-    );
+    const productMap = new Map<string, Product>(products.map((p) => [p.id, p]));
     for (const item of items) {
       const product = productMap.get(item.productId)!;
       if (product.stock !== null && product.stock < item.quantity) {
         return badRequest(
-          `Insufficient stock for "${product.name}". Available: ${product.stock}`
+          `Insufficient stock for "${product.name}". Available: ${product.stock}`,
         );
       }
     }
@@ -61,11 +71,26 @@ export async function POST(request: Request) {
     }
 
     // Fetch accessories if any were requested
-    const accessoryMap = new Map<string, { id: string; name: string; price: number; groupName: string | null; isActive: boolean }>();
+    const accessoryMap = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        price: number;
+        groupName: string | null;
+        isActive: boolean;
+      }
+    >();
     if (allAccessoryIds.size > 0) {
       const accessories = await prisma.accessory.findMany({
         where: { id: { in: [...allAccessoryIds] } },
-        select: { id: true, name: true, price: true, groupName: true, isActive: true },
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          groupName: true,
+          isActive: true,
+        },
       });
       for (const a of accessories) accessoryMap.set(a.id, a);
 
@@ -73,7 +98,8 @@ export async function POST(request: Request) {
       for (const accId of allAccessoryIds) {
         const acc = accessoryMap.get(accId);
         if (!acc) return badRequest(`Aksesoris tidak ditemukan: ${accId}`);
-        if (!acc.isActive) return badRequest(`Aksesoris "${acc.name}" tidak aktif`);
+        if (!acc.isActive)
+          return badRequest(`Aksesoris "${acc.name}" tidak aktif`);
       }
     }
 
@@ -102,7 +128,9 @@ export async function POST(request: Request) {
           const acc = accessoryMap.get(accId)!;
           if (acc.groupName) {
             if (groupSeen.has(acc.groupName)) {
-              return badRequest(`Hanya bisa pilih 1 aksesoris dari grup "${acc.groupName}" untuk produk "${product.name}"`);
+              return badRequest(
+                `Hanya bisa pilih 1 aksesoris dari grup "${acc.groupName}" untuk produk "${product.name}"`,
+              );
             }
             groupSeen.set(acc.groupName, acc.id);
           }
@@ -119,7 +147,8 @@ export async function POST(request: Request) {
         quantity: item.quantity,
         unitPriceSnapshot: product.price,
         productNameSnapshot: product.name,
-        accessoriesSnapshot: itemAccessories.length > 0 ? JSON.stringify(itemAccessories) : null,
+        accessoriesSnapshot:
+          itemAccessories.length > 0 ? JSON.stringify(itemAccessories) : null,
         accessoriesTotal: accTotal,
       });
     }
@@ -146,7 +175,7 @@ export async function POST(request: Request) {
       validCouponCode = coupon.code;
 
       if (coupon.discountType === "PERCENTAGE") {
-        discountAmount = Math.floor(subtotal * coupon.discountValue / 100);
+        discountAmount = Math.floor((subtotal * coupon.discountValue) / 100);
       } else {
         discountAmount = Math.min(coupon.discountValue, subtotal);
       }
@@ -177,9 +206,7 @@ export async function POST(request: Request) {
             },
           });
           if (updated.count === 0) {
-            throw new Error(
-              `Insufficient stock for "${product.name}"`
-            );
+            throw new Error(`Insufficient stock for "${product.name}"`);
           }
         }
       }
@@ -230,11 +257,14 @@ export async function POST(request: Request) {
         status: order.status,
         items: order.items,
       },
-      201
+      201,
     );
   } catch (error) {
     console.error("POST /api/orders error:", error);
-    if (error instanceof Error && error.message.includes("Insufficient stock")) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Insufficient stock")
+    ) {
       return badRequest(error.message);
     }
     return serverError();

@@ -24,12 +24,48 @@ import { formatCurrency } from "@/lib/utils";
 import type { PaymentProofResponse, OrderStatusResponse } from "@/types/api";
 
 const CONFETTI_STYLES: React.CSSProperties[] = [
-  { left: "10%", top: "15%", backgroundColor: "#c85a2d", animationDelay: "0.2s", animationDuration: "3s" },
-  { left: "25%", top: "70%", backgroundColor: "#7a9d7f", animationDelay: "0.6s", animationDuration: "3.5s" },
-  { left: "40%", top: "25%", backgroundColor: "#e8dcc8", animationDelay: "1.0s", animationDuration: "2.8s" },
-  { left: "55%", top: "80%", backgroundColor: "#c85a2d", animationDelay: "0.4s", animationDuration: "3.2s" },
-  { left: "70%", top: "20%", backgroundColor: "#7a9d7f", animationDelay: "1.2s", animationDuration: "3.8s" },
-  { left: "85%", top: "60%", backgroundColor: "#e8dcc8", animationDelay: "0.8s", animationDuration: "3s" },
+  {
+    left: "10%",
+    top: "15%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "0.2s",
+    animationDuration: "3s",
+  },
+  {
+    left: "25%",
+    top: "70%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "0.6s",
+    animationDuration: "3.5s",
+  },
+  {
+    left: "40%",
+    top: "25%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "1.0s",
+    animationDuration: "2.8s",
+  },
+  {
+    left: "55%",
+    top: "80%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "0.4s",
+    animationDuration: "3.2s",
+  },
+  {
+    left: "70%",
+    top: "20%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "1.2s",
+    animationDuration: "3.8s",
+  },
+  {
+    left: "85%",
+    top: "60%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "0.8s",
+    animationDuration: "3s",
+  },
 ];
 
 function PaymentUploadContent() {
@@ -123,9 +159,11 @@ function PaymentUploadContent() {
     if (!file || !orderCode) return;
 
     setLoading(true);
+    const customerEmail = searchParams.get("email") ?? "";
     const res = await apiUpload<PaymentProofResponse>(
       `/api/orders/${orderCode}/payment-proof`,
       file,
+      { email: customerEmail },
     );
     setLoading(false);
 

@@ -10,12 +10,22 @@ const s3 = new S3Client({
   },
 });
 
+const ALLOWED_PREFIXES = ["products/", "payment-proofs/", "accessories/"];
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ key: string[] }> },
 ) {
   const { key } = await params;
   const objectKey = key.join("/");
+
+  // Only allow known prefixes to prevent arbitrary bucket access
+  const isAllowed = ALLOWED_PREFIXES.some((prefix) =>
+    objectKey.startsWith(prefix),
+  );
+  if (!isAllowed) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
+  }
 
   try {
     const res = await s3.send(

@@ -1,9 +1,21 @@
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
+import {
+  apiSuccess,
+  apiError,
+  badRequest,
+  serverError,
+} from "@/lib/api-response";
 import { verifyOrderSchema } from "@/lib/validations/review";
+import { rateLimiters, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const { success } = await rateLimiters.standard.limit(ip);
+    if (!success) {
+      return apiError("Too many requests. Please try again later.", 429);
+    }
+
     const body = await request.json();
     const parsed = verifyOrderSchema.safeParse(body);
 
@@ -18,7 +30,9 @@ export async function POST(request: Request) {
       include: {
         items: {
           include: {
-            product: { select: { id: true, name: true, slug: true, isActive: true } },
+            product: {
+              select: { id: true, name: true, slug: true, isActive: true },
+            },
           },
         },
       },
@@ -33,7 +47,9 @@ export async function POST(request: Request) {
     }
 
     if (order.status !== "COMPLETED") {
-      return badRequest("Order belum selesai. Hanya order yang sudah selesai yang dapat diulas.");
+      return badRequest(
+        "Order belum selesai. Hanya order yang sudah selesai yang dapat diulas.",
+      );
     }
 
     const existingReviews = await prisma.review.findMany({

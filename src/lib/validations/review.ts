@@ -7,7 +7,12 @@ export const verifyOrderSchema = z.object({
 
 export const createReviewSchema = z.object({
   orderItemId: z.string().min(1, "Item order wajib dipilih"),
-  rating: z.number().int().min(1, "Rating minimal 1").max(5, "Rating maksimal 5"),
+  email: z.string().email("Format email tidak valid"),
+  rating: z
+    .number()
+    .int()
+    .min(1, "Rating minimal 1")
+    .max(5, "Rating maksimal 5"),
   comment: z.string().max(1000, "Komentar maksimal 1000 karakter").optional(),
 });
 

@@ -352,9 +352,75 @@ export default function AdminOrderDetailPage() {
                     {order.items.length} Items
                   </span>
                 </div>
-                {/* Responsive Table Wrapper */}
-                <div className="overflow-x-auto -mx-6 sm:mx-0 px-6 sm:px-0 scrollbar-hide">
-                  <table className="w-full min-w-[500px]">
+
+                {/* Items Summaries for Mobile: Card View */}
+                <div className="grid grid-cols-1 gap-4 sm:hidden">
+                  {order.items.map((item) => {
+                    let accSnapshots: { name: string; price: number }[] = [];
+                    if (item.accessoriesSnapshot) {
+                      try {
+                        accSnapshots = JSON.parse(item.accessoriesSnapshot);
+                      } catch {}
+                    }
+                    const accTotal = item.accessoriesTotal || 0;
+                    const unitWithAcc = item.unitPriceSnapshot + accTotal;
+                    return (
+                      <div
+                        key={item.id}
+                        className="bg-cream/20 p-5 rounded-[28px] ring-1 ring-warm-sand/30 space-y-4"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="h-14 w-14 rounded-2xl bg-warm-sand/20 flex shrink-0 items-center justify-center ring-1 ring-warm-sand/50 overflow-hidden relative">
+                            <ImageIcon className="text-xl text-warm-gray/30 absolute" />
+                          </div>
+                          <div className="min-w-0 pr-2">
+                            <p className="font-bold text-dark-brown text-sm line-clamp-2 leading-tight">
+                              {item.productNameSnapshot}
+                            </p>
+                            <p className="text-[10px] text-warm-gray mt-1 italic font-medium">
+                              ID: {item.product.slug}
+                            </p>
+                            {accSnapshots.length > 0 && (
+                              <div className="mt-2 space-y-1">
+                                {accSnapshots.map((acc, idx) => (
+                                  <p
+                                    key={idx}
+                                    className="text-[10px] text-sage font-bold leading-tight"
+                                  >
+                                    + {acc.name} ({formatCurrency(acc.price)})
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-dashed border-warm-sand/30">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-warm-gray/60">
+                              Qty
+                            </span>
+                            <span className="font-bold text-dark-brown text-sm">
+                              {item.quantity}×
+                            </span>
+                          </div>
+                          <div className="flex flex-col text-right">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-warm-gray/60">
+                              Total
+                            </span>
+                            <span className="font-black text-terracotta text-sm">
+                              {formatCurrency(unitWithAcc * item.quantity)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Items Summary for Desktop: Table View */}
+                <div className="hidden sm:block overflow-x-auto -mx-6 sm:mx-0 px-6 sm:px-0 scrollbar-hide">
+                  <table className="w-full min-w-[600px]">
                     <thead className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray/60 border-b border-warm-sand/30">
                       <tr className="text-left">
                         <th className="pb-4">Product</th>
@@ -367,7 +433,9 @@ export default function AdminOrderDetailPage() {
                       {order.items.map((item) => {
                         let accSnapshots: { name: string; price: number }[] = [];
                         if (item.accessoriesSnapshot) {
-                          try { accSnapshots = JSON.parse(item.accessoriesSnapshot); } catch {}
+                          try {
+                            accSnapshots = JSON.parse(item.accessoriesSnapshot);
+                          } catch {}
                         }
                         const accTotal = item.accessoriesTotal || 0;
                         const unitWithAcc = item.unitPriceSnapshot + accTotal;
@@ -385,13 +453,17 @@ export default function AdminOrderDetailPage() {
                                   {accSnapshots.length > 0 && (
                                     <div className="mt-0.5 space-y-0.5">
                                       {accSnapshots.map((acc, idx) => (
-                                        <p key={idx} className="text-[11px] text-sage font-medium">
-                                          + {acc.name} ({formatCurrency(acc.price)})
+                                        <p
+                                          key={idx}
+                                          className="text-[11px] text-sage font-medium"
+                                        >
+                                          + {acc.name} (
+                                          {formatCurrency(acc.price)})
                                         </p>
                                       ))}
                                     </div>
                                   )}
-                                  <p className="text-xs text-warm-gray truncate">
+                                  <p className="text-xs text-warm-gray truncate font-medium">
                                     ID: {item.product.slug}
                                   </p>
                                 </div>
@@ -400,10 +472,10 @@ export default function AdminOrderDetailPage() {
                             <td className="py-5 text-center font-bold text-dark-brown text-sm sm:text-base">
                               {item.quantity}
                             </td>
-                            <td className="py-5 text-right text-sm text-warm-gray whitespace-nowrap">
+                            <td className="py-5 text-right text-sm text-warm-gray whitespace-nowrap font-medium">
                               {formatCurrency(unitWithAcc)}
                             </td>
-                            <td className="py-5 text-right font-bold text-dark-brown whitespace-nowrap">
+                            <td className="py-5 text-right font-black text-dark-brown whitespace-nowrap">
                               {formatCurrency(unitWithAcc * item.quantity)}
                             </td>
                           </tr>

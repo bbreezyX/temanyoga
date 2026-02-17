@@ -1,9 +1,21 @@
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
+import {
+  apiSuccess,
+  apiError,
+  badRequest,
+  serverError,
+} from "@/lib/api-response";
 import { validateCouponSchema } from "@/lib/validations/coupon";
+import { rateLimiters, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const { success } = await rateLimiters.standard.limit(ip);
+    if (!success) {
+      return apiError("Too many requests. Please try again later.", 429);
+    }
+
     const body = await request.json();
     const parsed = validateCouponSchema.safeParse(body);
 

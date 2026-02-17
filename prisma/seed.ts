@@ -4,8 +4,14 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create admin user
-  const hashedPassword = await bcrypt.hash("admin123", 12);
+  // Read admin password from environment, fallback only in development
+  const adminPassword = process.env.ADMIN_SEED_PASSWORD;
+  if (!adminPassword && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "ADMIN_SEED_PASSWORD environment variable is required in production",
+    );
+  }
+  const hashedPassword = await bcrypt.hash(adminPassword || "admin123", 12);
   const admin = await prisma.user.upsert({
     where: { email: "admin@temanyoga.com" },
     update: {},

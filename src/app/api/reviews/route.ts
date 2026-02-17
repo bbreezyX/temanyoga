@@ -1,9 +1,21 @@
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
+import {
+  apiSuccess,
+  apiError,
+  badRequest,
+  serverError,
+} from "@/lib/api-response";
 import { createReviewSchema } from "@/lib/validations/review";
+import { rateLimiters, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request);
+    const { success } = await rateLimiters.strict.limit(ip);
+    if (!success) {
+      return apiError("Too many requests. Please try again later.", 429);
+    }
+
     const body = await request.json();
     const parsed = createReviewSchema.safeParse(body);
 
@@ -11,7 +23,7 @@ export async function POST(request: Request) {
       return badRequest(parsed.error.issues[0].message);
     }
 
-    const { orderItemId, rating, comment } = parsed.data;
+    const { orderItemId, rating, comment, email } = parsed.data;
 
     const orderItem = await prisma.orderItem.findUnique({
       where: { id: orderItemId },
@@ -24,8 +36,17 @@ export async function POST(request: Request) {
       return badRequest("Item order tidak ditemukan");
     }
 
+    // Validate ownership via email
+    if (
+      email.toLowerCase().trim() !== orderItem.order.customerEmail.toLowerCase()
+    ) {
+      return badRequest("Email tidak cocok dengan data order");
+    }
+
     if (orderItem.order.status !== "COMPLETED") {
-      return badRequest("Order belum selesai. Hanya order yang sudah selesai yang dapat diulas.");
+      return badRequest(
+        "Order belum selesai. Hanya order yang sudah selesai yang dapat diulas.",
+      );
     }
 
     const existingReview = await prisma.review.findUnique({

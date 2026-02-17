@@ -9,7 +9,9 @@ import { ArrowLeft, CheckCircle, Package } from "lucide-react";
 import type { VerifyOrderResponse, ReviewableItem } from "@/types/api";
 
 export default function UlasPage() {
-  const [step, setStep] = useState<"verify" | "select" | "review" | "success">("verify");
+  const [step, setStep] = useState<"verify" | "select" | "review" | "success">(
+    "verify",
+  );
   const [orderCode, setOrderCode] = useState("");
   const [email, setEmail] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -36,7 +38,9 @@ export default function UlasPage() {
         return;
       }
 
-      const itemsNeedingReview = data.data.items.filter((item: ReviewableItem) => !item.hasReview);
+      const itemsNeedingReview = data.data.items.filter(
+        (item: ReviewableItem) => !item.hasReview,
+      );
 
       if (itemsNeedingReview.length === 0) {
         setVerifyError("Semua produk di order ini sudah diulas");
@@ -52,11 +56,15 @@ export default function UlasPage() {
     }
   }
 
-  async function handleSubmitReview(orderItemId: string, rating: number, comment: string) {
+  async function handleSubmitReview(
+    orderItemId: string,
+    rating: number,
+    comment: string,
+  ) {
     const res = await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderItemId, rating, comment }),
+      body: JSON.stringify({ orderItemId, rating, comment, email }),
     });
 
     const data = await res.json();
@@ -106,7 +114,9 @@ export default function UlasPage() {
                 <div className="w-16 h-16 rounded-full bg-[#7a9d7f]/10 flex items-center justify-center mx-auto mb-4">
                   <Package className="w-8 h-8 text-[#7a9d7f]" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">Beri Ulasan</h1>
+                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                  Beri Ulasan
+                </h1>
                 <p className="text-slate-600">
                   Masukkan kode order dan email untuk verifikasi
                 </p>
@@ -153,7 +163,9 @@ export default function UlasPage() {
           {step === "select" && orderData && (
             <>
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-slate-900 mb-1">Pilih Produk</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-1">
+                  Pilih Produk
+                </h2>
                 <p className="text-sm text-slate-600">
                   Order #{orderData.orderCode} - {orderData.customerName}
                 </p>
@@ -166,8 +178,12 @@ export default function UlasPage() {
                     onClick={() => handleSelectItem(item)}
                     className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-[#c85a2d] hover:bg-[#fdf8f6] transition-all"
                   >
-                    <p className="font-medium text-slate-900">{item.productName}</p>
-                    <p className="text-sm text-slate-500">Jumlah: {item.quantity}</p>
+                    <p className="font-medium text-slate-900">
+                      {item.productName}
+                    </p>
+                    <p className="text-sm text-slate-500">
+                      Jumlah: {item.quantity}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -191,7 +207,9 @@ export default function UlasPage() {
                   <ArrowLeft className="w-4 h-4" />
                   Pilih produk lain
                 </button>
-                <h2 className="text-xl font-bold text-slate-900">Tulis Ulasan</h2>
+                <h2 className="text-xl font-bold text-slate-900">
+                  Tulis Ulasan
+                </h2>
               </div>
 
               <ReviewForm
@@ -208,7 +226,9 @@ export default function UlasPage() {
               <div className="w-16 h-16 rounded-full bg-[#7a9d7f]/10 flex items-center justify-center mx-auto mb-4">
                 <CheckCircle className="w-8 h-8 text-[#7a9d7f]" />
               </div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">Terima Kasih!</h2>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                Terima Kasih!
+              </h2>
               <p className="text-slate-600 mb-6">
                 Ulasan Anda telah berhasil dikirim
               </p>
@@ -223,7 +243,11 @@ export default function UlasPage() {
                     </Button>
                   </Link>
                 )}
-                <Button onClick={handleStartOver} variant="ghost" className="w-full">
+                <Button
+                  onClick={handleStartOver}
+                  variant="ghost"
+                  className="w-full"
+                >
                   Tulis Ulasan Lain
                 </Button>
               </div>
