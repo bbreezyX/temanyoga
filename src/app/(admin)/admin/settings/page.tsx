@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { PlusCircle, Loader2, MapPin, MessageCircle } from "lucide-react";
+import { PlusCircle, Loader2, MapPin, MessageCircle, Mail } from "lucide-react";
 import { ShippingZoneList } from "@/components/admin/settings/shipping-zone-list";
 import { ShippingZoneForm } from "@/components/admin/settings/shipping-zone-form";
 import { WhatsAppSettings } from "@/components/admin/settings/whatsapp-settings";
+import { EmailSettings } from "@/components/admin/settings/email-settings";
 import { apiFetch } from "@/lib/api-client";
 import type { AdminShippingZone } from "@/types/api";
 
@@ -128,6 +129,28 @@ export default function AdminSettingsPage() {
         </div>
 
         <WhatsAppSettings />
+      </section>
+
+      {/* Email Integration Section */}
+      <section
+        className="rounded-[24px] sm:rounded-[40px] bg-white p-4 sm:p-8 shadow-soft ring-1 ring-warm-sand/30 animate-fade-in-up"
+        style={{ animationDelay: "300ms" }}
+      >
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-cream ring-1 ring-warm-sand/50 grid place-items-center shrink-0">
+            <Mail className="h-5 w-5 sm:h-6 sm:w-6 text-terracotta" />
+          </div>
+          <div>
+            <h2 className="font-display text-base sm:text-lg font-extrabold text-dark-brown">
+              Integrasi Email
+            </h2>
+            <p className="text-[10px] sm:text-[11px] text-warm-gray">
+              Atur notifikasi otomatis via email ke pelanggan.
+            </p>
+          </div>
+        </div>
+
+        <EmailSettings />
       </section>
     </div>
   );

@@ -126,7 +126,7 @@ export function WhatsAppSettings() {
         <input
           value={siteUrl}
           onChange={(e) => setSiteUrl(e.target.value)}
-          placeholder="https://temanyoga.com"
+          placeholder="https://ditemaniyoga.com"
           className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
         />
         <p className="text-[10px] text-warm-gray">

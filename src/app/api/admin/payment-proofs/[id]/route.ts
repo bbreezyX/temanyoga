@@ -12,10 +12,15 @@ import {
   paymentApprovedCustomer,
   paymentRejectedCustomer,
 } from "@/lib/whatsapp-templates";
+import { sendEmailToCustomer } from "@/lib/email";
+import {
+  paymentApprovedEmail,
+  paymentRejectedEmail,
+} from "@/lib/email-templates";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -66,7 +71,7 @@ export async function PATCH(
 
     // Send WhatsApp notification to customer (fire-and-forget)
     const siteUrl =
-      (await getSiteSetting("site_url")) || "https://temanyoga.com";
+      (await getSiteSetting("site_url")) || "https://ditemaniyoga.com";
 
     if (parsed.data.status === PaymentProofStatus.APPROVED) {
       sendWhatsAppToCustomer(
@@ -74,9 +79,20 @@ export async function PATCH(
         paymentApprovedCustomer(
           proof.order.orderCode,
           proof.order.customerName,
-          siteUrl
-        )
+          siteUrl,
+        ),
       ).catch((err) => console.error("WA to customer failed:", err));
+
+      const emailData = paymentApprovedEmail(
+        proof.order.orderCode,
+        proof.order.customerName,
+        siteUrl,
+      );
+      sendEmailToCustomer(
+        proof.order.customerEmail,
+        emailData.subject,
+        emailData.html,
+      ).catch((err) => console.error("Email to customer failed:", err));
     } else {
       sendWhatsAppToCustomer(
         proof.order.customerPhone,
@@ -84,9 +100,21 @@ export async function PATCH(
           proof.order.orderCode,
           proof.order.customerName,
           siteUrl,
-          parsed.data.notes || undefined
-        )
+          parsed.data.notes || undefined,
+        ),
       ).catch((err) => console.error("WA to customer failed:", err));
+
+      const emailData = paymentRejectedEmail(
+        proof.order.orderCode,
+        proof.order.customerName,
+        siteUrl,
+        parsed.data.notes || undefined,
+      );
+      sendEmailToCustomer(
+        proof.order.customerEmail,
+        emailData.subject,
+        emailData.html,
+      ).catch((err) => console.error("Email to customer failed:", err));
     }
 
     return apiSuccess(result);

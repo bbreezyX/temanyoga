@@ -12,10 +12,12 @@ import { InvalidStatusTransitionError } from "@/lib/errors";
 import { broadcastNotification } from "@/lib/notification-broadcast";
 import { sendWhatsAppToCustomer, getSiteSetting } from "@/lib/whatsapp";
 import { getStatusChangeMessage } from "@/lib/whatsapp-templates";
+import { sendEmailToCustomer } from "@/lib/email";
+import { getStatusChangeEmail } from "@/lib/email-templates";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -64,7 +66,7 @@ export async function PATCH(
 
     // Send WhatsApp notification to customer for relevant status changes (fire-and-forget)
     const siteUrl =
-      (await getSiteSetting("site_url")) || "https://temanyoga.com";
+      (await getSiteSetting("site_url")) || "https://ditemaniyoga.com";
     const tracking =
       updated.trackingNumber && updated.courier
         ? {
@@ -78,13 +80,30 @@ export async function PATCH(
       updated.orderCode,
       updated.customerName,
       siteUrl,
-      tracking
+      tracking,
     );
 
     if (waMessage) {
       sendWhatsAppToCustomer(updated.customerPhone, waMessage).catch((err) =>
-        console.error("WA to customer failed:", err)
+        console.error("WA to customer failed:", err),
       );
+    }
+
+    // Send email notification for relevant status changes (fire-and-forget)
+    const emailData = getStatusChangeEmail(
+      updated.status,
+      updated.orderCode,
+      updated.customerName,
+      siteUrl,
+      tracking,
+    );
+
+    if (emailData) {
+      sendEmailToCustomer(
+        updated.customerEmail,
+        emailData.subject,
+        emailData.html,
+      ).catch((err) => console.error("Email to customer failed:", err));
     }
 
     return apiSuccess(updated);

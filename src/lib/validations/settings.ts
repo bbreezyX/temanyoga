@@ -6,6 +6,7 @@ export const updateSettingsSchema = z.object({
     .string()
     .max(30, "Phone number too long")
     .optional(),
+  email_enabled: z.enum(["true", "false"]).optional(),
   site_url: z
     .string()
     .url("Invalid URL format")
@@ -19,6 +20,7 @@ export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
 export const SETTING_KEYS = [
   "whatsapp_enabled",
   "whatsapp_admin_phone",
+  "email_enabled",
   "site_url",
 ] as const;
 

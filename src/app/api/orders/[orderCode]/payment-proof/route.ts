@@ -10,8 +10,10 @@ import {
 import { uploadToR2 } from "@/lib/r2";
 import { broadcastNotification } from "@/lib/notification-broadcast";
 import { rateLimiters, getClientIp } from "@/lib/rate-limit";
-import { sendWhatsAppToAdmin } from "@/lib/whatsapp";
+import { sendWhatsAppToAdmin, getSiteSetting } from "@/lib/whatsapp";
 import { paymentProofUploadedAdmin } from "@/lib/whatsapp-templates";
+import { sendEmailToCustomer } from "@/lib/email";
+import { paymentProofReceivedEmail } from "@/lib/email-templates";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -108,6 +110,20 @@ export async function POST(
     sendWhatsAppToAdmin(
       paymentProofUploadedAdmin(order.orderCode, order.customerName)
     ).catch((err) => console.error("WA to admin failed:", err));
+
+    // Send email confirmation to customer (fire-and-forget)
+    const siteUrl =
+      (await getSiteSetting("site_url")) || "https://temanyoga.com";
+    const emailData = paymentProofReceivedEmail(
+      order.orderCode,
+      order.customerName,
+      siteUrl
+    );
+    sendEmailToCustomer(
+      order.customerEmail,
+      emailData.subject,
+      emailData.html
+    ).catch((err) => console.error("Email to customer failed:", err));
 
     return apiSuccess(
       {

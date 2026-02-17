@@ -85,7 +85,7 @@ export default function AdminProductsPage() {
         </div>
         <button
           onClick={() => setFormOpen(true)}
-          className="flex items-center gap-2.5 rounded-full bg-terracotta px-7 py-3.5 text-white font-bold shadow-lg shadow-terracotta/20 hover:shadow-xl hover:shadow-terracotta/30 hover:scale-[1.03] transition-all active:scale-[0.98] shrink-0"
+          className="flex items-center justify-center gap-2.5 rounded-full bg-terracotta px-7 py-3.5 text-white font-bold shadow-lg shadow-terracotta/20 hover:shadow-xl hover:shadow-terracotta/30 hover:scale-[1.03] transition-all active:scale-[0.98] w-full sm:w-auto shrink-0"
         >
           <PlusCircle className="h-5 w-5" />
           <span>Tambah Produk</span>

@@ -20,6 +20,8 @@ import {
   orderCreatedCustomer,
   orderCreatedAdmin,
 } from "@/lib/whatsapp-templates";
+import { sendEmailToCustomer } from "@/lib/email";
+import { orderCreatedEmail } from "@/lib/email-templates";
 
 export async function POST(request: Request) {
   try {
@@ -258,7 +260,7 @@ export async function POST(request: Request) {
 
     // Send WhatsApp notifications (fire-and-forget)
     const siteUrl =
-      (await getSiteSetting("site_url")) || "https://temanyoga.com";
+      (await getSiteSetting("site_url")) || "https://ditemaniyoga.com";
     const waOrderData = {
       orderCode: order.orderCode,
       customerName: order.customerName,
@@ -270,12 +272,20 @@ export async function POST(request: Request) {
 
     sendWhatsAppToCustomer(
       order.customerPhone,
-      orderCreatedCustomer(waOrderData, siteUrl)
+      orderCreatedCustomer(waOrderData, siteUrl),
     ).catch((err) => console.error("WA to customer failed:", err));
 
     sendWhatsAppToAdmin(orderCreatedAdmin(waOrderData)).catch((err) =>
-      console.error("WA to admin failed:", err)
+      console.error("WA to admin failed:", err),
     );
+
+    // Send email notification to customer (fire-and-forget)
+    const emailData = orderCreatedEmail(waOrderData, siteUrl);
+    sendEmailToCustomer(
+      order.customerEmail,
+      emailData.subject,
+      emailData.html,
+    ).catch((err) => console.error("Email to customer failed:", err));
 
     return apiSuccess(
       {
