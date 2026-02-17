@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 export function Footer() {
   return (
@@ -8,13 +8,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
           <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
             <div className="flex items-center gap-3">
-              <div className="relative h-14 w-14">
-                <Image
-                  src="/images/brand-logo.png"
-                  alt="TemanYoga Logo"
-                  fill
-                  className="object-contain"
-                />
+              <div className="relative">
+                <BrandLogo size={56} />
               </div>
               <p className="text-xl font-medium tracking-tight text-slate-900">
                 dTeman <span className="font-black text-[#c85a2d]">Yoga</span>
@@ -31,6 +26,18 @@ export function Footer() {
               Tautan
             </p>
             <nav className="flex flex-col gap-2">
+              <Link
+                href="/"
+                className="text-sm text-muted-foreground hover:text-[#c85a2d] transition-colors"
+              >
+                Home
+              </Link>
+              <Link
+                href="/admin"
+                className="text-sm text-muted-foreground hover:text-[#c85a2d] transition-colors"
+              >
+                Dashboard
+              </Link>
               <Link
                 href="/products"
                 className="text-sm text-muted-foreground hover:text-[#c85a2d] transition-colors"
@@ -59,7 +66,7 @@ export function Footer() {
 
         <div className="mt-12 md:mt-16 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground text-center md:text-left">
           <p>
-            &copy; {new Date().getFullYear()} dTeman Yoga. Semua hak dilindungi.
+            &copy; {new Date().getFullYear()} D`TEMAN YOGA. Semua hak dilindungi.
           </p>
           <div className="flex gap-6">
             <span className="cursor-pointer hover:text-foreground">

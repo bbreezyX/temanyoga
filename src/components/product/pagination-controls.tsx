@@ -6,20 +6,28 @@ import type { Pagination } from "@/types/api";
 export function PaginationControls({
   pagination,
   basePath,
+  sort,
 }: {
   pagination: Pagination;
   basePath: string;
+  sort?: string;
 }) {
   const { page, totalPages } = pagination;
   if (totalPages <= 1) return null;
 
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const getUrl = (p: number) => {
+    const params = new URLSearchParams();
+    params.set("page", p.toString());
+    if (sort) params.set("sort", sort);
+    return `${basePath}?${params.toString()}`;
+  };
 
   return (
     <div className="flex items-center justify-center gap-1 mt-8">
       <Button variant="outline" size="icon" asChild disabled={page <= 1}>
         <Link
-          href={`${basePath}?page=${page - 1}`}
+          href={getUrl(page - 1)}
           aria-disabled={page <= 1}
           className={page <= 1 ? "pointer-events-none opacity-50" : ""}
         >
@@ -32,9 +40,10 @@ export function PaginationControls({
           key={p}
           variant={p === page ? "default" : "outline"}
           size="icon"
+          active={p === page}
           asChild
         >
-          <Link href={`${basePath}?page=${p}`}>{p}</Link>
+          <Link href={getUrl(p)}>{p}</Link>
         </Button>
       ))}
 
@@ -45,7 +54,7 @@ export function PaginationControls({
         disabled={page >= totalPages}
       >
         <Link
-          href={`${basePath}?page=${page + 1}`}
+          href={getUrl(page + 1)}
           aria-disabled={page >= totalPages}
           className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
         >

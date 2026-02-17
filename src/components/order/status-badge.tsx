@@ -36,12 +36,12 @@ export function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold ring-1 transition-all",
+        "inline-flex items-center justify-center gap-1.5 rounded-full px-3 h-6 text-[10px] font-black uppercase tracking-wider ring-1 transition-all whitespace-nowrap",
         styles,
       )}
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)}></span>
-      {label}
+      <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", dotColor)}></span>
+      <span className="leading-none">{label}</span>
     </span>
   );
 }

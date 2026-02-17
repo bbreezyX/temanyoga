@@ -9,6 +9,10 @@ import {
   Lock,
   Hand,
   Truck,
+  Scissors,
+  Palette,
+  Star,
+  Quote,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
@@ -28,10 +32,24 @@ async function getFeaturedProducts() {
   }
 }
 
+async function getLatestReviews() {
+  try {
+    const reviews = await prisma.review.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      where: { rating: { gte: 4 } },
+    });
+    return reviews;
+  } catch {
+    return [];
+  }
+}
+
 export const revalidate = 60;
 
 export default async function HomePage() {
   const products = await getFeaturedProducts();
+  const reviews = await getLatestReviews();
 
   return (
     <div className="bg-[#f5f1ed] min-h-screen text-slate-900 font-sans selection:bg-[#c85a2d] selection:text-white">
@@ -85,7 +103,7 @@ export default async function HomePage() {
                 href="#products"
                 className="group relative inline-flex items-center justify-center gap-3 min-h-[64px] px-10 rounded-full bg-[#c85a2d] text-white font-black overflow-hidden shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
-                <span className="relative z-10">Mulai Jelajah</span>
+                <span className="relative z-10">Pilih dTemanmu</span>
                 <ArrowRight className="relative z-10 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 <div className="absolute inset-0 bg-black/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </Link>
@@ -94,19 +112,21 @@ export default async function HomePage() {
                 href="#how"
                 className="inline-flex items-center justify-center gap-3 min-h-[64px] px-10 rounded-full border-2 border-slate-200 text-slate-900 font-bold hover:bg-slate-50 transition-all"
               >
-                <span>Cara Belanja</span>
+                <span>Kenali Proses</span>
               </Link>
             </div>
           </div>
 
-          <div className="hidden lg:block absolute right-16 bottom-24 w-64 h-80 rounded-[48px] bg-slate-100 ring-1 ring-white/50 shadow-2xl overflow-hidden rotate-6 hover:rotate-0 transition-transform duration-500 transform-gpu">
+          <div className="hidden lg:block absolute right-16 bottom-24 w-64 h-80 rounded-[48px] bg-slate-100 ring-1 ring-white/50 shadow-2xl overflow-hidden rotate-6 hover:rotate-0 transition-transform duration-500 transform-gpu text-slate-100/5">
             <div className="absolute inset-0 bg-[#c85a2d]/5 mix-blend-multiply"></div>
             <Image
               src="/images/crochet.png"
               alt="Yoga Preview"
               fill
+              quality={95}
+              priority
               className="object-cover"
-              sizes="256px"
+              sizes="512px"
             />
           </div>
 
@@ -114,7 +134,7 @@ export default async function HomePage() {
       </section>
 
       {/* 
-        HOW IT WORKS - BENTO STYLE 
+        THE ARTISAN JOURNEY - BENTO STYLE 
       */}
       <section
         id="how"
@@ -127,24 +147,21 @@ export default async function HomePage() {
             <div className="flex-1 space-y-4">
               <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-slate-200/50 text-slate-500">
                 <span className="text-[10px] font-black uppercase tracking-widest">
-                  Process Flow
+                  The Journey
                 </span>
                 <div className="w-8 h-px bg-slate-400"></div>
-                <span className="text-[10px] font-black uppercase tracking-widest">
-                  01 — 03
-                </span>
               </div>
               <h2 className="font-display text-[40px] md:text-[64px] font-black leading-[0.9] tracking-tighter">
-                Langkah Menuju <br />
+                Dibuat dengan <br />
                 <span className="text-[#c85a2d] italic serif font-medium">
-                  Keseimbangan
+                  Kesadaran
                 </span>
               </h2>
             </div>
             <div className="max-w-md">
               <p className="text-slate-500 font-medium leading-relaxed border-l-2 border-[#7a9d7f] pl-6 py-2">
-                Kami menyederhanakan setiap langkah agar Anda dapat fokus
-                sepenuhnya pada ketenangan dan pertumbuhan spiritual Anda.
+                Setiap produk dTeman adalah perwujudan dari ketelitian, waktu, 
+                dan energi positif yang kami tuangkan dalam setiap simpul.
               </p>
             </div>
           </div>
@@ -153,30 +170,30 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:auto-rows-[240px]">
           <div className="md:col-span-12 lg:col-span-5 rounded-[48px] bg-[#fdf8f6] p-10 ring-1 ring-[#c85a2d]/10 flex flex-col justify-between group hover:shadow-xl transition-all">
             <div className="w-16 h-16 rounded-[var(--rounded-organic-1)] bg-[#c85a2d] text-white grid place-items-center shadow-lg group-hover:rotate-12 transition-transform">
-              <ShoppingBag className="w-8 h-8" />
+              <Palette className="w-8 h-8" />
             </div>
             <div>
               <h3 className="text-3xl font-black mb-4 tracking-tight">
-                Pilih Produk
+                Material Terpilih
               </h3>
               <p className="text-slate-600 leading-relaxed font-medium">
-                Kurasi koleksi handmade terbaik yang kami buat dengan penuh
-                cinta untuk perjalanan yoga Anda.
+                Kami mengurasi benang katun susu (milk cotton) premium yang 
+                lembut, ramah lingkungan, dan tahan lama untuk kenyamanan Anda.
               </p>
             </div>
           </div>
 
           <div className="md:col-span-6 lg:col-span-7 rounded-[48px] bg-[#7a9d7f]/5 p-10 ring-1 ring-[#7a9d7f]/20 flex flex-col justify-between group hover:bg-[#7a9d7f]/10 transition-colors">
             <div className="w-16 h-16 rounded-[var(--rounded-organic-2)] bg-[#7a9d7f] text-white grid place-items-center shadow-lg group-hover:-rotate-12 transition-transform">
-              <CreditCard className="w-8 h-8" />
+              <Scissors className="w-8 h-8" />
             </div>
             <div>
               <h3 className="text-3xl font-black mb-4 tracking-tight">
-                Konfirmasi
+                Simpul Dedikasi
               </h3>
               <p className="text-slate-600 leading-relaxed font-medium font-display">
-                Checkout aman dengan berbagai metode pembayaran dan input data
-                pengiriman yang sangat intuitif.
+                Tanpa mesin. Setiap dTeman menghabiskan 8-12 jam pengerjaan manual 
+                oleh pengrajin lokal berbakat kami dengan standar detail tinggi.
               </p>
             </div>
           </div>
@@ -185,108 +202,26 @@ export default async function HomePage() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-3xl -mr-32 -mt-32"></div>
             <div className="flex-1 z-10">
               <div className="w-14 h-14 rounded-2xl bg-white/10 grid place-items-center mb-6">
-                <Truck className="w-7 h-7" />
+                <Sparkles className="w-7 h-7" />
               </div>
               <h3 className="text-4xl font-black mb-4 tracking-tight">
-                Kirim & Lacak
+                Energi & Niat
               </h3>
               <p className="text-slate-400 leading-relaxed max-w-md font-medium">
-                Kami memproses pesanan Anda dalam 24 jam. Pantau posisi paket
-                Anda secara real-time kapan saja, di mana saja.
+                Lebih dari sekadar gantungan kunci—ini adalah simbol energi positif 
+                dan pengingat untuk tetap hadir (mindful) di setiap langkah harian Anda.
               </p>
             </div>
             <div className="flex-1 w-full z-10">
-              <div className="bg-white/10 rounded-[32px] p-6 ring-1 ring-white/20">
-                <div className="flex gap-3">
-                  <div className="flex-1 h-12 rounded-full bg-white/10 px-6 flex items-center text-white/50 text-sm font-medium">
-                    TY-9921xx...
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-[#c85a2d] grid place-items-center text-white">
-                    <ArrowRight className="w-5 h-5" />
-                  </div>
-                </div>
+              <div className="bg-white/10 rounded-[32px] p-8 ring-1 ring-white/20">
+                <blockquote className="italic text-slate-300 font-medium">
+                  &quot;Simpul yang dibuat dengan cinta akan membawa ketenangan bagi yang membawanya.&quot;
+                </blockquote>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* 
-        BRAND PHILOSOPHY - IMMERSIVE STORYTELLING
-      */}
-      <section className="py-12 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="bg-slate-900 text-white rounded-[40px] md:rounded-[64px] py-24 md:py-32 overflow-hidden relative shadow-2xl ring-1 ring-white/10">
-          <div className="absolute top-0 right-0 w-[50%] h-full bg-[#c85a2d]/10 skew-x-12 translate-x-1/2"></div>
-          <div className="container mx-auto px-6 md:px-8 max-w-7xl relative z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-              <div className="space-y-12">
-                <div className="space-y-4">
-                  <h3 className="text-[#c85a2d] font-black uppercase tracking-[0.3em] text-sm">
-                    Filosofi dTeman
-                  </h3>
-                  <h2 className="font-display text-[48px] md:text-[72px] font-black leading-[1.05] tracking-tighter">
-                    Yoga Adalah <br />
-                    <span className="italic serif font-medium text-[#7a9d7f]">
-                      Perjalanan Bersama
-                    </span>
-                  </h2>
-                </div>
-                <div className="space-y-8 text-slate-300 text-lg leading-relaxed font-medium max-w-xl">
-                  <p>
-                    Nama merek{" "}
-                    <span className="text-white font-bold">
-                      &quot;dTeman Yoga&quot;
-                    </span>{" "}
-                    berasal dari kata{" "}
-                    <span className="italic">&quot;ditemani yoga&quot;</span>
-                    —sebuah konsep bahwa yoga adalah sebuah perjalanan yang
-                    lebih bermakna ketika dijalani bersama teman.
-                  </p>
-                  <p>
-                    Kami terinspirasi oleh para praktisi yoga dari berbagai
-                    latar belakang, yang menunjukkan bahwa yoga dapat menyatukan
-                    orang-orang tanpa memandang usia, jenis kelamin, maupun
-                    budaya.
-                  </p>
-                  <p>
-                    Setiap individu memiliki energi unik, dan kami percaya
-                    boneka rajut yoga kami dapat menjadi{" "}
-                    <span className="text-[#c85a2d] font-bold">
-                      teman setia
-                    </span>{" "}
-                    yang membantu meningkatkan energi positif dan kesadaran
-                    Anda.
-                  </p>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="relative aspect-square rounded-[64px] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-500 shadow-2xl transform-gpu">
-                  <Image
-                    src="/images/knittedyoga.png"
-                    alt="Yoga Community"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-
-            </div>
-            <div className="mt-32 text-center max-w-4xl mx-auto">
-              <p className="font-display text-2xl md:text-3xl font-medium leading-relaxed italic text-slate-100/90">
-                &quot;Mari kita berlatih yoga bersama, dan temukan kedamaian
-                serta kebahagiaan dalam setiap asana.&quot;
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 
-        VISUAL BRIDGE 
-      */}
-      <div className="h-24 pointer-events-none"></div>
 
       {/* 
         FEATURED PRODUCTS 
@@ -321,8 +256,9 @@ export default async function HomePage() {
                       src={getImageUrl(product.images[0].url)}
                       alt={product.name}
                       fill
+                      quality={90}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu"
-                      sizes="(max-width: 768px) 280px, 25vw"
+                      sizes="(max-width: 768px) 320px, (max-width: 1024px) 25vw, 300px"
                       priority={index < 2}
                       loading={index < 2 ? undefined : "lazy"}
                     />
@@ -351,7 +287,7 @@ export default async function HomePage() {
                     </div>
                     <div className="px-3 py-1 rounded-full bg-[#7a9d7f]/10 flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#7a9d7f]"></div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-[#7a9d7f]">Ready</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#7a9d7f]">Siap Menemani</span>
                     </div>
                   </div>
                 </div>
@@ -418,6 +354,125 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 
+        COMMUNITY & REVIEWS 
+      */}
+      <section className="py-32 px-4 md:px-8 max-w-7xl mx-auto overflow-hidden">
+        <div className="relative mb-20 text-center">
+          <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-white ring-1 ring-slate-200 text-slate-500 mb-6">
+            <Star className="w-3 h-3 text-[#c85a2d] fill-[#c85a2d]" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Sahabat dTeman</span>
+          </div>
+          <h2 className="font-display text-[40px] md:text-[64px] font-black leading-[0.9] tracking-tighter">
+            Cerita dari <br />
+            <span className="text-[#7a9d7f] italic serif font-medium">Komunitas</span>
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          {(reviews.length > 0 ? reviews : [
+            { id: "f1", customerName: "Dita Kusuma", rating: 5, comment: "Bonekanya sangat detail dan benangnya lembut sekali. Jadi penyemangat di tas yoga saya!" },
+            { id: "f2", customerName: "Budi Oetomo", rating: 5, comment: "Pengiriman cepat dan packingnya sangat aman. Sangat mereferensikan untuk dijadikan kado." },
+            { id: "f3", customerName: "Sari Wandini", rating: 5, comment: "Suka banget sama filosofinya. Tiap lihat boneka ini jadi inget buat napas panjang dan tenang." }
+          ]).map((review) => (
+            <div key={review.id} className="bg-white p-10 rounded-[48px] shadow-soft ring-1 ring-slate-100 flex flex-col justify-between group hover:-translate-y-2 transition-all duration-500">
+              <div>
+                <div className="flex gap-1 mb-6">
+                  {[...Array(review.rating)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 text-[#c85a2d] fill-[#c85a2d]" />
+                  ))}
+                </div>
+                <div className="relative">
+                  <Quote className="absolute -top-4 -left-6 w-12 h-12 text-slate-100 -z-10 group-hover:text-[#c85a2d]/10 transition-colors" />
+                  <p className="text-slate-600 font-medium leading-relaxed italic relative z-10">
+                    &quot;{review.comment}&quot;
+                  </p>
+                </div>
+              </div>
+              <div className="mt-8 pt-6 border-t border-slate-50 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-400 text-xs">
+                  {review.customerName[0]}
+                </div>
+                <span className="font-bold text-slate-900">{review.customerName}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 
+        BRAND PHILOSOPHY - IMMERSIVE STORYTELLING
+      */}
+      <section className="py-12 px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="bg-slate-900 text-white rounded-[40px] md:rounded-[64px] py-24 md:py-32 overflow-hidden relative shadow-2xl ring-1 ring-white/10">
+          <div className="absolute top-0 right-0 w-[50%] h-full bg-[#c85a2d]/10 skew-x-12 translate-x-1/2"></div>
+          <div className="container mx-auto px-6 md:px-8 max-w-7xl relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+              <div className="space-y-12">
+                <div className="space-y-4">
+                  <h3 className="text-[#c85a2d] font-black uppercase tracking-[0.3em] text-sm">
+                    Filosofi dTeman
+                  </h3>
+                  <h2 className="font-display text-[48px] md:text-[72px] font-black leading-[1.05] tracking-tighter">
+                    Yoga Adalah <br />
+                    <span className="italic serif font-medium text-[#7a9d7f]">
+                      Perjalanan Bersama
+                    </span>
+                  </h2>
+                </div>
+                <div className="space-y-8 text-slate-300 text-lg leading-relaxed font-medium max-w-xl">
+                  <p>
+                    Nama merek{" "}
+                    <span className="text-white font-bold">
+                      &quot;D`TEMAN YOGA&quot;
+                    </span>{" "}
+                    berasal dari kata{" "}
+                    <span className="italic">&quot;ditemani yoga&quot;</span>
+                    —sebuah konsep bahwa yoga adalah sebuah perjalanan yang
+                    lebih bermakna ketika dijalani bersama teman.
+                  </p>
+                  <p>
+                    Kami terinspirasi oleh para praktisi yoga dari berbagai
+                    latar belakang, yang menunjukkan bahwa yoga dapat menyatukan
+                    orang-orang tanpa memandang usia, jenis kelamin, maupun
+                    budaya.
+                  </p>
+                  <p>
+                    Setiap individu memiliki energi unik, dan kami percaya
+                    boneka rajut yoga kami dapat menjadi{" "}
+                    <span className="text-[#c85a2d] font-bold">
+                      teman setia
+                    </span>{" "}
+                    yang membantu meningkatkan energi positif dan kesadaran
+                    Anda.
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="relative aspect-square rounded-[64px] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-500 shadow-2xl transform-gpu">
+                  <Image
+                    src="/images/knittedyoga.png"
+                    alt="Yoga Community"
+                    fill
+                    quality={95}
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, (max-width: 1440px) 50vw, 800px"
+                  />
+                </div>
+              </div>
+
+            </div>
+            <div className="mt-32 text-center max-w-4xl mx-auto">
+              <p className="font-display text-2xl md:text-3xl font-medium leading-relaxed italic text-slate-100/90">
+                &quot;Mari kita berlatih yoga bersama, dan temukan kedamaian
+                serta kebahagiaan dalam setiap asana.&quot;
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

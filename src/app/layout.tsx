@@ -20,11 +20,11 @@ const archivo = Archivo({
 
 export const metadata: Metadata = {
   title: {
-    default: "dTeman Yoga — Menemani Perjalanan Yoga Anda",
-    template: "%s | dTeman Yoga",
+    default: "D`TEMAN YOGA — Menemani Perjalanan Yoga Anda",
+    template: "%s | D`TEMAN YOGA",
   },
   description:
-    "Temukan boneka rajut yoga premium dari dTeman Yoga. Simbol kedamaian, kesadaran, dan teman setia dalam setiap asana Anda.",
+    "Temukan boneka rajut yoga premium dari D`TEMAN YOGA. Simbol kedamaian, kesadaran, dan teman setia dalam setiap asana Anda.",
   icons: {
     icon: "/images/brand-logo.png",
     apple: "/images/brand-logo.png",

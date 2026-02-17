@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { useCart } from "@/contexts/cart-context";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
 import { SheetTrigger, SheetTitle, Sheet } from "@/components/ui/sheet";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 const SheetContent = dynamic(
   () => import("@/components/ui/sheet").then((mod) => mod.SheetContent),
@@ -18,6 +19,7 @@ const SheetContent = dynamic(
 );
 
 const NAV_LINKS = [
+  { href: "/", label: "Beranda" },
   { href: "/products", label: "Produk" },
   { href: "/track-order", label: "Cek Pesanan" },
 ];
@@ -26,6 +28,7 @@ export function Header() {
   const { cartCount, cartTotal } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
   const toast = useToast();
 
   const handleCartClick = () => {
@@ -95,18 +98,18 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full pointer-events-none py-4 md:py-6">
+    <header className="sticky top-0 z-50 w-full pointer-events-none py-3 md:py-6">
       <div
         className={cn(
           "container mx-auto px-4 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] transform-gpu",
-          isScrolled ? "max-w-3xl" : "max-w-6xl",
+          isScrolled ? "max-w-4xl" : "max-w-6xl",
         )}
       >
         <div
           className={cn(
             "relative flex items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] pointer-events-auto transform-gpu",
             isScrolled
-              ? "h-12 md:h-14 px-5 md:px-8 rounded-full border border-primary/20 bg-background/95 backdrop-blur-md shadow-soft"
+              ? "h-12 md:h-14 px-5 md:px-6 rounded-full border border-primary/20 bg-background/80 backdrop-blur-lg shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
               : "h-14 md:h-16 px-4 md:px-0 border-transparent bg-transparent shadow-none",
           )}
         >
@@ -117,41 +120,46 @@ export function Header() {
             >
               <div
                 className={cn(
-                  "relative flex items-center justify-center transition-all duration-500",
-                  isScrolled ? "h-11 w-11" : "h-14 w-14",
+                  "relative flex items-center justify-center transition-all duration-500 transform-gpu",
+                  isScrolled ? "scale-90" : "scale-100",
                 )}
               >
-                <Image
-                  src="/images/brand-logo.png"
-                  alt="TemanYoga Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+                <BrandLogo size={isScrolled ? 42 : 56} />
               </div>
               <span
                 className={cn(
-                  "hidden sm:inline font-display font-medium tracking-tight text-foreground transition-all duration-500",
-                  isScrolled ? "text-lg" : "text-xl md:text-2xl",
+                  "font-display font-medium tracking-tight text-foreground transition-all duration-500 transform-gpu",
+                  isScrolled 
+                    ? "text-sm sm:text-base opacity-90" 
+                    : "hidden sm:inline text-xl md:text-2xl",
                 )}
               >
-                dTeman <span className="font-black text-[#c85a2d]">Yoga</span>
+                D`TEMAN <span className="font-black text-[#c85a2d]">YOGA</span>
               </span>
             </Link>
           </div>
 
-          <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-8 lg:gap-10">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="group relative px-4 py-2 text-sm font-bold text-muted-foreground transition-all hover:text-primary focus-visible:text-primary outline-none"
-              >
-                <span className="relative z-10">{link.label}</span>
-                <span className="absolute inset-0 rounded-full bg-primary/5 scale-0 group-hover:scale-100 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" />
-                <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-              </Link>
-            ))}
+          <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-1 lg:gap-2">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "group relative px-4 py-1.5 text-sm font-bold transition-all duration-300 rounded-full outline-none",
+                    isActive 
+                      ? "text-primary bg-primary/5" 
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                  )}
+                >
+                  <span className="relative z-10">{link.label}</span>
+                  {isActive && (
+                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2 md:gap-4">
@@ -161,7 +169,7 @@ export function Header() {
               className={cn(
                 "relative rounded-full transition-all duration-300 active:scale-95 group",
                 isScrolled
-                  ? "h-10 w-10 bg-primary/5 hover:bg-primary/10"
+                  ? "h-9 w-9 bg-primary/5 hover:bg-primary/10"
                   : "h-11 w-11 hover:bg-foreground/5",
               )}
               onClick={handleCartClick}
@@ -169,7 +177,7 @@ export function Header() {
               <ShoppingCart
                 className={cn(
                   "transition-transform duration-300 group-hover:scale-110",
-                  isScrolled ? "h-5 w-5" : "h-[22px] w-[22px]",
+                  isScrolled ? "h-4 w-4" : "h-[22px] w-[22px]",
                 )}
               />
               {cartCount > 0 && (
@@ -184,11 +192,15 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden h-10 w-10 rounded-full hover:bg-primary/10 transition-colors focus-visible:ring-primary"
+                  className={cn(
+                    "md:hidden rounded-full transition-all duration-300 transition-colors focus-visible:ring-primary",
+                    isScrolled ? "h-9 w-9 bg-primary/5 hover:bg-primary/10" : "h-11 w-11 hover:bg-foreground/5",
+                  )}
                 >
                   <Menu
                     className={cn(
-                      "h-5 w-5 transition-all",
+                      "transition-all",
+                      isScrolled ? "h-4 w-4" : "h-5 w-5",
                       mobileOpen && "scale-0 opacity-0",
                     )}
                   />
@@ -208,13 +220,8 @@ export function Header() {
                 <div className="flex h-full flex-col py-10 px-8">
                   <div className="mb-12 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="relative flex h-16 w-16 items-center justify-center rotate-3 transition-transform hover:rotate-6">
-                        <Image
-                          src="/images/brand-logo.png"
-                          alt="TemanYoga Logo"
-                          fill
-                          className="object-contain"
-                        />
+                      <div className="relative flex items-center justify-center rotate-3 transition-transform hover:rotate-6">
+                        <BrandLogo size={64} />
                       </div>
                       <span className="font-display text-2xl font-medium tracking-tighter">
                         dTeman{" "}
@@ -223,23 +230,32 @@ export function Header() {
                     </div>
                   </div>
                   <nav className="flex flex-col gap-10">
-                    {NAV_LINKS.map((link, idx) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="group flex items-center justify-between font-display text-4xl font-bold tracking-tighter transition-all hover:text-primary animate-in slide-in-from-right duration-700 fill-mode-both"
-                        style={{ animationDelay: `${200 + idx * 100}ms` }}
-                      >
-                        {link.label}
-                        <div className="h-2.5 w-2.5 rounded-full bg-primary scale-0 transition-transform duration-300 group-hover:scale-100" />
-                      </Link>
-                    ))}
+                    {NAV_LINKS.map((link, idx) => {
+                      const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={cn(
+                            "group flex items-center justify-between font-display text-4xl font-bold tracking-tighter transition-all animate-in slide-in-from-right duration-700 fill-mode-both",
+                            isActive ? "text-primary" : "text-foreground hover:text-primary"
+                          )}
+                          style={{ animationDelay: `${200 + idx * 100}ms` }}
+                        >
+                          {link.label}
+                          <div className={cn(
+                            "h-2.5 w-2.5 rounded-full bg-primary transition-transform duration-300",
+                            isActive ? "scale-100" : "scale-0 group-hover:scale-100"
+                          )} />
+                        </Link>
+                      );
+                    })}
                   </nav>
 
                   <div className="mt-auto pt-10 pb-6 border-t border-border/40">
                     <p className="text-muted-foreground text-sm font-medium">
-                      © 2026 dTeman Yoga
+                      © 2026 D`TEMAN YOGA
                     </p>
                   </div>
                 </div>

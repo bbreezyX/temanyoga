@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Loader2, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -43,13 +43,8 @@ export default function LoginPage() {
         {/* Logo and Header section */}
         <div className="mb-10 text-center">
           <div className="inline-flex items-center gap-3 mb-6">
-            <div className="relative w-24 h-24 flex items-center justify-center">
-              <Image
-                src="/images/brand-logo.png"
-                alt="TemanYoga Logo"
-                fill
-                className="object-contain"
-              />
+            <div className="relative flex items-center justify-center">
+              <BrandLogo size={96} />
             </div>
             <span className="font-display font-black text-3xl tracking-tight text-foreground uppercase">
               TemanYoga

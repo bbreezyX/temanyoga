@@ -7,6 +7,7 @@ import { AdminSidebar } from "./admin-sidebar";
 import { NotificationDropdown } from "./notification-dropdown";
 import { useSession, signOut } from "next-auth/react";
 import { useSidebar } from "@/contexts/sidebar-context";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 export function AdminHeader() {
   const { data: session } = useSession();
@@ -43,7 +44,8 @@ export function AdminHeader() {
           </SheetContent>
         </Sheet>
         <div className="flex items-center gap-2">
-          <span className="font-display font-black text-dark-brown uppercase">
+          <BrandLogo size={32} />
+          <span className="font-display font-black text-dark-brown uppercase text-sm">
             TemanYoga
           </span>
         </div>

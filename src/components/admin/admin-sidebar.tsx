@@ -3,14 +3,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, ShoppingCart, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Ticket, Puzzle } from "lucide-react";
+import { Package, ShoppingCart, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Ticket, Puzzle, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoutButton } from "./logout-button";
 import { apiFetch } from "@/lib/api-client";
 import { useSidebar } from "@/contexts/sidebar-context";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import type { AdminDashboardStats } from "@/types/api";
 
 const NAV_ITEMS = [
+  { href: "/", label: "Home", icon: Home },
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Produk", icon: Package },
   { href: "/admin/orders", label: "Pesanan", icon: ShoppingCart },
@@ -48,16 +50,15 @@ export function AdminSidebar() {
     >
       {/* Brand Header */}
       <div className={cn(
-        "flex h-20 items-center gap-3 shrink-0 border-b border-sidebar-border transition-all duration-300",
-        isCollapsed ? "lg:justify-center lg:px-2" : "",
-        "px-8"
+        "flex h-24 items-center gap-3 shrink-0 border-b border-sidebar-border transition-all duration-300",
+        isCollapsed ? "lg:justify-center lg:px-2" : "px-8"
       )}>
-        <span className={cn(
-          "font-display font-black tracking-tight uppercase whitespace-nowrap text-sidebar-foreground transition-all duration-300",
-          isCollapsed ? "lg:text-sm" : "text-xl"
-        )}>
-          {isCollapsed ? "TY" : "TemanYoga"}
-        </span>
+        <BrandLogo size={isCollapsed ? 42 : 48} />
+        {!isCollapsed && (
+          <span className="font-display text-lg font-medium tracking-tight whitespace-nowrap text-sidebar-foreground">
+            dTeman <span className="font-black text-[#c85a2d]">Yoga</span>
+          </span>
+        )}
       </div>
 
       {/* Navigation */}
