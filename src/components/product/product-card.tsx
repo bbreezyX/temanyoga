@@ -14,17 +14,17 @@ export function ProductCard({ product }: { product: ProductListItem }) {
       href={`/products/${product.slug}`}
       className="group block relative perspective-1000"
     >
-      <div className="relative rounded-[48px] bg-white p-4 shadow-soft ring-1 ring-[#e8dcc8]/40 transition-all duration-500 group-hover:shadow-lift group-hover:-translate-y-2 group-hover:ring-[#c85a2d]/20 h-full flex flex-col overflow-hidden">
+      <div className="relative rounded-[48px] bg-white p-4 shadow-soft ring-1 ring-[#e8dcc8]/40 transition-[transform,box-shadow] duration-300 group-hover:shadow-lift group-hover:-translate-y-2 h-full flex flex-col overflow-hidden transform-gpu">
         {/* Image and Floating Elements Wrapper */}
         <div className="relative">
           {/* Artistic Image Container with Organic Shape */}
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] bg-[#f5f1ed] transition-all duration-700 group-hover:rounded-[var(--rounded-organic-1)] isolate">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] bg-[#f5f1ed] isolate">
             {image ? (
               <Image
                 src={getImageUrl(image.url)}
                 alt={product.name}
                 fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                className="object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 loading="lazy"
               />
@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
 
           {/* Glass Badge System */}
           <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-md ring-1 ring-white/50 px-3 py-1.5 shadow-sm transform transition-all duration-500 group-hover:translate-x-1">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/95 ring-1 ring-white/50 px-3 py-1.5 shadow-sm">
               <Wand2 className="w-[12px] h-[12px] text-[#c85a2d]" />
               <span className="text-[10px] font-black uppercase tracking-widest text-[#5a4a3b]">
                 Handmade
@@ -54,8 +54,8 @@ export function ProductCard({ product }: { product: ProductListItem }) {
           </div>
 
           {/* Quick Action Overlay - Floating Arrow */}
-          <div className="absolute -bottom-6 right-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
-            <div className="h-12 w-12 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-xl group-hover:bg-[#c85a2d] group-hover:shadow-terracotta/30 transition-all duration-300">
+          <div className="absolute -bottom-6 right-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-[transform,opacity] duration-300 z-30 transform-gpu">
+            <div className="h-12 w-12 rounded-full bg-[#c85a2d] text-white flex items-center justify-center shadow-xl">
               <ArrowRight className="w-6 h-6" />
             </div>
           </div>
@@ -82,7 +82,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
 
             {!outOfStock ? (
               <div className="flex items-center gap-1.5 bg-[#7a9d7f]/10 px-3 py-1 rounded-full">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#7a9d7f] animate-pulse"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#7a9d7f]"></div>
                 <span className="text-[10px] font-black uppercase tracking-widest text-[#7a9d7f]">
                   Ready
                 </span>

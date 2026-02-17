@@ -23,7 +23,8 @@ export default function AdminAccessoriesPage() {
   }, []);
 
   useEffect(() => {
-    fetchAccessories();
+    const timeout = setTimeout(fetchAccessories, 0);
+    return () => clearTimeout(timeout);
   }, [fetchAccessories]);
 
   function handleEdit(accessory: AdminAccessory) {

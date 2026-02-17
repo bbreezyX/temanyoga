@@ -33,6 +33,7 @@ export function NotificationDropdown() {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const connectSSERef = useRef<() => void>(() => {});
 
   const connectSSE = useCallback(() => {
     if (eventSourceRef.current) {
@@ -62,9 +63,13 @@ export function NotificationDropdown() {
 
     eventSource.onerror = () => {
       eventSource.close();
-      setTimeout(connectSSE, 5000);
+      setTimeout(connectSSERef.current, 5000);
     };
   }, []);
+
+  useEffect(() => {
+    connectSSERef.current = connectSSE;
+  }, [connectSSE]);
 
   useEffect(() => {
     connectSSE();

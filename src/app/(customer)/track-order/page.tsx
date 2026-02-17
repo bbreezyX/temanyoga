@@ -102,13 +102,13 @@ function TrackOrderContent() {
       */}
       <section className="relative pt-6 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="relative min-h-[50svh] flex flex-col items-center justify-center py-16 px-6 md:px-16 rounded-[40px] md:rounded-[64px] bg-white overflow-hidden shadow-soft ring-1 ring-[#e8dcc8]/50 animate-floatIn">
-          {/* Background Animated Blobs */}
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] aspect-square rounded-full bg-gradient-to-br from-[#c85a2d]/10 to-[#7a9d7f]/5 blur-[80px] animate-gradient bg-[length:200%_200%]"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] aspect-square rounded-full bg-gradient-to-tr from-[#7a9d7f]/10 to-[#c85a2d]/5 blur-[80px] animate-gradient bg-[length:200%_200%] delay-1000"></div>
+          {/* Background Blobs */}
+          <div className="absolute top-[-10%] right-[-10%] w-[50%] aspect-square rounded-full bg-gradient-to-br from-[#c85a2d]/8 to-[#7a9d7f]/5 blur-[60px] pointer-events-none"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[40%] aspect-square rounded-full bg-gradient-to-tr from-[#7a9d7f]/8 to-[#c85a2d]/5 blur-[60px] pointer-events-none"></div>
 
           <div className="relative z-10 w-full max-w-3xl text-center">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 mb-8">
-              <span className="flex h-2 w-2 rounded-full bg-[#c85a2d] animate-pulse"></span>
+              <span className="flex h-2 w-2 rounded-full bg-[#c85a2d]"></span>
               <span className="text-[11px] md:text-[12px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
                 Status Pesanan Anda
               </span>
@@ -166,7 +166,7 @@ function TrackOrderContent() {
             {/* Visual Journey Progress (7 cols) */}
             <div className="lg:col-span-8 space-y-8">
               <div className="rounded-[48px] bg-white p-8 md:p-12 shadow-soft ring-1 ring-slate-100 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#7a9d7f]/5 blur-3xl -mr-32 -mt-32"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#7a9d7f]/5 blur-2xl -mr-32 -mt-32 pointer-events-none"></div>
 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-16">
                   <div>
@@ -242,12 +242,7 @@ function TrackOrderContent() {
                               isActive && "ring-4 ring-[#c85a2d]/20 scale-110 md:scale-125",
                             )}
                           >
-                            <Icon
-                              className={cn(
-                                "w-6 h-6 md:w-8 md:h-8",
-                                isActive && "animate-pulse",
-                              )}
-                            />
+                            <Icon className="w-6 h-6 md:w-8 md:h-8" />
                           </div>
                           <div className="text-left md:text-center flex flex-col pt-1">
                             <span
@@ -262,7 +257,7 @@ function TrackOrderContent() {
                             </span>
                             <span className={cn(
                               "text-[10px] md:text-[11px] font-bold uppercase tracking-wider mt-1",
-                              isActive ? "text-[#c85a2d] animate-pulse" : "text-slate-400 opacity-60"
+                              isActive ? "text-[#c85a2d]" : "text-slate-400 opacity-60"
                             )}>
                               {step.sub}
                             </span>
@@ -306,11 +301,11 @@ function TrackOrderContent() {
               {/* Courier & Tracking (if SHIPPED or COMPLETED) */}
               {(order.status === "SHIPPED" || order.status === "COMPLETED") &&
                 order.trackingNumber && (
-                  <div className="rounded-[48px] bg-slate-900 p-8 md:p-12 text-white overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-[#c85a2d]/20 blur-[100px] -mr-40 -mt-40 transition-transform group-hover:scale-125 duration-1000"></div>
+                  <div className="rounded-[48px] bg-slate-900 p-8 md:p-12 text-white overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-[#c85a2d]/15 blur-[60px] -mr-40 -mt-40 pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                       <div className="flex items-center gap-8">
-                        <div className="w-20 h-20 rounded-[var(--rounded-organic-2)] bg-white/10 backdrop-blur-md grid place-items-center shrink-0 ring-1 ring-white/20">
+                        <div className="w-20 h-20 rounded-[var(--rounded-organic-2)] bg-white/10 grid place-items-center shrink-0 ring-1 ring-white/20">
                           <Package className="w-10 h-10 text-[#c85a2d]" />
                         </div>
                         <div className="text-center md:text-left">
@@ -327,7 +322,7 @@ function TrackOrderContent() {
                           </p>
                         </div>
                       </div>
-                      <div className="bg-white/5 backdrop-blur-xl rounded-[32px] p-6 ring-1 ring-white/10 w-full md:w-auto">
+                      <div className="bg-white/10 rounded-[32px] p-6 ring-1 ring-white/10 w-full md:w-auto">
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
                           Nomor Resi
                         </p>
@@ -447,11 +442,8 @@ export default function TrackOrderPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#f5f1ed] flex items-center justify-center">
-          <div className="relative">
-            <div className="w-16 h-16 rounded-3xl bg-white shadow-lift ring-1 ring-[#e8dcc8] flex items-center justify-center">
-              <Loader2 className="w-8 h-8 animate-spin text-[#c85a2d]" />
-            </div>
-            <div className="absolute -inset-4 bg-[#c85a2d]/10 blur-2xl -z-10 rounded-full animate-pulse"></div>
+          <div className="w-16 h-16 rounded-3xl bg-white shadow-soft ring-1 ring-[#e8dcc8] flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-[#c85a2d]" />
           </div>
         </div>
       }

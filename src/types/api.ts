@@ -40,7 +40,7 @@ export interface AdminProductListItem extends ProductListItem {
   _count: { orderItems: number };
 }
 
-export interface ProductDetail extends ProductListItem {}
+export type ProductDetail = ProductListItem;
 
 export interface Pagination {
   page: number;

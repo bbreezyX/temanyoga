@@ -6,6 +6,8 @@ import {
   useState,
   useEffect,
   useCallback,
+  useMemo,
+  useRef,
   type ReactNode,
 } from "react";
 import type { CartItem } from "@/types/api";
@@ -58,12 +60,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setItems(loadCart());
-    setLoaded(true);
+    const timer = setTimeout(() => {
+      setItems(loadCart());
+      setLoaded(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => {
-    if (loaded) saveCart(items);
+    if (!loaded) return;
+    clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => saveCart(items), 150);
+    return () => clearTimeout(saveTimerRef.current);
   }, [items, loaded]);
 
   const addItem = useCallback((item: CartItem) => {
@@ -101,11 +110,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
   }, []);
 
-  const cartCount = items.reduce((sum, i) => sum + i.quantity, 0);
-  const cartTotal = items.reduce((sum, i) => {
-    const accTotal = (i.accessories || []).reduce((a, acc) => a + acc.price, 0);
-    return sum + (i.price + accTotal) * i.quantity;
-  }, 0);
+  const cartCount = useMemo(
+    () => items.reduce((sum, i) => sum + i.quantity, 0),
+    [items]
+  );
+  const cartTotal = useMemo(
+    () =>
+      items.reduce((sum, i) => {
+        const accTotal = (i.accessories || []).reduce((a, acc) => a + acc.price, 0);
+        return sum + (i.price + accTotal) * i.quantity;
+      }, 0),
+    [items]
+  );
 
   return (
     <CartContext value={{

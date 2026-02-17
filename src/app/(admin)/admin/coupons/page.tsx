@@ -23,7 +23,8 @@ export default function AdminCouponsPage() {
   }, []);
 
   useEffect(() => {
-    fetchCoupons();
+    const timeout = setTimeout(fetchCoupons, 0);
+    return () => clearTimeout(timeout);
   }, [fetchCoupons]);
 
   function handleEdit(coupon: AdminCoupon) {

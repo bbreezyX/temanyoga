@@ -25,7 +25,8 @@ export default function AdminSettingsPage() {
   }, []);
 
   useEffect(() => {
-    fetchZones();
+    const timeout = setTimeout(fetchZones, 0);
+    return () => clearTimeout(timeout);
   }, [fetchZones]);
 
   function handleEdit(zone: AdminShippingZone) {

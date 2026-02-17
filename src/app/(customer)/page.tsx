@@ -40,12 +40,12 @@ export default async function HomePage() {
       */}
       <section className="relative pt-6 pb-6 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="relative min-h-[70svh] md:min-h-[75svh] lg:min-h-[80svh] flex flex-col items-start justify-center py-12 md:py-20 px-6 md:px-16 rounded-[40px] md:rounded-[64px] bg-white overflow-hidden shadow-soft ring-1 ring-[#e8dcc8]/50 animate-floatIn">
-          <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square rounded-full bg-gradient-to-br from-[#c85a2d]/20 to-[#7a9d7f]/10 blur-[100px] animate-gradient bg-[length:200%_200%]"></div>
-          <div className="absolute bottom-[-10%] left-[-10%] w-[50%] aspect-square rounded-full bg-gradient-to-tr from-[#7a9d7f]/20 to-[#c85a2d]/10 blur-[100px] animate-gradient bg-[length:200%_200%] delay-1000"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square rounded-full bg-gradient-to-br from-[#c85a2d]/15 to-[#7a9d7f]/8 blur-[80px] opacity-70 pointer-events-none"></div>
+          <div className="absolute bottom-[-10%] left-[-10%] w-[50%] aspect-square rounded-full bg-gradient-to-tr from-[#7a9d7f]/15 to-[#c85a2d]/8 blur-[80px] opacity-70 pointer-events-none"></div>
 
           <div className="relative z-10 w-full">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 mb-8 transform -rotate-1 md:rotate-0">
-              <span className="flex h-2 w-2 rounded-full bg-[#c85a2d] animate-pulse"></span>
+              <span className="flex h-2 w-2 rounded-full bg-[#c85a2d]"></span>
               <span className="text-[11px] md:text-[12px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
                 The New Serenity • 2026
               </span>
@@ -99,13 +99,14 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="hidden lg:block absolute right-16 bottom-24 w-64 h-80 rounded-[48px] bg-slate-100 ring-1 ring-white/50 shadow-2xl overflow-hidden rotate-6 hover:rotate-0 transition-transform duration-700">
+          <div className="hidden lg:block absolute right-16 bottom-24 w-64 h-80 rounded-[48px] bg-slate-100 ring-1 ring-white/50 shadow-2xl overflow-hidden rotate-6 hover:rotate-0 transition-transform duration-500 transform-gpu">
             <div className="absolute inset-0 bg-[#c85a2d]/5 mix-blend-multiply"></div>
             <Image
               src="/images/crochet.png"
               alt="Yoga Preview"
               fill
-              className="object-cover animate-slow-zoom"
+              className="object-cover"
+              sizes="256px"
             />
           </div>
 
@@ -119,8 +120,7 @@ export default async function HomePage() {
         id="how"
         className="pt-32 md:pt-48 pb-24 px-6 md:px-8 max-w-7xl mx-auto relative z-10"
       >
-        <div className="absolute top-0 right-[20%] w-32 h-32 bg-[#7a9d7f]/10 rounded-full blur-2xl -translate-y-1/2 pointer-events-none"></div>
-        <div className="absolute top-20 left-[10%] w-48 h-48 bg-[#c85a2d]/5 rounded-[var(--rounded-organic-1)] blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-[20%] w-32 h-32 bg-[#7a9d7f]/8 rounded-full blur-2xl -translate-y-1/2 pointer-events-none"></div>
 
         <div className="relative mb-20 px-2 lg:px-0">
           <div className="flex flex-col md:flex-row md:items-center gap-6">
@@ -196,7 +196,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="flex-1 w-full z-10">
-              <div className="bg-white/10 backdrop-blur-md rounded-[32px] p-6 ring-1 ring-white/20">
+              <div className="bg-white/10 rounded-[32px] p-6 ring-1 ring-white/20">
                 <div className="flex gap-3">
                   <div className="flex-1 h-12 rounded-full bg-white/10 px-6 flex items-center text-white/50 text-sm font-medium">
                     TY-9921xx...
@@ -260,12 +260,14 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="relative">
-                <div className="relative aspect-square rounded-[64px] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl">
+                <div className="relative aspect-square rounded-[64px] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-500 shadow-2xl transform-gpu">
                   <Image
                     src="/images/knittedyoga.png"
                     alt="Yoga Community"
                     fill
                     className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -284,16 +286,14 @@ export default async function HomePage() {
       {/* 
         VISUAL BRIDGE 
       */}
-      <div className="relative h-24 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#c85a2d]/5 blur-3xl rounded-full"></div>
-      </div>
+      <div className="h-24 pointer-events-none"></div>
 
       {/* 
         FEATURED PRODUCTS 
       */}
       <section id="products" className="mb-32 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="py-24 bg-white rounded-[40px] md:rounded-[64px] shadow-soft relative z-20 overflow-hidden ring-1 ring-[#e8dcc8]/50">
-          <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full bg-[#7a9d7f]/5 blur-[100px]"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full bg-[#7a9d7f]/5 blur-[60px] pointer-events-none"></div>
           <div className="relative z-10 px-6 md:px-16 max-w-7xl mx-auto mb-16">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <h2 className="font-display text-[32px] md:text-[56px] font-black leading-[1.1] tracking-tight">
@@ -312,16 +312,16 @@ export default async function HomePage() {
               <Link
                 key={product.id}
                 href={`/products/${product.slug}`}
-                className="group flex-shrink-0 w-[280px] md:w-full relative bg-white rounded-[40px] overflow-hidden ring-1 ring-slate-100 hover:ring-[#c85a2d]/30 transition-all shadow-md hover:shadow-2xl flex flex-col h-full"
+                className="group flex-shrink-0 w-[280px] md:w-full relative bg-white rounded-[40px] overflow-hidden ring-1 ring-slate-100 hover:ring-[#c85a2d]/30 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
               >
                 <div className="aspect-[3/4] overflow-hidden relative isolate">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
                   {product.images[0] ? (
                     <Image
                       src={getImageUrl(product.images[0].url)}
                       alt={product.name}
                       fill
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu"
                       sizes="(max-width: 768px) 280px, 25vw"
                       priority={index < 2}
                       loading={index < 2 ? undefined : "lazy"}
@@ -331,7 +331,7 @@ export default async function HomePage() {
                       <Sparkles className="w-8 h-8 text-slate-300" />
                     </div>
                   )}
-                  <div className="absolute bottom-4 right-4 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                  <div className="absolute bottom-4 right-4 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 transform-gpu">
                     <div className="h-10 w-10 rounded-full bg-white text-slate-900 shadow-xl grid place-items-center">
                       <ArrowRight className="w-5 h-5" />
                     </div>

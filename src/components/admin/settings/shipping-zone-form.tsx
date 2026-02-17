@@ -27,19 +27,22 @@ export function ShippingZoneForm({
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (zone) {
-      setName(zone.name);
-      setDescription(zone.description ?? "");
-      setPrice(String(zone.price));
-      setSortOrder(String(zone.sortOrder));
-      setIsActive(zone.isActive);
-    } else {
-      setName("");
-      setDescription("");
-      setPrice("");
-      setSortOrder("0");
-      setIsActive(true);
-    }
+    const timer = setTimeout(() => {
+      if (zone) {
+        setName(zone.name);
+        setDescription(zone.description ?? "");
+        setPrice(String(zone.price));
+        setSortOrder(String(zone.sortOrder));
+        setIsActive(zone.isActive);
+      } else {
+        setName("");
+        setDescription("");
+        setPrice("");
+        setSortOrder("0");
+        setIsActive(true);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [zone]);
 
   async function handleSubmit(e: React.FormEvent) {

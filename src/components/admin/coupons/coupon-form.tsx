@@ -27,23 +27,26 @@ export function CouponForm({
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (coupon) {
-      setCode(coupon.code);
-      setDiscountType(coupon.discountType as "PERCENTAGE" | "FIXED_AMOUNT");
-      setDiscountValue(String(coupon.discountValue));
-      setExpiresAt(
-        coupon.expiresAt
-          ? new Date(coupon.expiresAt).toISOString().slice(0, 16)
-          : ""
-      );
-      setIsActive(coupon.isActive);
-    } else {
-      setCode("");
-      setDiscountType("PERCENTAGE");
-      setDiscountValue("");
-      setExpiresAt("");
-      setIsActive(true);
-    }
+    const timer = setTimeout(() => {
+      if (coupon) {
+        setCode(coupon.code);
+        setDiscountType(coupon.discountType as "PERCENTAGE" | "FIXED_AMOUNT");
+        setDiscountValue(String(coupon.discountValue));
+        setExpiresAt(
+          coupon.expiresAt
+            ? new Date(coupon.expiresAt).toISOString().slice(0, 16)
+            : ""
+        );
+        setIsActive(coupon.isActive);
+      } else {
+        setCode("");
+        setDiscountType("PERCENTAGE");
+        setDiscountValue("");
+        setExpiresAt("");
+        setIsActive(true);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [coupon]);
 
   async function handleSubmit(e: React.FormEvent) {

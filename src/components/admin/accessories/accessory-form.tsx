@@ -28,21 +28,24 @@ export function AccessoryForm({
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (accessory) {
-      setName(accessory.name);
-      setDescription(accessory.description || "");
-      setPrice(String(accessory.price));
-      setGroupName(accessory.groupName || "");
-      setSortOrder(String(accessory.sortOrder));
-      setIsActive(accessory.isActive);
-    } else {
-      setName("");
-      setDescription("");
-      setPrice("");
-      setGroupName("");
-      setSortOrder("0");
-      setIsActive(true);
-    }
+    const timer = setTimeout(() => {
+      if (accessory) {
+        setName(accessory.name);
+        setDescription(accessory.description || "");
+        setPrice(String(accessory.price));
+        setGroupName(accessory.groupName || "");
+        setSortOrder(String(accessory.sortOrder));
+        setIsActive(accessory.isActive);
+      } else {
+        setName("");
+        setDescription("");
+        setPrice("");
+        setGroupName("");
+        setSortOrder("0");
+        setIsActive(true);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [accessory]);
 
   async function handleSubmit(e: React.FormEvent) {

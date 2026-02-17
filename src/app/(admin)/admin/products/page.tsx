@@ -33,7 +33,8 @@ export default function AdminProductsPage() {
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    const timeout = setTimeout(fetchProducts, 0);
+    return () => clearTimeout(timeout);
   }, [fetchProducts]);
 
   const filteredProducts = useMemo(() => {

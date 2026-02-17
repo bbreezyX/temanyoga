@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, serverError } from "@/lib/api-response";
+import { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +19,13 @@ export async function GET() {
       prisma.order.count({
         where: { createdAt: { gte: today } },
       }),
-      prisma.order.count({
-        where: { status: "PENDING_PAYMENT" as any },
+prisma.order.count({
+        where: { status: OrderStatus.PENDING_PAYMENT },
       }),
       prisma.order.aggregate({
         where: {
           status: {
-            in: ["PAID", "PROCESSING", "SHIPPED", "COMPLETED"] as any[],
+            in: [OrderStatus.PAID, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.COMPLETED],
           },
         },
         _sum: { totalAmount: true },

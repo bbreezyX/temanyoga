@@ -106,8 +106,8 @@ export function Header() {
           className={cn(
             "relative flex items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] pointer-events-auto transform-gpu",
             isScrolled
-              ? "h-12 md:h-14 px-5 md:px-8 rounded-full border border-primary/20 bg-background/90 backdrop-blur-xl shadow-soft"
-              : "h-14 md:h-16 px-4 md:px-0 border-transparent bg-transparent backdrop-blur-0 shadow-none",
+              ? "h-12 md:h-14 px-5 md:px-8 rounded-full border border-primary/20 bg-background/95 backdrop-blur-md shadow-soft"
+              : "h-14 md:h-16 px-4 md:px-0 border-transparent bg-transparent shadow-none",
           )}
         >
           <div className="flex items-center">
@@ -202,7 +202,7 @@ export function Header() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="fixed top-4 right-4 h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] sm:max-w-sm border bg-background/95 backdrop-blur-2xl rounded-[2.5rem] shadow-lift p-0 overflow-hidden"
+                className="fixed top-4 right-4 h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] sm:max-w-sm border bg-background rounded-[2.5rem] shadow-lift p-0 overflow-hidden"
               >
                 <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
                 <div className="flex h-full flex-col py-10 px-8">

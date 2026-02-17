@@ -182,8 +182,8 @@ export default function CheckoutPage() {
             {/* Left Column: Form and Progress */}
             <div className="lg:col-span-7 flex flex-col gap-10">
               <div className="relative overflow-hidden rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] px-8 py-10 animate-floatIn">
-                <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-[#c85a2d]/10 blur-3xl"></div>
-                <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-[#7a9d7f]/10 blur-3xl"></div>
+                <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-[#c85a2d]/5 blur-2xl pointer-events-none"></div>
+                <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-[#7a9d7f]/5 blur-2xl pointer-events-none"></div>
 
                 <div className="relative">
                   <div className="flex flex-col gap-5 mb-10">

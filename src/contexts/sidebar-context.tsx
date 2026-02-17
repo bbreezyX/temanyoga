@@ -19,10 +19,13 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
-    if (stored === "true") {
-      setIsCollapsedState(true);
-    }
+    const timer = setTimeout(() => {
+      const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+      if (stored === "true") {
+        setIsCollapsedState(true);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const setIsCollapsed = (collapsed: boolean) => {

@@ -24,146 +24,12 @@ import { formatCurrency } from "@/lib/utils";
 import type { PaymentProofResponse, OrderStatusResponse } from "@/types/api";
 
 const CONFETTI_STYLES: React.CSSProperties[] = [
-  {
-    left: "5%",
-    top: "10%",
-    backgroundColor: "#c85a2d",
-    animationDelay: "0.2s",
-    animationDuration: "3.1s",
-  },
-  {
-    left: "15%",
-    top: "85%",
-    backgroundColor: "#7a9d7f",
-    animationDelay: "0.8s",
-    animationDuration: "4.5s",
-  },
-  {
-    left: "25%",
-    top: "40%",
-    backgroundColor: "#e8dcc8",
-    animationDelay: "1.2s",
-    animationDuration: "2.8s",
-  },
-  {
-    left: "35%",
-    top: "65%",
-    backgroundColor: "#c85a2d",
-    animationDelay: "0.5s",
-    animationDuration: "3.9s",
-  },
-  {
-    left: "45%",
-    top: "20%",
-    backgroundColor: "#7a9d7f",
-    animationDelay: "1.5s",
-    animationDuration: "4.1s",
-  },
-  {
-    left: "55%",
-    top: "80%",
-    backgroundColor: "#e8dcc8",
-    animationDelay: "0.3s",
-    animationDuration: "3.3s",
-  },
-  {
-    left: "65%",
-    top: "30%",
-    backgroundColor: "#c85a2d",
-    animationDelay: "1.8s",
-    animationDuration: "4.7s",
-  },
-  {
-    left: "75%",
-    top: "55%",
-    backgroundColor: "#7a9d7f",
-    animationDelay: "0.9s",
-    animationDuration: "2.5s",
-  },
-  {
-    left: "85%",
-    top: "15%",
-    backgroundColor: "#e8dcc8",
-    animationDelay: "1.4s",
-    animationDuration: "3.8s",
-  },
-  {
-    left: "95%",
-    top: "70%",
-    backgroundColor: "#c85a2d",
-    animationDelay: "0.6s",
-    animationDuration: "4.3s",
-  },
-  {
-    left: "10%",
-    top: "35%",
-    backgroundColor: "#7a9d7f",
-    animationDelay: "1.1s",
-    animationDuration: "2.9s",
-  },
-  {
-    left: "20%",
-    top: "90%",
-    backgroundColor: "#e8dcc8",
-    animationDelay: "0.4s",
-    animationDuration: "3.7s",
-  },
-  {
-    left: "30%",
-    top: "15%",
-    backgroundColor: "#c85a2d",
-    animationDelay: "1.6s",
-    animationDuration: "4.6s",
-  },
-  {
-    left: "40%",
-    top: "75%",
-    backgroundColor: "#7a9d7f",
-    animationDelay: "0.7s",
-    animationDuration: "3.2s",
-  },
-  {
-    left: "50%",
-    top: "45%",
-    backgroundColor: "#e8dcc8",
-    animationDelay: "1.3s",
-    animationDuration: "4.0s",
-  },
-  {
-    left: "60%",
-    top: "10%",
-    backgroundColor: "#c85a2d",
-    animationDelay: "0.2s",
-    animationDuration: "2.7s",
-  },
-  {
-    left: "70%",
-    top: "85%",
-    backgroundColor: "#7a9d7f",
-    animationDelay: "1.9s",
-    animationDuration: "4.4s",
-  },
-  {
-    left: "80%",
-    top: "40%",
-    backgroundColor: "#e8dcc8",
-    animationDelay: "1.0s",
-    animationDuration: "3.5s",
-  },
-  {
-    left: "90%",
-    top: "60%",
-    backgroundColor: "#c85a2d",
-    animationDelay: "0.1s",
-    animationDuration: "3.9s",
-  },
-  {
-    left: "15%",
-    top: "25%",
-    backgroundColor: "#7a9d7f",
-    animationDelay: "0.8s",
-    animationDuration: "4.2s",
-  },
+  { left: "10%", top: "15%", backgroundColor: "#c85a2d", animationDelay: "0.2s", animationDuration: "3s" },
+  { left: "25%", top: "70%", backgroundColor: "#7a9d7f", animationDelay: "0.6s", animationDuration: "3.5s" },
+  { left: "40%", top: "25%", backgroundColor: "#e8dcc8", animationDelay: "1.0s", animationDuration: "2.8s" },
+  { left: "55%", top: "80%", backgroundColor: "#c85a2d", animationDelay: "0.4s", animationDuration: "3.2s" },
+  { left: "70%", top: "20%", backgroundColor: "#7a9d7f", animationDelay: "1.2s", animationDuration: "3.8s" },
+  { left: "85%", top: "60%", backgroundColor: "#e8dcc8", animationDelay: "0.8s", animationDuration: "3s" },
 ];
 
 function PaymentUploadContent() {
@@ -289,7 +155,6 @@ function PaymentUploadContent() {
 
         <div className="bg-white rounded-[40px] p-8 md:p-10 shadow-lift text-center ring-1 ring-[#e8dcc8] max-w-md w-full animate-floatIn relative z-10">
           <div className="h-28 w-28 rounded-full bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center mx-auto mb-8 relative">
-            <div className="absolute inset-0 rounded-full bg-[#7a9d7f]/20 animate-ping" />
             <span className="grid place-items-center w-20 h-20 rounded-full bg-[#7a9d7f] text-white shadow-lg shadow-[#7a9d7f]/20 relative z-10">
               <CheckCircle2 className="h-12 w-12" />
             </span>
@@ -386,8 +251,8 @@ function PaymentUploadContent() {
         {/* Hero Section - Awaiting Payment */}
         <section className="animate-floatIn">
           <div className="relative overflow-hidden rounded-[32px] bg-white shadow-soft ring-1 ring-[#e8dcc8] px-5 py-6">
-            <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-[#c85a2d]/10 blur-2xl"></div>
-            <div className="absolute -bottom-24 -left-24 w-56 h-56 rounded-full bg-[#7a9d7f]/10 blur-2xl"></div>
+            <div className="absolute -top-24 -right-24 w-56 h-56 rounded-full bg-[#c85a2d]/5 blur-xl pointer-events-none"></div>
+            <div className="absolute -bottom-24 -left-24 w-56 h-56 rounded-full bg-[#7a9d7f]/5 blur-xl pointer-events-none"></div>
 
             <div className="relative">
               <div className="flex items-start gap-3">
@@ -499,7 +364,7 @@ function PaymentUploadContent() {
                     <p className="text-[14px] font-extrabold text-slate-900">
                       Menunggu Pembayaran
                     </p>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#c85a2d] bg-[#c85a2d]/10 px-2 py-0.5 rounded animate-pulse">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#c85a2d] bg-[#c85a2d]/10 px-2 py-0.5 rounded">
                       Sekarang
                     </span>
                   </div>

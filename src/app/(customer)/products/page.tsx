@@ -80,11 +80,7 @@ export default async function ProductsPage({
           </div>
         </div>
 
-        <ProductGrid
-          products={
-            JSON.parse(JSON.stringify(data.products)) as ProductListItem[]
-          }
-        />
+        <ProductGrid products={data.products as unknown as ProductListItem[]} />
 
         {/* 
           PAGINATION
