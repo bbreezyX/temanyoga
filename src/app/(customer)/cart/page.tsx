@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, ShoppingBag, ArrowRight } from "lucide-react";
 import { CartItemRow } from "@/components/cart/cart-item-row";
@@ -8,6 +9,11 @@ import { useCart } from "@/contexts/cart-context";
 
 export default function CartPage() {
   const { items } = useCart();
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   if (items.length === 0) {
     return (

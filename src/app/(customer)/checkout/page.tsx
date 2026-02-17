@@ -57,6 +57,11 @@ export default function CheckoutPage() {
 
   const orderPlaced = useRef(false);
 
+  // Scroll to top on mount (fixes mobile staying scrolled down from cart page)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   useEffect(() => {
     if (items.length === 0 && !orderPlaced.current) {
       router.replace("/cart");
@@ -159,6 +164,7 @@ export default function CheckoutPage() {
 
     orderPlaced.current = true;
     clearCart();
+    window.scrollTo(0, 0);
     const successParams = new URLSearchParams({
       code: res.data.orderCode,
       total: String(res.data.totalAmount),

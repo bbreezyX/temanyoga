@@ -44,6 +44,11 @@ function PaymentUploadContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Scroll to top on mount (fixes mobile staying scrolled down from checkout)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const totalValue =
     orderData?.totalAmount ?? Number(searchParams.get("total") ?? 0);
   const shippingCostValue =
@@ -130,6 +135,7 @@ function PaymentUploadContent() {
     }
 
     setIsSuccess(true);
+    window.scrollTo(0, 0);
     toast.success("Bukti pembayaran berhasil diunggah!");
   };
 
