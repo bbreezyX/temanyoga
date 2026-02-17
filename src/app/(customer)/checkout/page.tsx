@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useToast } from "@/components/ui/toast";
 import {
   ChevronLeft,
@@ -28,22 +31,30 @@ import type {
   CouponValidationResult,
 } from "@/types/api";
 
+const checkoutFormSchema = z.object({
+  customerName: z.string().min(1, "Nama wajib diisi").max(200, "Nama maksimal 200 karakter"),
+  customerEmail: z.string().email("Format email tidak valid").max(200, "Email maksimal 200 karakter"),
+  customerPhone: z.string().min(1, "Nomor WhatsApp wajib diisi").max(30, "Nomor maksimal 30 karakter"),
+  address: z.string().min(1, "Alamat wajib diisi").max(500, "Alamat maksimal 500 karakter"),
+  city: z.string().min(1, "Kota wajib diisi").max(100, "Kota maksimal 100 karakter"),
+  zip: z.string().min(1, "Kode pos wajib diisi").max(20, "Kode pos maksimal 20 karakter"),
+  notes: z.string().max(1000, "Catatan maksimal 1000 karakter").optional(),
+});
+
+type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, cartTotal, clearCart, getItemKey } = useCart();
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
 
-  // Shipping zones
   const [zones, setZones] = useState<ShippingZone[]>([]);
   const [zonesLoading, setZonesLoading] = useState(true);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
 
-  // Coupon
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
-  const [appliedCoupon, setAppliedCoupon] =
-    useState<CouponValidationResult | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId) ?? null;
@@ -58,7 +69,14 @@ export default function CheckoutPage() {
 
   const orderPlaced = useRef(false);
 
-  // Scroll to top on mount (fixes mobile staying scrolled down from cart page)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutFormSchema),
+  });
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -109,45 +127,21 @@ export default function CheckoutPage() {
     setCouponError(null);
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const customerName = (form.get("customerName") as string).trim();
-    const customerEmail = (form.get("customerEmail") as string).trim();
-    const customerPhone = (form.get("customerPhone") as string).trim();
-    const address = (form.get("address") as string).trim();
-    const city = (form.get("city") as string).trim();
-    const zip = (form.get("zip") as string).trim();
-    const notes = (form.get("notes") as string).trim();
-
-    const shippingAddress = `${address}, ${city}, ${zip}`;
-
-    if (
-      !customerName ||
-      !customerEmail ||
-      !customerPhone ||
-      !address ||
-      !city ||
-      !zip
-    ) {
-      toast.error("Mohon lengkapi semua data pengiriman.");
-      return;
-    }
-
+  const onSubmit = async (data: CheckoutFormData) => {
     if (!selectedZoneId) {
       toast.error("Mohon pilih zona pengiriman.");
       return;
     }
 
-    setLoading(true);
+    const shippingAddress = `${data.address}, ${data.city}, ${data.zip}`;
 
     const res = await apiPost<CreateOrderResponse>("/api/orders", {
-      customerName,
-      customerEmail,
-      customerPhone,
+      customerName: data.customerName.trim(),
+      customerEmail: data.customerEmail.trim().toLowerCase(),
+      customerPhone: data.customerPhone.trim(),
       shippingAddress,
       shippingZoneId: selectedZoneId,
-      notes: notes || undefined,
+      notes: data.notes?.trim() || undefined,
       couponCode: appliedCoupon?.code || undefined,
       items: items.map((i) => ({
         productId: i.productId,
@@ -155,7 +149,6 @@ export default function CheckoutPage() {
         accessoryIds: (i.accessories || []).map((a) => a.id),
       })),
     });
-    setLoading(false);
 
     if (!res.success) {
       toast.error(res.error || "Gagal membuat pesanan");
@@ -166,11 +159,10 @@ export default function CheckoutPage() {
     clearCart();
     window.scrollTo(0, 0);
 
-    // Save email for verification on success page (to keep URL clean)
-    sessionStorage.setItem(`checkout_email_${res.data.orderCode}`, customerEmail);
+    sessionStorage.setItem(`checkout_email_${res.data.orderCode}`, data.customerEmail);
 
     router.push(`/checkout/success/${res.data.orderCode}`);
-  }
+  };
 
   if (items.length === 0) return null;
 
@@ -182,7 +174,6 @@ export default function CheckoutPage() {
       >
         <section className="pt-8 md:pt-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-            {/* Left Column: Form and Progress */}
             <div className="lg:col-span-7 flex flex-col gap-10">
               <div className="relative overflow-hidden rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] px-8 py-10 animate-floatIn">
                 <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-[#c85a2d]/5 blur-2xl pointer-events-none"></div>
@@ -260,7 +251,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
                 <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-8 md:p-10">
                   <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 rounded-2xl bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center shrink-0">
@@ -286,12 +277,13 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         id="customerName"
-                        name="customerName"
-                        type="text"
-                        required
+                        {...register("customerName")}
                         placeholder="Contoh: Nadya Putri"
                         className="min-h-[56px] w-full rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] px-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-medium"
                       />
+                      {errors.customerName && (
+                        <p className="text-xs text-red-500 font-medium">{errors.customerName.message}</p>
+                      )}
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
@@ -304,12 +296,14 @@ export default function CheckoutPage() {
                         </label>
                         <input
                           id="customerEmail"
-                          name="customerEmail"
                           type="email"
-                          required
+                          {...register("customerEmail")}
                           placeholder="nadya@email.com"
                           className="min-h-[56px] w-full rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] px-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-medium"
                         />
+                        {errors.customerEmail && (
+                          <p className="text-xs text-red-500 font-medium">{errors.customerEmail.message}</p>
+                        )}
                       </div>
 
                       <div className="grid gap-2">
@@ -321,12 +315,14 @@ export default function CheckoutPage() {
                         </label>
                         <input
                           id="customerPhone"
-                          name="customerPhone"
                           type="tel"
-                          required
+                          {...register("customerPhone")}
                           placeholder="0812345678..."
                           className="min-h-[56px] w-full rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] px-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-medium"
                         />
+                        {errors.customerPhone && (
+                          <p className="text-xs text-red-500 font-medium">{errors.customerPhone.message}</p>
+                        )}
                       </div>
                     </div>
 
@@ -339,12 +335,13 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         id="address"
-                        name="address"
-                        type="text"
-                        required
+                        {...register("address")}
                         placeholder="Nama jalan, nomor rumah, RT/RW, Kompleks/Cluster"
                         className="min-h-[56px] w-full rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] px-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-medium"
                       />
+                      {errors.address && (
+                        <p className="text-xs text-red-500 font-medium">{errors.address.message}</p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
@@ -357,12 +354,13 @@ export default function CheckoutPage() {
                         </label>
                         <input
                           id="city"
-                          name="city"
-                          type="text"
-                          required
+                          {...register("city")}
                           placeholder="Contoh: Bandung"
                           className="min-h-[56px] w-full rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] px-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-medium"
                         />
+                        {errors.city && (
+                          <p className="text-xs text-red-500 font-medium">{errors.city.message}</p>
+                        )}
                       </div>
 
                       <div className="grid gap-2">
@@ -374,18 +372,18 @@ export default function CheckoutPage() {
                         </label>
                         <input
                           id="zip"
-                          name="zip"
-                          type="text"
-                          required
+                          {...register("zip")}
                           placeholder="40111"
                           className="min-h-[56px] w-full rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] px-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-medium"
                         />
+                        {errors.zip && (
+                          <p className="text-xs text-red-500 font-medium">{errors.zip.message}</p>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Shipping Zone Selector */}
                 <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-8 md:p-10">
                   <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 rounded-2xl bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center shrink-0">
@@ -466,7 +464,6 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
-                {/* Coupon Code */}
                 <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-8 md:p-10">
                   <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 rounded-2xl bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center shrink-0">
@@ -543,7 +540,6 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
-                {/* Notes */}
                 <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-8 md:p-10">
                   <div className="grid gap-2">
                     <label
@@ -554,7 +550,7 @@ export default function CheckoutPage() {
                     </label>
                     <textarea
                       id="notes"
-                      name="notes"
+                      {...register("notes")}
                       placeholder="Contoh: Titip di satpam jika tidak ada orang."
                       rows={3}
                       className="w-full rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] p-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-medium resize-none"
@@ -573,10 +569,10 @@ export default function CheckoutPage() {
                   <div className="mt-10">
                     <button
                       type="submit"
-                      disabled={loading || !selectedZoneId}
+                      disabled={isSubmitting || !selectedZoneId}
                       className="w-full min-h-[64px] rounded-full bg-[#c85a2d] text-white font-black text-[18px] shadow-soft hover:bg-[#b04a25] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group"
                     >
-                      {loading ? (
+                      {isSubmitting ? (
                         <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
                       ) : (
                         <>
@@ -590,7 +586,6 @@ export default function CheckoutPage() {
               </form>
             </div>
 
-            {/* Right Column: Order Summary */}
             <div className="lg:col-span-5 lg:sticky lg:top-28 flex flex-col gap-10">
               <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] overflow-hidden">
                 <div className="bg-[#fcfaf8] px-8 py-6 border-b border-[#e8dcc8]">

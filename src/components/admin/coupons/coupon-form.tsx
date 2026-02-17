@@ -1,11 +1,35 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Loader2, X } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { Switch } from "@/components/ui/switch";
 import { apiPost, apiPatch } from "@/lib/api-client";
 import type { AdminCoupon } from "@/types/api";
+
+const couponFormSchema = z.object({
+  code: z.string().min(1, "Kode kupon wajib diisi").max(30, "Kode maksimal 30 karakter"),
+  discountType: z.enum(["PERCENTAGE", "FIXED_AMOUNT"]),
+  discountValue: z.string().min(1, "Nilai diskon wajib diisi").refine(
+    (val) => !isNaN(parseInt(val, 10)) && parseInt(val, 10) > 0,
+    "Nilai diskon harus berupa angka positif"
+  ),
+  expiresAt: z.string().optional(),
+  isActive: z.boolean(),
+}).refine(
+  (data) => {
+    const num = parseInt(data.discountValue, 10);
+    if (data.discountType === "PERCENTAGE" && num > 100) {
+      return false;
+    }
+    return true;
+  },
+  { message: "Persentase diskon maksimal 100%", path: ["discountValue"] }
+);
+
+type CouponFormData = z.infer<typeof couponFormSchema>;
 
 interface CouponFormProps {
   coupon: AdminCoupon | null;
@@ -19,77 +43,58 @@ export function CouponForm({
   onSaved,
 }: CouponFormProps) {
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
-  const [code, setCode] = useState("");
-  const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FIXED_AMOUNT">("PERCENTAGE");
-  const [discountValue, setDiscountValue] = useState("");
-  const [expiresAt, setExpiresAt] = useState("");
-  const [isActive, setIsActive] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (coupon) {
-        setCode(coupon.code);
-        setDiscountType(coupon.discountType as "PERCENTAGE" | "FIXED_AMOUNT");
-        setDiscountValue(String(coupon.discountValue));
-        setExpiresAt(
-          coupon.expiresAt
-            ? new Date(coupon.expiresAt).toISOString().slice(0, 16)
-            : ""
-        );
-        setIsActive(coupon.isActive);
-      } else {
-        setCode("");
-        setDiscountType("PERCENTAGE");
-        setDiscountValue("");
-        setExpiresAt("");
-        setIsActive(true);
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [coupon]);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<CouponFormData>({
+    resolver: zodResolver(couponFormSchema),
+    defaultValues: {
+      code: coupon?.code ?? "",
+      discountType: (coupon?.discountType as "PERCENTAGE" | "FIXED_AMOUNT") ?? "PERCENTAGE",
+      discountValue: coupon?.discountValue ? String(coupon.discountValue) : "",
+      expiresAt: coupon?.expiresAt
+        ? new Date(coupon.expiresAt).toISOString().slice(0, 16)
+        : "",
+      isActive: coupon?.isActive ?? true,
+    },
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const discountType = watch("discountType");
+  const isActive = watch("isActive");
 
-    const valueNum = parseInt(discountValue, 10);
-    if (isNaN(valueNum) || valueNum <= 0) {
-      toast.error("Nilai diskon harus berupa angka > 0");
-      return;
-    }
-
-    if (discountType === "PERCENTAGE" && valueNum > 100) {
-      toast.error("Persentase diskon maksimal 100%");
-      return;
-    }
-
-    const data = {
-      code: code.trim().toUpperCase(),
-      discountType,
-      discountValue: valueNum,
-      expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
-      ...(coupon ? { isActive } : {}),
+  const onSubmit = async (data: CouponFormData) => {
+    const payload = {
+      code: data.code.trim().toUpperCase(),
+      discountType: data.discountType,
+      discountValue: parseInt(data.discountValue, 10),
+      expiresAt: data.expiresAt ? new Date(data.expiresAt).toISOString() : null,
+      ...(coupon ? { isActive: data.isActive } : {}),
     };
 
-    setLoading(true);
-
     const res = coupon
-      ? await apiPatch(`/api/admin/coupons/${coupon.id}`, data)
-      : await apiPost("/api/admin/coupons", data);
-
-    setLoading(false);
+      ? await apiPatch(`/api/admin/coupons/${coupon.id}`, payload)
+      : await apiPost("/api/admin/coupons", payload);
 
     if (!res.success) {
-      toast.error((res as { error: string }).error || "Gagal menyimpan");
+      toast.error(res.error || "Gagal menyimpan");
       return;
     }
 
-    toast.success(
-      coupon ? "Kupon berhasil diperbarui" : "Kupon berhasil dibuat"
-    );
+    toast.success(coupon ? "Kupon berhasil diperbarui" : "Kupon berhasil dibuat");
     onSaved();
     onClose();
-  }
+    reset();
+  };
+
+  const handleReset = () => {
+    reset();
+    onClose();
+  };
 
   return (
     <div className="rounded-[32px] bg-white p-6 sm:p-8 ring-1 ring-warm-sand/50 shadow-soft animate-fade-in-up mb-8 relative">
@@ -103,14 +108,14 @@ export function CouponForm({
           </p>
         </div>
         <button
-          onClick={onClose}
+          onClick={handleReset}
           className="h-10 w-10 rounded-full bg-cream flex items-center justify-center text-warm-gray hover:text-red-500 transition-all"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-5">
             <div className="space-y-1.5">
@@ -118,12 +123,13 @@ export function CouponForm({
                 Kode Kupon
               </label>
               <input
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
+                {...register("code")}
                 placeholder="Contoh: DISKON10"
                 className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-mono font-bold text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all uppercase"
               />
+              {errors.code && (
+                <p className="text-xs text-red-500 font-medium">{errors.code.message}</p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -132,8 +138,7 @@ export function CouponForm({
               </label>
               <input
                 type="datetime-local"
-                value={expiresAt}
-                onChange={(e) => setExpiresAt(e.target.value)}
+                {...register("expiresAt")}
                 className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
               />
             </div>
@@ -146,12 +151,7 @@ export function CouponForm({
                   Tipe Diskon
                 </label>
                 <select
-                  value={discountType}
-                  onChange={(e) =>
-                    setDiscountType(
-                      e.target.value as "PERCENTAGE" | "FIXED_AMOUNT"
-                    )
-                  }
+                  {...register("discountType")}
                   className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
                 >
                   <option value="PERCENTAGE">Persentase (%)</option>
@@ -164,14 +164,13 @@ export function CouponForm({
                 </label>
                 <input
                   type="number"
-                  value={discountValue}
-                  onChange={(e) => setDiscountValue(e.target.value)}
-                  required
-                  min={1}
-                  max={discountType === "PERCENTAGE" ? 100 : undefined}
+                  {...register("discountValue")}
                   placeholder={discountType === "PERCENTAGE" ? "10" : "50000"}
                   className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
                 />
+                {errors.discountValue && (
+                  <p className="text-xs text-red-500 font-medium">{errors.discountValue.message}</p>
+                )}
               </div>
             </div>
 
@@ -182,7 +181,7 @@ export function CouponForm({
               </div>
               <Switch
                 checked={isActive}
-                onCheckedChange={setIsActive}
+                onCheckedChange={(checked) => setValue("isActive", checked)}
               />
             </div>
           </div>
@@ -191,17 +190,17 @@ export function CouponForm({
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-warm-sand/30">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleReset}
             className="order-2 sm:order-1 px-8 py-3.5 font-bold text-sm text-warm-gray hover:bg-cream rounded-full transition-colors"
           >
             Batal
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="order-1 sm:order-2 px-10 py-3.5 font-bold text-sm text-white bg-terracotta rounded-full shadow-lg shadow-terracotta/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             {coupon ? "Simpan Perubahan" : "Buat Kupon"}
           </button>
         </div>

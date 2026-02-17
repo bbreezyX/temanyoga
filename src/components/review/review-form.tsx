@@ -1,10 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+
+const reviewFormSchema = z.object({
+  rating: z.number().min(1, "Pilih rating terlebih dahulu").max(5),
+  comment: z.string().max(1000, "Komentar maksimal 1000 karakter").optional(),
+});
+
+type ReviewFormData = z.infer<typeof reviewFormSchema>;
 
 interface ReviewFormProps {
   orderItemId: string;
@@ -14,59 +23,69 @@ interface ReviewFormProps {
 }
 
 export function ReviewForm({ orderItemId, productName, onSubmit, onSuccess }: ReviewFormProps) {
-  const [rating, setRating] = useState(0);
-  const [hoveredRating, setHoveredRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<ReviewFormData>({
+    resolver: zodResolver(reviewFormSchema),
+    defaultValues: {
+      rating: 0,
+      comment: "",
+    },
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (rating === 0) {
-      setError("Pilih rating terlebih dahulu");
-      return;
-    }
+  const rating = watch("rating");
+  const comment = watch("comment");
 
-    setIsSubmitting(true);
-    setError(null);
-
+  const handleFormSubmit = async (data: ReviewFormData) => {
     try {
-      await onSubmit(orderItemId, rating, comment);
+      await onSubmit(orderItemId, data.rating, data.comment || "");
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Terjadi kesalahan");
-    } finally {
-      setIsSubmitting(false);
+      setError("root", {
+        message: err instanceof Error ? err.message : "Terjadi kesalahan",
+      });
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
       <div>
         <p className="text-sm font-medium text-slate-700 mb-2">
           Beri rating untuk <span className="font-bold">{productName}</span>
         </p>
-        <div className="flex gap-1">
-          {[1, 2, 3, 4, 5].map((value) => (
-            <button
-              key={value}
-              type="button"
-              className="p-1 hover:scale-110 transition-transform"
-              onMouseEnter={() => setHoveredRating(value)}
-              onMouseLeave={() => setHoveredRating(0)}
-              onClick={() => setRating(value)}
-            >
-              <Star
-                className={cn(
-                  "w-8 h-8 transition-colors",
-                  value <= (hoveredRating || rating)
-                    ? "fill-amber-400 text-amber-400"
-                    : "text-slate-300"
-                )}
-              />
-            </button>
-          ))}
-        </div>
+        <Controller
+          name="rating"
+          control={control}
+          render={({ field }) => (
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className="p-1 hover:scale-110 transition-transform"
+                  onClick={() => field.onChange(value)}
+                >
+                  <Star
+                    className={cn(
+                      "w-8 h-8 transition-colors",
+                      value <= rating
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-slate-300"
+                    )}
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        />
+        {errors.rating && (
+          <p className="text-xs text-red-500 font-medium mt-1">{errors.rating.message}</p>
+        )}
       </div>
 
       <div>
@@ -74,17 +93,18 @@ export function ReviewForm({ orderItemId, productName, onSubmit, onSuccess }: Re
           Komentar (opsional)
         </label>
         <Textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          {...register("comment")}
           placeholder="Bagikan pengalaman Anda dengan produk ini..."
           rows={4}
-          maxLength={1000}
         />
-        <p className="text-xs text-slate-500 mt-1">{comment.length}/1000 karakter</p>
+        <p className="text-xs text-slate-500 mt-1">{comment?.length || 0}/1000 karakter</p>
+        {errors.comment && (
+          <p className="text-xs text-red-500 font-medium mt-1">{errors.comment.message}</p>
+        )}
       </div>
 
-      {error && (
-        <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>
+      {errors.root && (
+        <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{errors.root.message}</p>
       )}
 
       <Button type="submit" disabled={isSubmitting || rating === 0} className="w-full">

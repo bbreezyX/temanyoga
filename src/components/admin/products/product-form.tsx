@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useToast } from "@/components/ui/toast";
 import { Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -12,6 +14,19 @@ import {
 } from "@/components/ui/dialog";
 import { apiPost, apiPatch } from "@/lib/api-client";
 import type { ProductListItem } from "@/types/api";
+
+const productFormSchema = z.object({
+  name: z.string().min(1, "Nama produk wajib diisi").max(200, "Nama maksimal 200 karakter"),
+  description: z.string().min(1, "Deskripsi wajib diisi"),
+  price: z.string().min(1, "Harga wajib diisi").refine(
+    (val) => !isNaN(parseInt(val)) && parseInt(val) > 0,
+    "Harga harus berupa angka positif"
+  ),
+  stock: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+
+type ProductFormData = z.infer<typeof productFormSchema>;
 
 interface ProductFormProps {
   product?: ProductListItem | null;
@@ -28,61 +43,60 @@ export function ProductForm({
 }: ProductFormProps) {
   const toast = useToast();
   const isEdit = !!product;
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ProductFormData>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: {
+      name: product?.name ?? "",
+      description: product?.description ?? "",
+      price: product?.price ? String(product.price) : "",
+      stock: product?.stock != null ? String(product.stock) : "",
+      isActive: product?.isActive ?? true,
+    },
+  });
 
-    const name = (form.get("name") as string).trim();
-    const description = (form.get("description") as string).trim();
-    const price = Number(form.get("price"));
-    const stockStr = (form.get("stock") as string).trim();
-    const stock = stockStr === "" ? null : Number(stockStr);
-    const isActive = form.get("isActive") === "on";
+  const isActive = watch("isActive");
 
-    if (!name || !description || !price || price <= 0) {
-      toast.error("Mohon lengkapi semua field yang wajib diisi");
+  const onSubmit = async (data: ProductFormData) => {
+    const payload = {
+      name: data.name.trim(),
+      description: data.description.trim(),
+      price: parseInt(data.price, 10),
+      stock: data.stock?.trim() ? parseInt(data.stock, 10) : null,
+      ...(isEdit ? { isActive: data.isActive } : {}),
+    };
+
+    const res = isEdit
+      ? await apiPatch(`/api/admin/products/${product.id}`, payload)
+      : await apiPost("/api/admin/products", payload);
+
+    if (!res.success) {
+      toast.error(res.error);
       return;
     }
 
-    setLoading(true);
-
-    if (isEdit) {
-      const res = await apiPatch(`/api/admin/products/${product.id}`, {
-        name,
-        description,
-        price,
-        stock,
-        isActive,
-      });
-      setLoading(false);
-      if (!res.success) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success("Produk berhasil diperbarui");
-    } else {
-      const res = await apiPost("/api/admin/products", {
-        name,
-        description,
-        price,
-        stock,
-      });
-      setLoading(false);
-      if (!res.success) {
-        toast.error(res.error);
-        return;
-      }
-      toast.success("Produk berhasil dibuat");
-    }
-
+    toast.success(isEdit ? "Produk berhasil diperbarui" : "Produk berhasil dibuat");
     onSaved();
     onClose();
-  }
+    reset();
+  };
+
+  const handleOpenChange = (v: boolean) => {
+    if (!v) {
+      onClose();
+      reset();
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md rounded-3xl">
         <DialogHeader>
           <DialogTitle className="font-display text-xl font-bold text-dark-brown">
@@ -95,8 +109,7 @@ export function ProductForm({
           </p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-5 mt-2">
-          {/* Name */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-2">
           <div className="space-y-2">
             <label
               htmlFor="name"
@@ -106,15 +119,15 @@ export function ProductForm({
             </label>
             <input
               id="name"
-              name="name"
-              defaultValue={product?.name ?? ""}
-              required
+              {...register("name")}
               className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/50"
               placeholder="Contoh: Yoga Mat Premium"
             />
+            {errors.name && (
+              <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>
+            )}
           </div>
 
-          {/* Description */}
           <div className="space-y-2">
             <label
               htmlFor="description"
@@ -124,16 +137,16 @@ export function ProductForm({
             </label>
             <textarea
               id="description"
-              name="description"
+              {...register("description")}
               rows={3}
-              defaultValue={product?.description ?? ""}
-              required
               className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all resize-none placeholder:text-warm-gray/50"
               placeholder="Deskripsikan produk Anda..."
             />
+            {errors.description && (
+              <p className="text-xs text-red-500 font-medium">{errors.description.message}</p>
+            )}
           </div>
 
-          {/* Price & Stock */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label
@@ -144,14 +157,14 @@ export function ProductForm({
               </label>
               <input
                 id="price"
-                name="price"
                 type="number"
-                min={1}
-                defaultValue={product?.price ?? ""}
-                required
+                {...register("price")}
                 className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/50"
                 placeholder="0"
               />
+              {errors.price && (
+                <p className="text-xs text-red-500 font-medium">{errors.price.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <label
@@ -162,17 +175,14 @@ export function ProductForm({
               </label>
               <input
                 id="stock"
-                name="stock"
                 type="number"
-                min={0}
-                defaultValue={product?.stock ?? ""}
+                {...register("stock")}
                 className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/50"
                 placeholder="Kosongkan = unlimited"
               />
             </div>
           </div>
 
-          {/* Active Toggle */}
           {isEdit && (
             <div className="flex items-center justify-between rounded-xl bg-cream px-4 py-3 ring-1 ring-warm-sand/50">
               <div>
@@ -184,28 +194,26 @@ export function ProductForm({
                 </p>
               </div>
               <Switch
-                id="isActive"
-                name="isActive"
-                defaultChecked={product.isActive}
+                checked={isActive}
+                onCheckedChange={(checked) => setValue("isActive", checked)}
               />
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => handleOpenChange(false)}
               className="rounded-full px-6 py-3 text-sm font-bold text-warm-gray hover:bg-cream transition-all"
             >
               Batal
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isSubmitting}
               className="flex items-center gap-2 rounded-full bg-terracotta px-7 py-3 text-sm text-white font-bold shadow-lg shadow-terracotta/20 hover:shadow-xl hover:shadow-terracotta/30 hover:scale-[1.03] transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isEdit ? "Simpan Perubahan" : "Buat Produk"}
             </button>
           </div>

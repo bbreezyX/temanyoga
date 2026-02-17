@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Archivo } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
 import { CartProvider } from "@/contexts/cart-context";
+import { ErrorBoundary } from "@/components/error-boundary";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -92,9 +93,11 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${archivo.variable} antialiased font-sans`}
       >
-        <ToastProvider>
-          <CartProvider>{children}</CartProvider>
-        </ToastProvider>
+        <ErrorBoundary>
+          <ToastProvider>
+            <CartProvider>{children}</CartProvider>
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

@@ -3,9 +3,11 @@ import type { Product } from "@prisma/client";
 import { NotificationType } from "@prisma/client";
 import {
   apiSuccess,
-  apiError,
   badRequest,
   serverError,
+  rateLimited,
+  insufficientStock,
+  invalidCoupon,
 } from "@/lib/api-response";
 import { createOrderSchema } from "@/lib/validations/order";
 import { generateOrderCode } from "@/lib/order-code";
@@ -28,7 +30,7 @@ export async function POST(request: Request) {
     const ip = getClientIp(request);
     const { success } = await rateLimiters.standard.limit(ip);
     if (!success) {
-      return apiError("Too many requests. Please try again later.", 429);
+      return rateLimited(60);
     }
 
     const body = await request.json();
@@ -67,9 +69,7 @@ export async function POST(request: Request) {
     for (const item of items) {
       const product = productMap.get(item.productId)!;
       if (product.stock !== null && product.stock < item.quantity) {
-        return badRequest(
-          `Insufficient stock for "${product.name}". Available: ${product.stock}`,
-        );
+        return insufficientStock(product.name, product.stock);
       }
     }
 
@@ -175,11 +175,11 @@ export async function POST(request: Request) {
       });
 
       if (!coupon || !coupon.isActive) {
-        return badRequest("Kode kupon tidak valid atau tidak aktif");
+        return invalidCoupon("Kode kupon tidak valid atau tidak aktif");
       }
 
       if (coupon.expiresAt && coupon.expiresAt < new Date()) {
-        return badRequest("Kode kupon sudah kedaluwarsa");
+        return invalidCoupon("Kode kupon sudah kedaluwarsa");
       }
 
       couponId = coupon.id;

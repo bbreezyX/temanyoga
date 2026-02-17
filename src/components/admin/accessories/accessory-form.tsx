@@ -1,11 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Loader2, X } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { Switch } from "@/components/ui/switch";
 import { apiPost, apiPatch } from "@/lib/api-client";
 import type { AdminAccessory } from "@/types/api";
+
+const accessoryFormSchema = z.object({
+  name: z.string().min(1, "Nama aksesoris wajib diisi").max(200, "Nama maksimal 200 karakter"),
+  description: z.string().max(500, "Deskripsi maksimal 500 karakter").optional(),
+  price: z.string().refine(
+    (val) => val !== "" && !isNaN(parseInt(val, 10)) && parseInt(val, 10) >= 0,
+    "Harga harus berupa angka >= 0"
+  ),
+  groupName: z.string().max(100, "Nama grup maksimal 100 karakter").optional(),
+  sortOrder: z.string().refine(
+    (val) => val === "" || (!isNaN(parseInt(val, 10)) && parseInt(val, 10) >= 0),
+    "Urutan harus berupa angka >= 0"
+  ).optional(),
+  isActive: z.boolean(),
+});
+
+type AccessoryFormData = z.infer<typeof accessoryFormSchema>;
 
 interface AccessoryFormProps {
   accessory: AdminAccessory | null;
@@ -19,72 +38,57 @@ export function AccessoryForm({
   onSaved,
 }: AccessoryFormProps) {
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [groupName, setGroupName] = useState("");
-  const [sortOrder, setSortOrder] = useState("0");
-  const [isActive, setIsActive] = useState(true);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (accessory) {
-        setName(accessory.name);
-        setDescription(accessory.description || "");
-        setPrice(String(accessory.price));
-        setGroupName(accessory.groupName || "");
-        setSortOrder(String(accessory.sortOrder));
-        setIsActive(accessory.isActive);
-      } else {
-        setName("");
-        setDescription("");
-        setPrice("");
-        setGroupName("");
-        setSortOrder("0");
-        setIsActive(true);
-      }
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [accessory]);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<AccessoryFormData>({
+    resolver: zodResolver(accessoryFormSchema),
+    defaultValues: {
+      name: accessory?.name ?? "",
+      description: accessory?.description ?? "",
+      price: accessory?.price != null ? String(accessory.price) : "",
+      groupName: accessory?.groupName ?? "",
+      sortOrder: accessory?.sortOrder != null ? String(accessory.sortOrder) : "0",
+      isActive: accessory?.isActive ?? true,
+    },
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const isActive = watch("isActive");
 
-    const priceNum = parseInt(price, 10);
-    if (isNaN(priceNum) || priceNum < 0) {
-      toast.error("Harga harus berupa angka >= 0");
-      return;
-    }
-
-    const data = {
-      name: name.trim(),
-      description: description.trim() || null,
-      price: priceNum,
-      groupName: groupName.trim() || null,
-      sortOrder: parseInt(sortOrder, 10) || 0,
-      ...(accessory ? { isActive } : {}),
+  const onSubmit = async (data: AccessoryFormData) => {
+    const payload = {
+      name: data.name.trim(),
+      description: data.description?.trim() || null,
+      price: parseInt(data.price, 10),
+      groupName: data.groupName?.trim() || null,
+      sortOrder: parseInt(data.sortOrder || "0", 10),
+      ...(accessory ? { isActive: data.isActive } : {}),
     };
 
-    setLoading(true);
-
     const res = accessory
-      ? await apiPatch(`/api/admin/accessories/${accessory.id}`, data)
-      : await apiPost("/api/admin/accessories", data);
-
-    setLoading(false);
+      ? await apiPatch(`/api/admin/accessories/${accessory.id}`, payload)
+      : await apiPost("/api/admin/accessories", payload);
 
     if (!res.success) {
-      toast.error((res as { error: string }).error || "Gagal menyimpan");
+      toast.error(res.error || "Gagal menyimpan");
       return;
     }
 
-    toast.success(
-      accessory ? "Aksesoris berhasil diperbarui" : "Aksesoris berhasil dibuat"
-    );
+    toast.success(accessory ? "Aksesoris berhasil diperbarui" : "Aksesoris berhasil dibuat");
     onSaved();
     onClose();
-  }
+    reset();
+  };
+
+  const handleReset = () => {
+    reset();
+    onClose();
+  };
 
   return (
     <div className="rounded-[32px] bg-white p-6 sm:p-8 ring-1 ring-warm-sand/50 shadow-soft animate-fade-in-up mb-8 relative">
@@ -98,14 +102,14 @@ export function AccessoryForm({
           </p>
         </div>
         <button
-          onClick={onClose}
+          onClick={handleReset}
           className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-warm-gray hover:text-red-500 shadow-sm transition-all"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="space-y-5">
             <div className="space-y-1.5">
@@ -113,12 +117,13 @@ export function AccessoryForm({
                 Nama Aksesoris
               </label>
               <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
+                {...register("name")}
                 placeholder="Contoh: Tatakan Kayu Jati"
                 className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
               />
+              {errors.name && (
+                <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>
+              )}
             </div>
 
             <div className="space-y-1.5">
@@ -126,12 +131,14 @@ export function AccessoryForm({
                 Deskripsi (opsional)
               </label>
               <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                {...register("description")}
                 placeholder="Deskripsi singkat aksesoris"
                 rows={3}
                 className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all resize-none"
               />
+              {errors.description && (
+                <p className="text-xs text-red-500 font-medium">{errors.description.message}</p>
+              )}
             </div>
           </div>
 
@@ -143,13 +150,13 @@ export function AccessoryForm({
                 </label>
                 <input
                   type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  required
-                  min={0}
+                  {...register("price")}
                   placeholder="10000"
                   className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
                 />
+                {errors.price && (
+                  <p className="text-xs text-red-500 font-medium">{errors.price.message}</p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
@@ -157,9 +164,7 @@ export function AccessoryForm({
                 </label>
                 <input
                   type="number"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  min={0}
+                  {...register("sortOrder")}
                   className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
                 />
               </div>
@@ -170,8 +175,7 @@ export function AccessoryForm({
                 Nama Grup (opsional)
               </label>
               <input
-                value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
+                {...register("groupName")}
                 placeholder="Misal: Pilihan Tatakan"
                 className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
               />
@@ -187,7 +191,7 @@ export function AccessoryForm({
               </div>
               <Switch
                 checked={isActive}
-                onCheckedChange={setIsActive}
+                onCheckedChange={(checked) => setValue("isActive", checked)}
               />
             </div>
           </div>
@@ -196,17 +200,17 @@ export function AccessoryForm({
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-warm-sand/30">
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleReset}
             className="order-2 sm:order-1 px-8 py-3.5 font-bold text-sm text-warm-gray hover:bg-warm-sand/30 rounded-full transition-colors"
           >
             Batal
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="order-1 sm:order-2 px-10 py-3.5 font-bold text-sm text-white bg-terracotta rounded-full shadow-lg shadow-terracotta/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             {accessory ? "Simpan Perubahan" : "Buat Aksesoris"}
           </button>
         </div>
