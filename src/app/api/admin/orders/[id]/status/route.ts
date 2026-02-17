@@ -9,6 +9,7 @@ import {
 import { updateOrderStatusSchema } from "@/lib/validations/order";
 import { validateStatusTransition } from "@/lib/order-status";
 import { InvalidStatusTransitionError } from "@/lib/errors";
+import { broadcastNotification } from "@/lib/notification-broadcast";
 
 export async function PATCH(
   request: Request,
@@ -40,14 +41,24 @@ export async function PATCH(
       data: { status: parsed.data.status },
     });
 
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type: NotificationType.ORDER_STATUS_CHANGED,
         title: "Status Pesanan Diperbarui",
         message: `Status pesanan ${updated.orderCode} diubah menjadi ${parsed.data.status}`,
         orderId: updated.id,
       },
+      include: {
+        order: {
+          select: {
+            orderCode: true,
+            customerName: true,
+          },
+        },
+      },
     });
+
+    broadcastNotification(notification);
 
     return apiSuccess(updated);
   } catch (error) {

@@ -47,10 +47,10 @@ export default function AdminDashboardPage() {
       if (res.success) {
         await fetchData();
       } else {
-        alert((res as { error: string }).error || "Failed to update status");
+        alert((res as { error: string }).error || "Gagal memperbarui status");
       }
     } catch (err) {
-      alert("An error occurred while updating status");
+      alert("Terjadi kesalahan saat memperbarui status");
     } finally {
       setUpdatingId(null);
     }
@@ -68,34 +68,34 @@ export default function AdminDashboardPage() {
 
   const stats = [
     {
-      label: "Today's Orders",
+      label: "Pesanan Hari Ini",
       value: data.todayOrders.toString(),
       icon: ShoppingBag,
-      trend: "Today",
+      trend: "Hari Ini",
       trendType: "neutral",
       color: "primary",
     },
     {
-      label: "Pending Payments",
+      label: "Pembayaran Tertunda",
       value: data.pendingPayments.toString(),
       icon: Wallet,
-      trend: "Action Required",
+      trend: "Perlu Ditindak",
       trendType: "down",
       color: "sage",
     },
     {
-      label: "Total Revenue",
+      label: "Total Pendapatan",
       value: formatCurrency(data.totalRevenue),
       icon: Banknote,
-      trend: "All Time",
+      trend: "Selama Ini",
       trendType: "up",
       color: "warm-gray",
     },
     {
-      label: "Total Products",
+      label: "Total Produk",
       value: data.totalProducts.toString(),
       icon: Layers,
-      trend: "Active",
+      trend: "Aktif",
       trendType: "neutral",
       color: "dark-brown",
     },
@@ -106,10 +106,10 @@ export default function AdminDashboardPage() {
       {/* Welcome Section */}
       <div className="animate-fade-in-up">
         <h1 className="font-display text-4xl font-extrabold text-foreground tracking-tight">
-          Dashboard Overview
+          Ikhtisar Dashboard
         </h1>
         <p className="mt-2 text-muted-foreground font-medium">
-          Welcome back. Here&apos;s what&apos;s happening in your store today.
+          Selamat datang kembali. Inilah yang terjadi di toko Anda hari ini.
         </p>
       </div>
 
@@ -168,13 +168,13 @@ export default function AdminDashboardPage() {
       <div className="rounded-[40px] bg-card p-4 md:p-8 shadow-soft ring-1 ring-border animate-fade-in-up [animation-delay:200ms]">
         <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="font-display text-xl md:text-2xl font-extrabold text-foreground">
-            Recent Orders
+            Pesanan Terbaru
           </h2>
           <Link
             href="/admin/orders"
             className="flex items-center justify-center gap-2 rounded-full bg-secondary px-6 py-2.5 text-sm font-bold text-foreground transition-all hover:bg-border/60 ring-1 ring-border w-full md:w-auto"
           >
-            View All Orders
+            Lihat Semua Pesanan
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -184,11 +184,11 @@ export default function AdminDashboardPage() {
           <table className="w-full text-left">
             <thead className="border-b border-border text-[12px] font-black uppercase tracking-[0.1em] text-muted-foreground">
               <tr>
-                <th className="pb-4 pl-4">Order Code</th>
-                <th className="pb-4">Customer</th>
+                <th className="pb-4 pl-4">Kode Pesanan</th>
+                <th className="pb-4">Pelanggan</th>
                 <th className="pb-4">Status</th>
-                <th className="pb-4">Amount</th>
-                <th className="pb-4 pr-4 text-right">Actions</th>
+                <th className="pb-4">Jumlah</th>
+                <th className="pb-4 pr-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
@@ -235,7 +235,7 @@ export default function AdminDashboardPage() {
                           {order.status === "AWAITING_VERIFICATION" && (
                             <Link href={`/admin/orders/${order.id}`}>
                               <button
-                                title="Verify Payment"
+                                title="Verifikasi Pembayaran"
                                 className="h-9 w-9 flex items-center justify-center rounded-full bg-sage/10 text-sage hover:bg-sage hover:text-white transition-all shadow-sm"
                               >
                                 <CheckCircle className="h-4 w-4" />
@@ -244,7 +244,7 @@ export default function AdminDashboardPage() {
                           )}
                           {order.status === "PAID" && (
                             <button
-                              title="Set to Processing"
+                              title="Proses Pesanan"
                               onClick={() =>
                                 handleUpdateStatus(order.id, "PROCESSING")
                               }
@@ -256,7 +256,7 @@ export default function AdminDashboardPage() {
                           {order.status === "PROCESSING" && (
                             <Link href={`/admin/orders/${order.id}`}>
                               <button
-                                title="Ship Order"
+                                title="Kirim Pesanan"
                                 className="h-9 w-9 flex items-center justify-center rounded-full bg-terracotta/10 text-terracotta hover:bg-terracotta hover:text-white transition-all shadow-sm"
                               >
                                 <Truck className="h-4 w-4" />
@@ -265,7 +265,7 @@ export default function AdminDashboardPage() {
                           )}
                           {order.status === "SHIPPED" && (
                             <button
-                              title="Mark as Completed"
+                              title="Tandai Selesai"
                               onClick={() =>
                                 handleUpdateStatus(order.id, "COMPLETED")
                               }
@@ -277,7 +277,7 @@ export default function AdminDashboardPage() {
 
                           <Link href={`/admin/orders/${order.id}`}>
                             <button
-                              title="View Detail"
+                              title="Lihat Detail"
                               className="h-9 w-9 flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/10 hover:scale-110 transition-all active:scale-95"
                             >
                               <Eye className="h-4 w-4" />
@@ -322,7 +322,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex justify-between items-center mb-4 px-1">
-                <span className="text-sm font-medium text-muted-foreground">Amount</span>
+                <span className="text-sm font-medium text-muted-foreground">Jumlah</span>
                 <span className="text-base font-bold text-foreground">
                   {formatCurrency(order.totalAmount)}
                 </span>
@@ -337,43 +337,43 @@ export default function AdminDashboardPage() {
                 ) : (
                   <>
                     {/* Primary Action Button (if any) */}
-                     {order.status === "AWAITING_VERIFICATION" && (
-                        <Link href={`/admin/orders/${order.id}`} className="flex-1">
-                          <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm">
-                            <CheckCircle className="h-4 w-4" /> Verify
-                          </button>
-                        </Link>
-                      )}
-                      {order.status === "PAID" && (
-                        <button
-                          onClick={() => handleUpdateStatus(order.id, "PROCESSING")}
-                          className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white font-bold shadow-sm"
-                        >
-                          <Layers className="h-4 w-4" /> Process
-                        </button>
-                      )}
-                      {order.status === "PROCESSING" && (
-                        <Link href={`/admin/orders/${order.id}`} className="flex-1">
-                          <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-terracotta text-white font-bold shadow-sm">
-                            <Truck className="h-4 w-4" /> Ship
-                          </button>
-                        </Link>
-                      )}
-                      {order.status === "SHIPPED" && (
-                        <button
-                          onClick={() => handleUpdateStatus(order.id, "COMPLETED")}
-                          className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm"
-                        >
-                          <CheckCircle className="h-4 w-4" /> Complete
-                        </button>
-                      )}
+{order.status === "AWAITING_VERIFICATION" && (
+                         <Link href={`/admin/orders/${order.id}`} className="flex-1">
+                           <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm">
+                             <CheckCircle className="h-4 w-4" /> Verifikasi
+                           </button>
+                         </Link>
+                       )}
+                       {order.status === "PAID" && (
+                         <button
+                           onClick={() => handleUpdateStatus(order.id, "PROCESSING")}
+                           className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white font-bold shadow-sm"
+                         >
+                           <Layers className="h-4 w-4" /> Proses
+                         </button>
+                       )}
+                       {order.status === "PROCESSING" && (
+                         <Link href={`/admin/orders/${order.id}`} className="flex-1">
+                           <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-terracotta text-white font-bold shadow-sm">
+                             <Truck className="h-4 w-4" /> Kirim
+                           </button>
+                         </Link>
+                       )}
+                       {order.status === "SHIPPED" && (
+                         <button
+                           onClick={() => handleUpdateStatus(order.id, "COMPLETED")}
+                           className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm"
+                         >
+                           <CheckCircle className="h-4 w-4" /> Selesai
+                         </button>
+                       )}
 
-                    {/* View Details Button */}
-                    <Link href={`/admin/orders/${order.id}`} className="flex-1">
-                      <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-card text-foreground border border-border hover:bg-muted font-bold shadow-sm">
-                        <Eye className="h-4 w-4" /> Details
-                      </button>
-                    </Link>
+                     {/* View Details Button */}
+                     <Link href={`/admin/orders/${order.id}`} className="flex-1">
+                       <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-card text-foreground border border-border hover:bg-muted font-bold shadow-sm">
+                         <Eye className="h-4 w-4" /> Detail
+                       </button>
+                     </Link>
                   </>
                 )}
               </div>
@@ -383,7 +383,7 @@ export default function AdminDashboardPage() {
 
         {data.recentOrders.length === 0 && (
           <div className="py-12 text-center text-muted-foreground font-medium">
-            No recent orders found.
+            Belum ada pesanan terbaru.
           </div>
         )}
       </div>

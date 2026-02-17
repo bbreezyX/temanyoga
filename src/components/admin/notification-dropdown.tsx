@@ -1,15 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Bell, Package, CreditCard, Truck, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Bell, Package, CreditCard, Truck, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NotificationType } from "@/generated/prisma/client";
@@ -37,27 +30,59 @@ const notificationIcons: Record<NotificationType, React.ReactNode> = {
 export function NotificationDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await fetch("/api/admin/notifications?limit=10");
-      const data = await res.json();
-      if (data.success) {
-        setNotifications(data.data.notifications);
-        setUnreadCount(data.data.unreadCount);
-      }
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
-    } finally {
-      setLoading(false);
+  const connectSSE = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
     }
-  };
+
+    const eventSource = new EventSource("/api/admin/notifications/stream");
+    eventSourceRef.current = eventSource;
+
+    eventSource.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        
+        if (parsed.type === "init") {
+          setNotifications(parsed.data.notifications);
+          setUnreadCount(parsed.data.unreadCount);
+        } else if (parsed.type === "notification") {
+          setNotifications((prev) => [parsed.data, ...prev.slice(0, 9)]);
+          setUnreadCount((prev) => prev + 1);
+        } else if (parsed.type === "unreadCount") {
+          setUnreadCount(parsed.data);
+        }
+      } catch {
+        // Ignore parse errors
+      }
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+      setTimeout(connectSSE, 5000);
+    };
+  }, []);
 
   useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
+    connectSSE();
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+    };
+  }, [connectSSE]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const markAsRead = async (id: string) => {
@@ -107,87 +132,104 @@ export function NotificationDropdown() {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-10 w-10 rounded-full bg-cream text-warm-gray transition-all hover:bg-warm-sand/30"
-        >
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-terracotta p-0 flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-white">
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
-        <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Notifikasi</span>
-          {unreadCount > 0 && (
-            <button
-              onClick={markAllAsRead}
-              className="text-xs text-terracotta hover:underline"
-            >
-              Tandai semua dibaca
-            </button>
-          )}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {loading ? (
-          <div className="p-4 text-center text-sm text-warm-gray">
-            Memuat...
-          </div>
-        ) : notifications.length === 0 ? (
-          <div className="p-4 text-center text-sm text-warm-gray">
-            Tidak ada notifikasi
-          </div>
-        ) : (
-          notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className={`flex items-start gap-3 p-3 hover:bg-cream/50 cursor-pointer ${
-                !notification.isRead ? "bg-terracotta/5" : ""
-              }`}
-              onClick={() => !notification.isRead && markAsRead(notification.id)}
-            >
-              <div className="flex-shrink-0 mt-0.5">
-                {notificationIcons[notification.type]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-dark-brown truncate">
-                  {notification.title}
-                </p>
-                <p className="text-xs text-warm-gray line-clamp-2">
-                  {notification.message}
-                </p>
-                {notification.order && (
-                  <Link
-                    href={`/admin/orders?search=${notification.order.orderCode}`}
-                    className="text-xs text-terracotta hover:underline mt-1 block"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Lihat Order #{notification.order.orderCode}
-                  </Link>
-                )}
-                <p className="text-[10px] text-warm-gray/70 mt-1">
-                  {formatTime(notification.createdAt)}
-                </p>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteNotification(notification.id);
-                }}
-                className="flex-shrink-0 p-1 text-warm-gray/50 hover:text-terracotta transition-colors"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))
+    <div className="relative" ref={dropdownRef}>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setOpen(!open)}
+        className="relative h-10 w-10 rounded-full bg-cream text-warm-gray transition-all hover:bg-warm-sand/30"
+      >
+        <Bell className="h-5 w-5" />
+        {unreadCount > 0 && (
+          <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-terracotta p-0 flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-white">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </Badge>
         )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </Button>
+
+      {open && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 sm:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <div className="notification-dropdown-panel absolute top-full right-0 sm:left-1/2 sm:-translate-x-1/2 sm:right-auto mt-2 w-[calc(100vw-2rem)] sm:w-80 max-h-96 overflow-y-auto rounded-2xl border border-border/50 bg-popover/95 backdrop-blur-xl shadow-xl z-50 animate-in fade-in-0 zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border/30">
+              <span className="font-display font-bold text-dark-brown">Notifikasi</span>
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="text-xs text-terracotta hover:underline font-medium"
+                  >
+                    Tandai semua dibaca
+                  </button>
+                )}
+                <button
+                  onClick={() => setOpen(false)}
+                  className="p-1.5 rounded-lg text-warm-gray hover:bg-muted hover:text-foreground transition-all"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {notifications.length === 0 ? (
+              <div className="p-6 text-center text-sm text-warm-gray">
+                Tidak ada notifikasi
+              </div>
+            ) : (
+              <div className="py-1">
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`flex items-start gap-3 px-4 py-3 hover:bg-cream/50 cursor-pointer transition-colors ${
+                      !notification.isRead ? "bg-terracotta/5" : ""
+                    }`}
+                    onClick={() => !notification.isRead && markAsRead(notification.id)}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      {notificationIcons[notification.type]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-dark-brown leading-snug">
+                        {notification.title}
+                      </p>
+                      <p className="text-xs text-warm-gray line-clamp-2 mt-0.5 leading-relaxed">
+                        {notification.message}
+                      </p>
+                      {notification.order && (
+                        <Link
+                          href={`/admin/orders/${notification.orderId}`}
+                          className="text-xs text-terracotta hover:underline mt-1 block font-medium"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpen(false);
+                          }}
+                        >
+                          Lihat Order #{notification.order.orderCode}
+                        </Link>
+                      )}
+                      <p className="text-[10px] text-warm-gray/70 mt-1">
+                        {formatTime(notification.createdAt)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification(notification.id);
+                      }}
+                      className="flex-shrink-0 p-1.5 rounded-lg text-warm-gray/50 hover:text-terracotta hover:bg-terracotta/10 transition-all"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

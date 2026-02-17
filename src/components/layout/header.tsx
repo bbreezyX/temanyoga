@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "@/contexts/cart-context";
 import { cn, formatCurrency } from "@/lib/utils";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 
 const NAV_LINKS = [
   { href: "/products", label: "Produk" },
@@ -25,82 +25,68 @@ export function Header() {
   const { cartCount, cartTotal } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const toast = useToast();
 
   const handleCartClick = () => {
     if (cartCount === 0) {
       toast.custom(
-        (t) => (
-          <div className="flex w-full min-w-[320px] max-w-md items-center gap-4 rounded-2xl border border-primary/20 bg-background/95 p-4 shadow-lift backdrop-blur-xl animate-in slide-in-from-top duration-500">
-            <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-primary/10 text-primary">
-              <ShoppingCart className="h-6 w-6" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-display text-base font-bold text-foreground leading-tight">
-                Keranjang Kosong
-              </h4>
-              <p className="text-sm font-medium text-muted-foreground mt-0.5">
-                Yuk, pilih produk favoritmu sekarang!
-              </p>
-            </div>
-            <button
-              onClick={() => toast.dismiss(t)}
-              className="ml-2 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest"
-            >
-              Tutup
-            </button>
+        <div className="group relative flex w-full items-center gap-3 rounded-2xl border border-primary/15 bg-popover px-4 py-3 shadow-lift overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-sage/3 pointer-events-none" />
+          <div className="toast-progress-bar" />
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <ShoppingCart className="h-4 w-4" />
           </div>
-        ),
-        {
-          duration: 4000,
-          id: "empty-cart-notification",
-        },
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            <h4 className="font-display text-[14px] sm:text-[15px] font-bold text-foreground leading-snug">
+              Keranjang Kosong
+            </h4>
+            <p className="text-[13px] sm:text-[13.5px] font-medium text-muted-foreground mt-0.5 leading-snug">
+              Yuk, pilih produk favoritmu!
+            </p>
+          </div>
+          <button
+            onClick={() => toast.dismiss("empty-cart-notification")}
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>,
+        { duration: 4000 }
       );
       return;
     }
 
     toast.custom(
-      (t) => (
-        <div className="flex w-full min-w-[320px] max-w-md items-center gap-4 rounded-2xl border border-primary/20 bg-background/95 p-4 shadow-lift backdrop-blur-xl animate-in slide-in-from-bottom duration-500">
-          <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-primary/10 text-primary">
-            <ShoppingCart className="h-6 w-6" />
-          </div>
-          <div className="flex-1">
-            <h4 className="font-display text-base font-bold text-foreground leading-tight">
-              Keranjang Belanja
-            </h4>
-            <p className="text-sm font-medium text-muted-foreground mt-0.5">
-              {cartCount} Item •{" "}
-              <span className="text-primary">{formatCurrency(cartTotal)}</span>
-            </p>
-          </div>
-          <div className="flex flex-col gap-1.5 ml-2">
-            <Button
-              size="sm"
-              className="rounded-xl h-9 px-4 font-bold"
-              asChild
-              onClick={() => toast.dismiss(t)}
-            >
-              <Link href="/cart">Lihat</Link>
-            </Button>
-            <button
-              onClick={() => toast.dismiss(t)}
-              className="text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors uppercase tracking-widest"
-            >
-              Tutup
-            </button>
-          </div>
+      <div className="group relative flex w-full items-center gap-3 rounded-2xl border border-sage/20 bg-popover px-4 py-3 shadow-lift overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/8 via-transparent to-primary/3 pointer-events-none" />
+        <div className="toast-progress-bar toast-progress-bar--success" />
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sage/15 text-sage">
+          <ShoppingCart className="h-4 w-4" />
         </div>
-      ),
-      {
-        duration: 5000,
-        id: "cart-notification",
-      },
+        <div className="flex-1 min-w-0 flex flex-col justify-center">
+          <h4 className="font-display text-[14px] sm:text-[15px] font-bold text-foreground leading-snug">
+            Keranjang Belanja
+          </h4>
+          <p className="text-[13px] sm:text-[13.5px] font-medium text-muted-foreground mt-0.5 leading-snug">
+            {cartCount} Item •{" "}
+            <span className="text-sage font-bold">{formatCurrency(cartTotal)}</span>
+          </p>
+        </div>
+        <Button
+          size="sm"
+          className="rounded-xl h-8 px-3 font-bold bg-sage hover:bg-sage/90 text-white text-[13px] flex-shrink-0"
+          asChild
+          onClick={() => toast.dismiss("cart-notification")}
+        >
+          <Link href="/cart">Lihat</Link>
+        </Button>
+      </div>,
+      { duration: 5000 }
     );
   };
 
   useEffect(() => {
     const handleScroll = () => {
-      // Increase threshold effectively to 20px to prevent "shaking" near the top
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });

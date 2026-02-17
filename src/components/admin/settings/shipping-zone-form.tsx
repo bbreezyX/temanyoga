@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { apiPost, apiPatch } from "@/lib/api-client";
 import type { AdminShippingZone } from "@/types/api";
 
@@ -19,6 +19,7 @@ export function ShippingZoneForm({
   onClose,
   onSaved,
 }: ShippingZoneFormProps) {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

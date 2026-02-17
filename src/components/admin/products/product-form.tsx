@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -26,6 +26,7 @@ export function ProductForm({
   onClose,
   onSaved,
 }: ProductFormProps) {
+  const toast = useToast();
   const isEdit = !!product;
   const [loading, setLoading] = useState(false);
 

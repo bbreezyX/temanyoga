@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { Loader2 } from "lucide-react";
 import { OrderStatus } from "@/generated/prisma/enums";
 import { Button } from "@/components/ui/button";
@@ -39,6 +39,7 @@ export function StatusUpdate({
   currentStatus: OrderStatus;
   onUpdated: () => void;
 }) {
+  const toast = useToast();
   const [newStatus, setNewStatus] = useState("");
   const [loading, setLoading] = useState(false);
 

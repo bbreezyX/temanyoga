@@ -117,6 +117,25 @@
   --rounded-organic-1: 60% 40% 70% 30% / 40% 50% 60% 40%;
   --rounded-organic-2: 30% 70% 50% 50% / 50% 30% 70% 50%;
   --rounded-organic-3: 50% 50% 30% 70% / 50% 70% 30% 50%;
+
+  /* Landing page asymmetric rounded variations */
+  --rounded-playful: 48px 64px 48px 64px;
+  --rounded-mirror: 64px 48px 64px 48px;
+  --rounded-leaf: 56px 40px 56px 40px;
+  --rounded-soft: 40px 56px 40px 56px;
+  --rounded-crisp: 32px 48px 32px 48px;
+  --rounded-hero: 40px 64px 40px 64px;
+  --rounded-hero-lg: 48px 80px 48px 80px;
+  --rounded-flow: 56px 32px 56px 32px;
+  --rounded-flow-lg: 72px 40px 72px 40px;
+  --rounded-product-a: 40px 56px 40px 56px;
+  --rounded-product-b: 56px 40px 56px 40px;
+  --rounded-product-c: 48px 64px 48px 64px;
+  --rounded-product-d: 64px 48px 64px 48px;
+  --rounded-container: 32px 64px 32px 64px;
+  --rounded-bento-1: 48px 64px 48px 64px;
+  --rounded-bento-2: 64px 48px 64px 48px;
+  --rounded-bento-3: 32px 56px 32px 56px;
 }
 
 :root {
@@ -172,6 +191,69 @@
   }
 }
 
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.92) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1) translateZ(0);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1) translateZ(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95) translateZ(0);
+  }
+}
+
+@keyframes toast-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.5s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.animate-toast-out {
+  animation: toast-out 0.35s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.toast-custom-wrapper {
+  animation: toast-in 0.5s cubic-bezier(0.19, 1, 0.22, 1) both;
+}
+
+.toast-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--sage) 100%);
+  border-radius: 0 0 1.25rem 1.25rem;
+  transform-origin: left;
+  animation: toast-progress 4s linear forwards;
+  opacity: 0.7;
+}
+
+.toast-progress-bar--success {
+  background: linear-gradient(90deg, var(--sage) 0%, #5a8d5f 100%);
+}
+
+.toast-custom-wrapper:hover .toast-progress-bar {
+  animation-play-state: paused;
+}
+
 .dark {
   /* Temanyoga Dark Theme - Deep Forest */
   --background: oklch(0.18 0.03 260);
@@ -224,5 +306,24 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.notification-dropdown-panel {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  top: 4.5rem !important;
+  transform: translateX(-50%) !important;
+  width: calc(100vw - 2rem) !important;
+  max-width: 20rem !important;
+}
+
+@media (min-width: 640px) {
+  .notification-dropdown-panel {
+    position: absolute !important;
+    top: auto !important;
+    transform: translateX(-50%) !important;
+    width: 20rem !important;
   }
 }

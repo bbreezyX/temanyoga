@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ export function TrackingForm({
   currentCourier: string | null;
   onUpdated: () => void;
 }) {
+  const toast = useToast();
   const [trackingNumber, setTrackingNumber] = useState(currentTracking ?? "");
   const [courier, setCourier] = useState(currentCourier ?? "");
   const [loading, setLoading] = useState(false);

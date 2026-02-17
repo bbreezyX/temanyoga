@@ -11,7 +11,7 @@ export function OrderTable({ orders }: { orders: AdminOrderListItem[] }) {
   if (orders.length === 0) {
     return (
       <div className="rounded-[32px] bg-card p-12 text-center shadow-soft ring-1 ring-border animate-fade-in-up min-h-[400px] flex items-center justify-center">
-        <p className="text-muted-foreground font-medium">No orders found.</p>
+        <p className="text-muted-foreground font-medium">Tidak ada pesanan ditemukan.</p>
       </div>
     );
   }
@@ -23,13 +23,13 @@ export function OrderTable({ orders }: { orders: AdminOrderListItem[] }) {
         <table className="w-full text-left border-collapse">
           <thead className="bg-cream/50 text-[12px] font-black uppercase tracking-[0.1em] text-warm-gray sticky top-0 z-10 backdrop-blur-sm">
             <tr>
-              <th className="py-5 pl-8">Order Code</th>
-              <th className="py-5">Customer</th>
-              <th className="py-5 text-sm font-medium text-warm-gray">Date</th>
-              <th className="py-5 text-sm font-bold text-dark-brown">Items</th>
+              <th className="py-5 pl-8">Kode Pesanan</th>
+              <th className="py-5">Pelanggan</th>
+              <th className="py-5 text-sm font-medium text-warm-gray">Tanggal</th>
+              <th className="py-5 text-sm font-bold text-dark-brown">Item</th>
               <th className="py-5">Status</th>
-              <th className="py-5 text-sm font-bold text-dark-brown">Amount</th>
-              <th className="py-5 pr-8 text-right">Actions</th>
+              <th className="py-5 text-sm font-bold text-dark-brown">Jumlah</th>
+              <th className="py-5 pr-8 text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-warm-sand/20">
@@ -115,17 +115,17 @@ export function OrderTable({ orders }: { orders: AdminOrderListItem[] }) {
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
-                  Items
-                </span>
-                <span className="text-sm font-bold text-dark-brown">
-                  {order._count.items} items
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 text-right">
-                <span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
-                  Amount
-                </span>
+<span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
+                   Item
+                 </span>
+                 <span className="text-sm font-bold text-dark-brown">
+                   {order._count.items} item
+                 </span>
+               </div>
+               <div className="flex flex-col gap-1 text-right">
+                 <span className="text-xs font-medium text-warm-gray uppercase tracking-wider">
+                   Jumlah
+                 </span>
                 <span className="text-sm font-bold text-dark-brown">
                   {formatCurrency(order.totalAmount)}
                 </span>
@@ -138,7 +138,7 @@ export function OrderTable({ orders }: { orders: AdminOrderListItem[] }) {
             >
               <Link href={`/admin/orders/${order.id}`} className="flex items-center justify-center gap-2">
                 <Eye className="h-4 w-4" />
-                View Details
+                Lihat Detail
               </Link>
             </Button>
           </div>

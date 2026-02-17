@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import {
   ChevronLeft,
   ShieldCheck,
@@ -23,6 +23,7 @@ import type { CreateOrderResponse, ShippingZone } from "@/types/api";
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, cartTotal, clearCart } = useCart();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
 
   // Shipping zones

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { OrderStatus, NotificationType } from "@/generated/prisma/client";
 import { apiSuccess, badRequest, notFound, serverError } from "@/lib/api-response";
 import { uploadToR2 } from "@/lib/r2";
+import { broadcastNotification } from "@/lib/notification-broadcast";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -59,14 +60,24 @@ export async function POST(
       return proof;
     });
 
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type: NotificationType.PAYMENT_PROOF_UPLOADED,
         title: "Bukti Pembayaran Diunggah",
         message: `Bukti pembayaran untuk pesanan ${order.orderCode} dari ${order.customerName} menunggu verifikasi`,
         orderId: order.id,
       },
+      include: {
+        order: {
+          select: {
+            orderCode: true,
+            customerName: true,
+          },
+        },
+      },
     });
+
+    broadcastNotification(notification);
 
     return apiSuccess(
       {

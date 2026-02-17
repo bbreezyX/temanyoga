@@ -4,18 +4,13 @@ import { Suspense, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import {
   CheckCircle2,
-  Copy,
   Loader2,
-  Clock,
   ArrowRight,
   ImageUp,
-  PartyPopper,
   ScanSearch,
-  List,
-  ArrowUpRight,
   BadgeCheck,
   Settings,
   Truck,
@@ -29,6 +24,7 @@ import type { PaymentProofResponse } from "@/types/api";
 
 function PaymentUploadContent() {
   const searchParams = useSearchParams();
+  const toast = useToast();
   const orderCode = searchParams.get("code") ?? "TY-8F2A1";
   const totalValue = Number(searchParams.get("total") ?? 0);
   const shippingCostValue = Number(searchParams.get("shipping") ?? 0);
@@ -443,9 +439,11 @@ function PaymentUploadContent() {
                   Ongkos Kirim
                 </p>
                 <p className="text-[13px] font-extrabold text-[#3f3328]">
-                  {shippingCostValue === 0
-                    ? <span className="text-[#7a9d7f]">Gratis</span>
-                    : formatCurrency(shippingCostValue)}
+                  {shippingCostValue === 0 ? (
+                    <span className="text-[#7a9d7f]">Gratis</span>
+                  ) : (
+                    formatCurrency(shippingCostValue)
+                  )}
                 </p>
               </div>
               <div className="flex items-center justify-between pt-1">

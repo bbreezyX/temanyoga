@@ -20,7 +20,7 @@ import {
   XCircle,
 } from "lucide-react";
 import Image from "next/image";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { apiFetch, apiPatch } from "@/lib/api-client";
 import { formatDateTime, formatCurrency } from "@/lib/format";
 import { getImageUrl } from "@/lib/image-url";
@@ -31,6 +31,7 @@ import { ProofImageDialog } from "@/components/admin/orders/proof-image-dialog";
 export default function AdminOrderDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
+  const toast = useToast();
   const [order, setOrder] = useState<AdminOrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);

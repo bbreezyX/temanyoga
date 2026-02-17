@@ -4,6 +4,7 @@ import { NotificationType } from "@/generated/prisma/client";
 import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
 import { createOrderSchema } from "@/lib/validations/order";
 import { generateOrderCode } from "@/lib/order-code";
+import { broadcastNotification } from "@/lib/notification-broadcast";
 
 export async function POST(request: Request) {
   try {
@@ -111,14 +112,24 @@ export async function POST(request: Request) {
       });
     });
 
-    await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         type: NotificationType.NEW_ORDER,
         title: "Pesanan Baru",
         message: `Pesanan baru dari ${order.customerName} senilai Rp ${order.totalAmount.toLocaleString("id-ID")}`,
         orderId: order.id,
       },
+      include: {
+        order: {
+          select: {
+            orderCode: true,
+            customerName: true,
+          },
+        },
+      },
     });
+
+    broadcastNotification(notification);
 
     return apiSuccess(
       {

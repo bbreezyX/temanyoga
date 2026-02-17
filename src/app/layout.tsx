@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Archivo } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
+import { ToastProvider } from "@/components/ui/toast";
 import { CartProvider } from "@/contexts/cart-context";
 import "./globals.css";
 
@@ -37,8 +37,9 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${archivo.variable} antialiased font-sans`}
       >
-        <CartProvider>{children}</CartProvider>
-        <Toaster richColors position="bottom-center" />
+        <ToastProvider>
+          <CartProvider>{children}</CartProvider>
+        </ToastProvider>
       </body>
     </html>
   );

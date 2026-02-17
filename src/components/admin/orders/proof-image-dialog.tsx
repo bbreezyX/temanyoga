@@ -4,6 +4,7 @@ import Image from "next/image";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { getImageUrl } from "@/lib/image-url";
 
@@ -19,6 +20,7 @@ export function ProofImageDialog({
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl">
+        <DialogTitle className="sr-only">Bukti Pembayaran</DialogTitle>
         {imageUrl && (
           <div className="relative aspect-[3/4] w-full">
             <Image

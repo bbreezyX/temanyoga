@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Trash2, MapPin } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { apiDelete } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/format";
 import type { AdminShippingZone } from "@/types/api";
@@ -17,6 +17,7 @@ export function ShippingZoneList({
   onEdit,
   onRefresh,
 }: ShippingZoneListProps) {
+  const toast = useToast();
   async function handleDeactivate(zone: AdminShippingZone) {
     if (!confirm(`Nonaktifkan zona "${zone.name}"?`)) return;
 

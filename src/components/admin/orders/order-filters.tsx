@@ -31,7 +31,7 @@ export function OrderFilters({
         <Search className="h-5 w-5 text-warm-gray shrink-0" />
         <input
           type="text"
-          placeholder="Search order code or customer..."
+          placeholder="Cari kode pesanan atau pelanggan..."
           className="w-full bg-transparent text-sm font-medium text-dark-brown placeholder:text-warm-gray/60 outline-none min-w-0"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -41,18 +41,18 @@ export function OrderFilters({
       <div className="flex flex-wrap md:flex-nowrap items-center gap-3 w-full md:w-auto">
         <button className="flex-1 md:flex-none relative flex items-center justify-center gap-2 rounded-full bg-cream px-4 py-3 ring-1 ring-warm-sand/50 hover:bg-white transition-colors cursor-not-allowed opacity-70 whitespace-nowrap">
           <CalendarRange className="h-[18px] w-[18px] text-warm-gray" />
-          <span className="text-sm font-bold text-dark-brown hidden sm:inline">Date Range</span>
-          <span className="text-sm font-bold text-dark-brown sm:hidden">Date</span>
+          <span className="text-sm font-bold text-dark-brown hidden sm:inline">Rentang Tanggal</span>
+          <span className="text-sm font-bold text-dark-brown sm:hidden">Tanggal</span>
         </button>
 
         <div className="flex-1 md:flex-none min-w-[140px]">
           <Select value={status} onValueChange={onStatusChange}>
             <SelectTrigger className="w-full rounded-full bg-cream px-4 md:px-5 py-6 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/50 border-none shadow-none focus:ring-terracotta/40 md:w-[180px]">
-              <SelectValue placeholder="All Status" />
+              <SelectValue placeholder="Semua Status" />
             </SelectTrigger>
             <SelectContent className="rounded-2xl border-warm-sand/50 shadow-xl overflow-hidden bg-white">
               <SelectItem value="all" className="font-medium focus:bg-cream">
-                All Status
+                Semua Status
               </SelectItem>
               {STATUS_OPTIONS.map((s) => (
                 <SelectItem

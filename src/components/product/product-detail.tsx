@@ -13,7 +13,7 @@ import {
   RotateCcw,
   Star,
 } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
@@ -21,6 +21,7 @@ import type { ProductDetail as ProductDetailType } from "@/types/api";
 
 export function ProductDetail({ product }: { product: ProductDetailType }) {
   const { addItem } = useCart();
+  const toast = useToast();
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 

@@ -23,7 +23,7 @@ import { apiFetch } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
 import { OrderStatus } from "@/generated/prisma/enums";
 import type { OrderStatusResponse } from "@/types/api";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
@@ -37,6 +37,7 @@ const STEPS = [
 
 function TrackOrderContent() {
   const searchParams = useSearchParams();
+  const toast = useToast();
   const initialCode = searchParams.get("code") ?? "";
   const [code, setCode] = useState(initialCode);
   const [order, setOrder] = useState<OrderStatusResponse | null>(null);
@@ -90,10 +91,7 @@ function TrackOrderContent() {
 
   function copyTracking(text: string) {
     navigator.clipboard.writeText(text);
-    toast.success("Nomor resi berhasil disalin!", {
-      icon: <ClipboardCheck className="w-4 h-4 text-[#7a9d7f]" />,
-      className: "rounded-2xl font-bold",
-    });
+    toast.success("Nomor resi berhasil disalin!");
   }
 
   return (

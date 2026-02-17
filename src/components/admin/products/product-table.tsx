@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Pencil, ImagePlus, EyeOff, Eye, ImageIcon } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import {
   Dialog,
   DialogContent,
@@ -77,6 +77,7 @@ export function ProductTable({
   onEdit,
   onRefresh,
 }: ProductTableProps) {
+  const toast = useToast();
   const [imageDialogProduct, setImageDialogProduct] =
     useState<AdminProductListItem | null>(null);
 

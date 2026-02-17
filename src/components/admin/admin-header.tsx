@@ -1,19 +1,20 @@
 "use client";
 
 import { Menu, Calendar, User as UserIcon, LogOut } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { AdminSidebar } from "./admin-sidebar";
 import { NotificationDropdown } from "./notification-dropdown";
 import { useSession, signOut } from "next-auth/react";
+import { useSidebar } from "@/contexts/sidebar-context";
 
 export function AdminHeader() {
   const { data: session } = useSession();
   const userName = session?.user?.name || "Admin User";
   const userRole = session?.user?.role || "OWNER ADMIN";
+  const { setIsMobileOpen } = useSidebar();
 
-  const today = new Date().toLocaleDateString("en-US", {
+  const today = new Date().toLocaleDateString("id-ID", {
     month: "long",
     day: "numeric",
     year: "numeric",
@@ -23,7 +24,7 @@ export function AdminHeader() {
     <header className="flex h-20 shrink-0 items-center justify-between bg-card px-6 lg:px-10 shadow-sm border-b border-border z-40 sticky top-0">
       {/* Mobile Menu */}
       <div className="flex items-center gap-4 lg:hidden">
-        <Sheet>
+        <Sheet onOpenChange={setIsMobileOpen}>
           <SheetTrigger asChild>
             <Button
               variant="ghost"
@@ -37,6 +38,7 @@ export function AdminHeader() {
             side="left"
             className="p-0 w-72 border-none bg-dark-brown"
           >
+            <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
             <AdminSidebar />
           </SheetContent>
         </Sheet>
@@ -74,7 +76,7 @@ export function AdminHeader() {
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="flex h-10 w-10 items-center justify-center rounded-full bg-cream text-warm-gray transition-all hover:bg-terracotta/10 hover:text-terracotta"
-            title="Logout"
+            title="Keluar"
           >
             <LogOut className="h-5 w-5" />
           </button>

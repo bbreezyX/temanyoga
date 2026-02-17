@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { Check, X, Loader2, ZoomIn } from "lucide-react";
 import { PaymentProofStatus } from "@/generated/prisma/enums";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ export function PaymentProofReview({
   proofs: AdminPaymentProof[];
   onUpdated: () => void;
 }) {
+  const toast = useToast();
   const [viewImage, setViewImage] = useState<string | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,7 @@ export function PaymentProofUpload({
   orderCode: string;
   onUploaded: () => void;
 }) {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 

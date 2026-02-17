@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/toast";
 import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiUpload } from "@/lib/api-client";
@@ -14,6 +14,7 @@ export function ImageUpload({
   productId: string;
   onUploaded: (image: ProductImage) => void;
 }) {
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
