@@ -65,7 +65,7 @@ export default async function HomePage() {
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 mb-8 transform -rotate-1 md:rotate-0">
               <span className="flex h-2 w-2 rounded-full bg-[#c85a2d]"></span>
               <span className="text-[11px] md:text-[12px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
-                The New Serenity • 2026
+                Koleksi Terbaru • 2026
               </span>
             </div>
 
@@ -138,7 +138,7 @@ export default async function HomePage() {
       */}
       <section
         id="how"
-        className="pt-32 md:pt-48 pb-24 px-6 md:px-8 max-w-7xl mx-auto relative z-10"
+        className="pt-20 md:pt-48 pb-12 md:pb-32 px-6 md:px-8 max-w-7xl mx-auto relative z-10"
       >
         <div className="absolute top-0 right-[20%] w-32 h-32 bg-[#7a9d7f]/8 rounded-full blur-2xl -translate-y-1/2 pointer-events-none"></div>
 
@@ -154,7 +154,7 @@ export default async function HomePage() {
               <h2 className="font-display text-[40px] md:text-[64px] font-black leading-[0.9] tracking-tighter">
                 Dibuat dengan <br />
                 <span className="text-[#c85a2d] italic serif font-medium">
-                  Kesadaran
+                  Teliti
                 </span>
               </h2>
             </div>
@@ -205,11 +205,12 @@ export default async function HomePage() {
                 <Sparkles className="w-7 h-7" />
               </div>
               <h3 className="text-4xl font-black mb-4 tracking-tight">
-                Energi & Niat
+                Asana Charm
               </h3>
               <p className="text-slate-400 leading-relaxed max-w-md font-medium">
-                Lebih dari sekadar gantungan kunci—ini adalah simbol energi positif 
-                dan pengingat untuk tetap hadir (mindful) di setiap langkah harian Anda.
+                Lebih dari sekadar aksesori—ini adalah pendamping yang menciptakan 
+                koneksi emosional di setiap latihan, membantu Anda tetap hadir 
+                dan tenang di setiap asana.
               </p>
             </div>
             <div className="flex-1 w-full z-10">
@@ -226,8 +227,8 @@ export default async function HomePage() {
       {/* 
         FEATURED PRODUCTS 
       */}
-      <section id="products" className="mb-32 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="py-24 bg-white rounded-[40px] md:rounded-[64px] shadow-soft relative z-20 overflow-hidden ring-1 ring-[#e8dcc8]/50">
+      <section id="products" className="mb-20 md:mb-32 px-4 md:px-8 max-w-7xl mx-auto">
+        <div className="py-16 md:py-24 bg-white rounded-[40px] md:rounded-[64px] shadow-soft relative z-20 overflow-hidden ring-1 ring-[#e8dcc8]/50">
           <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full bg-[#7a9d7f]/5 blur-[60px] pointer-events-none"></div>
           <div className="relative z-10 px-6 md:px-16 max-w-7xl mx-auto mb-16">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -247,47 +248,71 @@ export default async function HomePage() {
               <Link
                 key={product.id}
                 href={`/products/${product.slug}`}
-                className="group flex-shrink-0 w-[280px] md:w-full relative bg-white rounded-[40px] overflow-hidden ring-1 ring-slate-100 hover:ring-[#c85a2d]/30 shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
+                className="group flex-shrink-0 w-[300px] md:w-full relative bg-white rounded-[48px] overflow-hidden ring-1 ring-slate-100/80 hover:ring-[#c85a2d]/20 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col h-full transform-gpu"
               >
-                <div className="aspect-[3/4] overflow-hidden relative isolate">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                <div className="aspect-[4/5] overflow-hidden relative isolate">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+                  
+                  {/* Floating Badges Container */}
+                  <div className="absolute top-4 inset-x-4 flex justify-between items-start z-20 pointer-events-none">
+                    
+                    <div className="px-2.5 py-1 rounded-full bg-[#7a9d7f]/90 backdrop-blur-md border border-white/10 shadow-lg flex items-center gap-1.5">
+                      <div className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                      </div>
+                      <span className="text-[9px] font-black uppercase tracking-wider text-white">
+                        Tersedia
+                      </span>
+                    </div>
+                  </div>
+
                   {product.images[0] ? (
                     <Image
                       src={getImageUrl(product.images[0].url)}
                       alt={product.name}
                       fill
                       quality={90}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu"
-                      sizes="(max-width: 768px) 320px, (max-width: 1024px) 25vw, 300px"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 transform-gpu"
+                      sizes="(max-width: 768px) 320px, (max-width: 1024px) 25vw, 400px"
                       priority={index < 2}
                       loading={index < 2 ? undefined : "lazy"}
                     />
                   ) : (
-                    <div className="h-full w-full bg-slate-100 grid place-items-center">
-                      <Sparkles className="w-8 h-8 text-slate-300" />
+                    <div className="h-full w-full bg-slate-50 grid place-items-center">
+                      <Sparkles className="w-10 h-10 text-slate-200" />
                     </div>
                   )}
-                  <div className="absolute bottom-4 right-4 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 transform-gpu">
-                    <div className="h-10 w-10 rounded-full bg-white text-slate-900 shadow-xl grid place-items-center">
-                      <ArrowRight className="w-5 h-5" />
+                  
+                  {/* Floating Action Hint */}
+                  <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                    <div className="bg-white/90 backdrop-blur-sm text-[#c85a2d] px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                      Detail Produk <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>
                 </div>
-                <div className="p-6 pb-8 flex flex-col flex-1">
-                  <h3 className="font-display font-bold text-xl text-slate-900 mb-3 leading-tight line-clamp-2 h-[2.4em]">
+
+                <div className="p-8 flex flex-col flex-1 bg-gradient-to-b from-white to-slate-50/30">
+                  <h3 className="font-display font-black text-2xl text-slate-900 mb-4 leading-tight line-clamp-2 min-h-[2.4em] group-hover:text-[#c85a2d] transition-colors">
                     {product.name}
                   </h3>
+                  
                   <div className="flex-1"></div>
-                  <div className="flex items-end justify-between mt-4">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Investasi</span>
-                      <span className="text-2xl font-display font-black text-[#c85a2d]">
-                        {formatCurrency(Number(product.price))}
-                      </span>
-                    </div>
-                    <div className="px-3 py-1 rounded-full bg-[#7a9d7f]/10 flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#7a9d7f]"></div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-[#7a9d7f]">Siap Menemani</span>
+                  
+                  <div className="space-y-6">
+                    <div className="h-px w-full bg-slate-100"></div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Harga</span>
+                        <span className="text-2xl font-display font-black text-[#c85a2d] tracking-tight">
+                          {formatCurrency(Number(product.price))}
+                        </span>
+                      </div>
+                      
+                      <div className="h-10 w-10 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-[#c85a2d] group-hover:text-white transition-all duration-500 shadow-sm">
+                        <ArrowRight className="w-5 h-5" />
+                      </div>
                     </div>
                   </div>
                 </div>

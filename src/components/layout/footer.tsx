@@ -16,8 +16,8 @@ export function Footer() {
               </p>
             </div>
             <p className="text-sm text-muted-foreground max-w-[240px]">
-              Menemani setiap langkah dalam perjalanan yoga Anda dengan
-              kesadaran dan kebahagiaan.
+              Asana Charm: Menciptakan koneksi emosional dalam setiap langkah 
+              perjalanan yoga Anda dengan ketenangan dan senyuman.
             </p>
           </div>
 
@@ -31,12 +31,6 @@ export function Footer() {
                 className="text-sm text-muted-foreground hover:text-[#c85a2d] transition-colors"
               >
                 Home
-              </Link>
-              <Link
-                href="/admin"
-                className="text-sm text-muted-foreground hover:text-[#c85a2d] transition-colors"
-              >
-                Dashboard
               </Link>
               <Link
                 href="/products"
