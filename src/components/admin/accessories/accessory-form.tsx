@@ -5,42 +5,45 @@ import { Loader2, X } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { Switch } from "@/components/ui/switch";
 import { apiPost, apiPatch } from "@/lib/api-client";
-import type { AdminShippingZone } from "@/types/api";
+import type { AdminAccessory } from "@/types/api";
 
-interface ShippingZoneFormProps {
-  zone: AdminShippingZone | null;
+interface AccessoryFormProps {
+  accessory: AdminAccessory | null;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export function ShippingZoneForm({
-  zone,
+export function AccessoryForm({
+  accessory,
   onClose,
   onSaved,
-}: ShippingZoneFormProps) {
+}: AccessoryFormProps) {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [groupName, setGroupName] = useState("");
   const [sortOrder, setSortOrder] = useState("0");
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (zone) {
-      setName(zone.name);
-      setDescription(zone.description ?? "");
-      setPrice(String(zone.price));
-      setSortOrder(String(zone.sortOrder));
-      setIsActive(zone.isActive);
+    if (accessory) {
+      setName(accessory.name);
+      setDescription(accessory.description || "");
+      setPrice(String(accessory.price));
+      setGroupName(accessory.groupName || "");
+      setSortOrder(String(accessory.sortOrder));
+      setIsActive(accessory.isActive);
     } else {
       setName("");
       setDescription("");
       setPrice("");
+      setGroupName("");
       setSortOrder("0");
       setIsActive(true);
     }
-  }, [zone]);
+  }, [accessory]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -53,17 +56,18 @@ export function ShippingZoneForm({
 
     const data = {
       name: name.trim(),
-      description: description.trim() || undefined,
+      description: description.trim() || null,
       price: priceNum,
+      groupName: groupName.trim() || null,
       sortOrder: parseInt(sortOrder, 10) || 0,
-      ...(zone ? { isActive } : {}),
+      ...(accessory ? { isActive } : {}),
     };
 
     setLoading(true);
 
-    const res = zone
-      ? await apiPatch(`/api/admin/shipping-zones/${zone.id}`, data)
-      : await apiPost("/api/admin/shipping-zones", data);
+    const res = accessory
+      ? await apiPatch(`/api/admin/accessories/${accessory.id}`, data)
+      : await apiPost("/api/admin/accessories", data);
 
     setLoading(false);
 
@@ -72,7 +76,9 @@ export function ShippingZoneForm({
       return;
     }
 
-    toast.success(zone ? "Zona berhasil diperbarui" : "Zona berhasil dibuat");
+    toast.success(
+      accessory ? "Aksesoris berhasil diperbarui" : "Aksesoris berhasil dibuat"
+    );
     onSaved();
     onClose();
   }
@@ -82,15 +88,15 @@ export function ShippingZoneForm({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="font-display text-xl font-extrabold text-dark-brown">
-            {zone ? "Edit Zona Pengiriman" : "Tambah Zona Pengiriman Baru"}
+            {accessory ? "Edit Aksesoris" : "Tambah Aksesoris Baru"}
           </h2>
           <p className="text-xs text-warm-gray font-medium mt-1">
-            Atur biaya pengiriman berdasarkan area di bawah ini.
+            Isi detail aksesoris add-on di bawah ini.
           </p>
         </div>
         <button
           onClick={onClose}
-          className="h-10 w-10 rounded-full bg-cream flex items-center justify-center text-warm-gray hover:text-red-500 transition-all"
+          className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-warm-gray hover:text-red-500 shadow-sm transition-all"
         >
           <X className="h-5 w-5" />
         </button>
@@ -101,14 +107,14 @@ export function ShippingZoneForm({
           <div className="space-y-5">
             <div className="space-y-1.5">
               <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                Nama Zona
+                Nama Aksesoris
               </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                placeholder="Contoh: Dalam Kota"
-                className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+                placeholder="Contoh: Tatakan Kayu Jati"
+                className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
               />
             </div>
 
@@ -116,11 +122,12 @@ export function ShippingZoneForm({
               <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
                 Deskripsi (opsional)
               </label>
-              <input
+              <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Contoh: Pengiriman area Jabodetabek"
-                className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+                placeholder="Deskripsi singkat aksesoris"
+                rows={3}
+                className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all resize-none"
               />
             </div>
           </div>
@@ -129,7 +136,7 @@ export function ShippingZoneForm({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                  Harga Ongkir (Rp)
+                  Harga (Rp)
                 </label>
                 <input
                   type="number"
@@ -137,28 +144,43 @@ export function ShippingZoneForm({
                   onChange={(e) => setPrice(e.target.value)}
                   required
                   min={0}
-                  placeholder="15000"
-                  className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+                  placeholder="10000"
+                  className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
                 />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                  Urutan
+                  Urutan Tampil
                 </label>
                 <input
                   type="number"
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value)}
                   min={0}
-                  className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+                  className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
                 />
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-2xl bg-cream px-5 py-3.5 ring-1 ring-warm-sand/50">
+            <div className="space-y-1.5">
+              <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
+                Nama Grup (opsional)
+              </label>
+              <input
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                placeholder="Misal: Pilihan Tatakan"
+                className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+              />
+              <p className="text-[10px] text-warm-gray/70 leading-tight mt-1 px-1">
+                Gunakan nama grup yang sama untuk membuat pilihan radio (pilih salah satu).
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between rounded-2xl bg-white px-5 py-3.5 ring-1 ring-warm-sand/50">
               <div>
-                <p className="text-sm font-bold text-dark-brown">Zona Aktif</p>
-                <p className="text-[10px] text-warm-gray">Aktifkan untuk digunakan pelanggan</p>
+                <p className="text-sm font-bold text-dark-brown">Status Aktif</p>
+                <p className="text-[10px] text-warm-gray">Munculkan di toko</p>
               </div>
               <Switch
                 checked={isActive}
@@ -172,7 +194,7 @@ export function ShippingZoneForm({
           <button
             type="button"
             onClick={onClose}
-            className="order-2 sm:order-1 px-8 py-3.5 font-bold text-sm text-warm-gray hover:bg-cream rounded-full transition-colors"
+            className="order-2 sm:order-1 px-8 py-3.5 font-bold text-sm text-warm-gray hover:bg-warm-sand/30 rounded-full transition-colors"
           >
             Batal
           </button>
@@ -182,7 +204,7 @@ export function ShippingZoneForm({
             className="order-1 sm:order-2 px-10 py-3.5 font-bold text-sm text-white bg-terracotta rounded-full shadow-lg shadow-terracotta/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {zone ? "Simpan Perubahan" : "Buat Zona"}
+            {accessory ? "Simpan Perubahan" : "Buat Aksesoris"}
           </button>
         </div>
       </form>

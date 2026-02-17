@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       return badRequest(parsed.error.issues[0].message);
     }
 
-    const { items, shippingZoneId, ...customerData } = parsed.data;
+    const { items, shippingZoneId, couponCode, ...customerData } = parsed.data;
 
     // Validate shipping zone exists and is active
     const shippingZone = await prisma.shippingZone.findUnique({
@@ -52,22 +52,97 @@ export async function POST(request: Request) {
       }
     }
 
-    // Calculate total = subtotal products + shipping cost
+    // Collect all unique accessory IDs from all items
+    const allAccessoryIds = new Set<string>();
+    for (const item of items) {
+      if (item.accessoryIds) {
+        for (const id of item.accessoryIds) allAccessoryIds.add(id);
+      }
+    }
+
+    // Fetch accessories if any were requested
+    const accessoryMap = new Map<string, { id: string; name: string; price: number; groupName: string | null; isActive: boolean }>();
+    if (allAccessoryIds.size > 0) {
+      const accessories = await prisma.accessory.findMany({
+        where: { id: { in: [...allAccessoryIds] } },
+        select: { id: true, name: true, price: true, groupName: true, isActive: true },
+      });
+      for (const a of accessories) accessoryMap.set(a.id, a);
+
+      // Validate all accessories exist and are active
+      for (const accId of allAccessoryIds) {
+        const acc = accessoryMap.get(accId);
+        if (!acc) return badRequest(`Aksesoris tidak ditemukan: ${accId}`);
+        if (!acc.isActive) return badRequest(`Aksesoris "${acc.name}" tidak aktif`);
+      }
+    }
+
+    // Validate group constraints and build order items
     let subtotal = 0;
     const orderItems = items.map((item) => {
       const product = productMap.get(item.productId)!;
-      const itemTotal = product.price * item.quantity;
+      const itemAccessories: { name: string; price: number }[] = [];
+      let accTotal = 0;
+
+      if (item.accessoryIds && item.accessoryIds.length > 0) {
+        // Validate max 1 per group
+        const groupSeen = new Map<string, string>();
+        for (const accId of item.accessoryIds) {
+          const acc = accessoryMap.get(accId)!;
+          if (acc.groupName) {
+            if (groupSeen.has(acc.groupName)) {
+              throw new Error(`Hanya bisa pilih 1 aksesoris dari grup "${acc.groupName}"`);
+            }
+            groupSeen.set(acc.groupName, acc.id);
+          }
+          itemAccessories.push({ name: acc.name, price: acc.price });
+          accTotal += acc.price;
+        }
+      }
+
+      const itemTotal = (product.price + accTotal) * item.quantity;
       subtotal += itemTotal;
+
       return {
         productId: item.productId,
         quantity: item.quantity,
         unitPriceSnapshot: product.price,
         productNameSnapshot: product.name,
+        accessoriesSnapshot: itemAccessories.length > 0 ? JSON.stringify(itemAccessories) : null,
+        accessoriesTotal: accTotal,
       };
     });
 
+    // Validate and calculate coupon discount
+    let couponId: string | null = null;
+    let validCouponCode: string | null = null;
+    let discountAmount = 0;
+
+    if (couponCode) {
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: couponCode.toUpperCase().trim() },
+      });
+
+      if (!coupon || !coupon.isActive) {
+        return badRequest("Kode kupon tidak valid atau tidak aktif");
+      }
+
+      if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+        return badRequest("Kode kupon sudah kedaluwarsa");
+      }
+
+      couponId = coupon.id;
+      validCouponCode = coupon.code;
+
+      if (coupon.discountType === "PERCENTAGE") {
+        discountAmount = Math.floor(subtotal * coupon.discountValue / 100);
+      } else {
+        discountAmount = Math.min(coupon.discountValue, subtotal);
+      }
+    }
+
     const shippingCost = shippingZone.price;
-    const totalAmount = subtotal + shippingCost;
+    const totalAmount = subtotal - discountAmount + shippingCost;
 
     // Snapshot the zone info for historical reference
     const shippingZoneSnapshot = JSON.stringify({
@@ -106,6 +181,9 @@ export async function POST(request: Request) {
           shippingCost,
           shippingZoneId,
           shippingZoneSnapshot,
+          couponId,
+          couponCode: validCouponCode,
+          discountAmount,
           items: { create: orderItems },
         },
         include: { items: true },
@@ -136,6 +214,8 @@ export async function POST(request: Request) {
         orderCode: order.orderCode,
         totalAmount: order.totalAmount,
         shippingCost: order.shippingCost,
+        discountAmount: order.discountAmount,
+        couponCode: order.couponCode,
         status: order.status,
         items: order.items,
       },
@@ -143,7 +223,10 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("POST /api/orders error:", error);
-    if (error instanceof Error && error.message.includes("Insufficient stock")) {
+    if (error instanceof Error && (
+      error.message.includes("Insufficient stock") ||
+      error.message.includes("Hanya bisa pilih")
+    )) {
       return badRequest(error.message);
     }
     return serverError();

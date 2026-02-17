@@ -11,7 +11,8 @@
       "Bash(npx next build:*)",
       "mcp__supabase__apply_migration",
       "Bash(taskkill:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(npx prisma migrate dev:*)"
     ]
   }
 }

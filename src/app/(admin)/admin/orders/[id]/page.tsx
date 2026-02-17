@@ -364,37 +364,51 @@ export default function AdminOrderDetailPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-warm-sand/20">
-                      {order.items.map((item) => (
-                        <tr key={item.id} className="group">
-                          <td className="py-5">
-                            <div className="flex items-center gap-3 sm:gap-4">
-                              <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-warm-sand/20 flex shrink-0 items-center justify-center ring-1 ring-warm-sand/50 overflow-hidden relative">
-                                <ImageIcon className="text-2xl text-warm-gray/30 absolute" />
-                                {/* Add real image here if available */}
+                      {order.items.map((item) => {
+                        let accSnapshots: { name: string; price: number }[] = [];
+                        if (item.accessoriesSnapshot) {
+                          try { accSnapshots = JSON.parse(item.accessoriesSnapshot); } catch {}
+                        }
+                        const accTotal = item.accessoriesTotal || 0;
+                        const unitWithAcc = item.unitPriceSnapshot + accTotal;
+                        return (
+                          <tr key={item.id} className="group">
+                            <td className="py-5">
+                              <div className="flex items-center gap-3 sm:gap-4">
+                                <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-warm-sand/20 flex shrink-0 items-center justify-center ring-1 ring-warm-sand/50 overflow-hidden relative">
+                                  <ImageIcon className="text-2xl text-warm-gray/30 absolute" />
+                                </div>
+                                <div className="min-w-0 pr-2">
+                                  <p className="font-bold text-dark-brown text-sm sm:text-base line-clamp-2">
+                                    {item.productNameSnapshot}
+                                  </p>
+                                  {accSnapshots.length > 0 && (
+                                    <div className="mt-0.5 space-y-0.5">
+                                      {accSnapshots.map((acc, idx) => (
+                                        <p key={idx} className="text-[11px] text-sage font-medium">
+                                          + {acc.name} ({formatCurrency(acc.price)})
+                                        </p>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <p className="text-xs text-warm-gray truncate">
+                                    ID: {item.product.slug}
+                                  </p>
+                                </div>
                               </div>
-                              <div className="min-w-0 pr-2">
-                                <p className="font-bold text-dark-brown text-sm sm:text-base line-clamp-2">
-                                  {item.productNameSnapshot}
-                                </p>
-                                <p className="text-xs text-warm-gray truncate">
-                                  ID: {item.product.slug}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-5 text-center font-bold text-dark-brown text-sm sm:text-base">
-                            {item.quantity}
-                          </td>
-                          <td className="py-5 text-right text-sm text-warm-gray whitespace-nowrap">
-                            {formatCurrency(item.unitPriceSnapshot)}
-                          </td>
-                          <td className="py-5 text-right font-bold text-dark-brown whitespace-nowrap">
-                            {formatCurrency(
-                              item.unitPriceSnapshot * item.quantity,
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="py-5 text-center font-bold text-dark-brown text-sm sm:text-base">
+                              {item.quantity}
+                            </td>
+                            <td className="py-5 text-right text-sm text-warm-gray whitespace-nowrap">
+                              {formatCurrency(unitWithAcc)}
+                            </td>
+                            <td className="py-5 text-right font-bold text-dark-brown whitespace-nowrap">
+                              {formatCurrency(unitWithAcc * item.quantity)}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -403,9 +417,19 @@ export default function AdminOrderDetailPage() {
                     <div className="flex justify-between text-sm text-warm-gray">
                       <span className="font-medium">Subtotal Produk</span>
                       <span className="font-bold">
-                        {formatCurrency(order.totalAmount - (order.shippingCost ?? 0))}
+                        {formatCurrency(order.totalAmount + (order.discountAmount ?? 0) - (order.shippingCost ?? 0))}
                       </span>
                     </div>
+                    {(order.discountAmount ?? 0) > 0 && (
+                      <div className="flex justify-between text-sm text-sage">
+                        <span className="font-medium">
+                          Diskon{order.couponCode ? ` (${order.couponCode})` : ""}
+                        </span>
+                        <span className="font-bold">
+                          -{formatCurrency(order.discountAmount)}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm text-warm-gray">
                       <span className="font-medium">
                         Ongkir

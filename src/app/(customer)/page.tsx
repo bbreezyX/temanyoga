@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import {
   Sparkles,
@@ -10,6 +11,8 @@ import {
   Truck,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { getImageUrl } from "@/lib/image-url";
+
 
 async function getFeaturedProducts() {
   try {
@@ -98,12 +101,14 @@ export default async function HomePage() {
 
           <div className="hidden lg:block absolute right-16 bottom-24 w-64 h-80 rounded-[48px] bg-slate-100 ring-1 ring-white/50 shadow-2xl overflow-hidden rotate-6 hover:rotate-0 transition-transform duration-700">
             <div className="absolute inset-0 bg-[#c85a2d]/5 mix-blend-multiply"></div>
-            <img
+            <Image
               src="/images/crochet.png"
               alt="Yoga Preview"
-              className="w-full h-full object-cover animate-slow-zoom"
+              fill
+              className="object-cover animate-slow-zoom"
             />
           </div>
+
         </div>
       </section>
 
@@ -255,14 +260,16 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="relative">
-                <div className="aspect-square rounded-[64px] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl">
-                  <img
+                <div className="relative aspect-square rounded-[64px] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl">
+                  <Image
                     src="/images/knittedyoga.png"
                     alt="Yoga Community"
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 </div>
               </div>
+
             </div>
             <div className="mt-32 text-center max-w-4xl mx-auto">
               <p className="font-display text-2xl md:text-3xl font-medium leading-relaxed italic text-slate-100/90">
@@ -305,39 +312,72 @@ export default async function HomePage() {
               <Link
                 key={product.id}
                 href={`/products/${product.slug}`}
-                className="group flex-shrink-0 w-[280px] md:w-full relative bg-white rounded-[40px] overflow-hidden ring-1 ring-slate-100 hover:ring-[#c85a2d]/30 transition-all shadow-md hover:shadow-2xl"
+                className="group flex-shrink-0 w-[280px] md:w-full relative bg-white rounded-[40px] overflow-hidden ring-1 ring-slate-100 hover:ring-[#c85a2d]/30 transition-all shadow-md hover:shadow-2xl flex flex-col h-full"
               >
-                <div className="aspect-[3/4] overflow-hidden relative">
+                <div className="aspect-[3/4] overflow-hidden relative isolate">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
                   {product.images[0] ? (
-                    <img
-                      src={product.images[0].url}
+                    <Image
+                      src={getImageUrl(product.images[0].url)}
                       alt={product.name}
+                      fill
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 280px, 25vw"
                     />
                   ) : (
                     <div className="h-full w-full bg-slate-100 grid place-items-center">
                       <Sparkles className="w-8 h-8 text-slate-300" />
                     </div>
                   )}
+                  <div className="absolute bottom-4 right-4 z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                    <div className="h-10 w-10 rounded-full bg-white text-slate-900 shadow-xl grid place-items-center">
+                      <ArrowRight className="w-5 h-5" />
+                    </div>
+                  </div>
                 </div>
-                <div className="p-8 pb-10">
-                  <h3 className="font-black text-xl text-slate-900 mb-2 leading-tight line-clamp-1">
+                <div className="p-6 pb-8 flex flex-col flex-1">
+                  <h3 className="font-display font-bold text-xl text-slate-900 mb-3 leading-tight line-clamp-2 h-[2.4em]">
                     {product.name}
                   </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-display font-black text-[#c85a2d]">
-                      {formatCurrency(Number(product.price))}
-                    </span>
-                    <div className="w-10 h-10 rounded-full bg-slate-900 text-white grid place-items-center transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                      <ShoppingBag className="w-5 h-5" />
+                  <div className="flex-1"></div>
+                  <div className="flex items-end justify-between mt-4">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Investasi</span>
+                      <span className="text-2xl font-display font-black text-[#c85a2d]">
+                        {formatCurrency(Number(product.price))}
+                      </span>
+                    </div>
+                    <div className="px-3 py-1 rounded-full bg-[#7a9d7f]/10 flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#7a9d7f]"></div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#7a9d7f]">Ready</span>
                     </div>
                   </div>
                 </div>
               </Link>
             ))}
           </div>
-          <div className="mt-32 pb-24 px-6 md:px-8 border-t border-slate-50 relative z-10">
-            <div className="max-w-7xl mx-auto pt-24 grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
+
+          {/* Artistic Divider Section */}
+          <div className="relative mt-12 mb-8 px-6 md:px-16 overflow-hidden">
+            <div className="flex items-center gap-4">
+              <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#e8dcc8] to-[#e8dcc8]/20"></div>
+              <div className="flex gap-1.5">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className={`h-1.5 w-1.5 rounded-full ${i === 0 ? 'bg-[#c85a2d]' : 'bg-[#e8dcc8]'}`}></div>
+                ))}
+              </div>
+              <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#e8dcc8] to-[#e8dcc8]/20"></div>
+            </div>
+            
+            {/* Soft background text behind the divider for extra texture */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 text-[60px] md:text-[80px] font-black text-slate-50/50 uppercase tracking-[0.2em] whitespace-nowrap pointer-events-none select-none italic font-display">
+              HANDMADE QUALITY
+            </div>
+          </div>
+
+          <div className="pb-24 px-6 md:px-8 relative z-10">
+            <div className="max-w-7xl mx-auto pt-16 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
+
               {[
                 {
                   icon: Lock,

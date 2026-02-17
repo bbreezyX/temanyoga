@@ -28,7 +28,9 @@ function PaymentUploadContent() {
   const orderCode = searchParams.get("code") ?? "TY-8F2A1";
   const totalValue = Number(searchParams.get("total") ?? 0);
   const shippingCostValue = Number(searchParams.get("shipping") ?? 0);
-  const subtotalValue = totalValue - shippingCostValue;
+  const discountValue = Number(searchParams.get("discount") ?? 0);
+  const couponCodeParam = searchParams.get("coupon");
+  const subtotalValue = totalValue + discountValue - shippingCostValue;
   const now = new Date();
   const formattedDate = `${now.getDate()} Feb ${now.getFullYear()} • ${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
 
@@ -434,6 +436,16 @@ function PaymentUploadContent() {
                   {formatCurrency(subtotalValue)}
                 </p>
               </div>
+              {discountValue > 0 && (
+                <div className="flex items-center justify-between">
+                  <p className="text-[13px] font-semibold text-[#7a9d7f]">
+                    Diskon{couponCodeParam ? ` (${couponCodeParam})` : ""}
+                  </p>
+                  <p className="text-[13px] font-extrabold text-[#7a9d7f]">
+                    -{formatCurrency(discountValue)}
+                  </p>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <p className="text-[13px] font-semibold text-[#6b5b4b]">
                   Ongkos Kirim

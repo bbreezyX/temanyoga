@@ -36,6 +36,11 @@ enum NotificationType {
   ORDER_STATUS_CHANGED
 }
 
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -58,6 +63,7 @@ model Product {
   updatedAt   DateTime       @updatedAt
   images      ProductImage[]
   orderItems  OrderItem[]
+  reviews     Review[]
 
   @@index([isActive])
   @@index([createdAt])
@@ -89,6 +95,35 @@ model ShippingZone {
   @@index([isActive])
 }
 
+model Accessory {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Int
+  groupName   String?
+  imageUrl    String?
+  imageKey    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([groupName])
+}
+
+model Coupon {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  discountType  DiscountType
+  discountValue Int
+  isActive      Boolean      @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  orders        Order[]
+}
+
 model Order {
   id                   String         @id @default(cuid())
   orderCode            String         @unique
@@ -101,6 +136,9 @@ model Order {
   shippingCost         Int            @default(0)
   shippingZoneId       String?
   shippingZoneSnapshot String?
+  couponId             String?
+  couponCode           String?
+  discountAmount       Int            @default(0)
   notes                String?
   trackingNumber       String?
   courier              String?
@@ -109,23 +147,29 @@ model Order {
   items                OrderItem[]
   paymentProofs        PaymentProof[]
   notifications        Notification[]
+  reviews              Review[]
   shippingZone         ShippingZone?  @relation(fields: [shippingZoneId], references: [id], onDelete: SetNull)
+  coupon               Coupon?        @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
   @@index([orderCode])
   @@index([status])
   @@index([createdAt])
   @@index([shippingZoneId])
+  @@index([couponId])
 }
 
 model OrderItem {
-  id                  String  @id @default(cuid())
-  orderId             String
-  productId           String
-  quantity            Int
-  unitPriceSnapshot   Int
-  productNameSnapshot String
-  order               Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product             Product @relation(fields: [productId], references: [id])
+  id                    String   @id @default(cuid())
+  orderId               String
+  productId             String
+  quantity              Int
+  unitPriceSnapshot     Int
+  productNameSnapshot   String
+  accessoriesSnapshot   String?
+  accessoriesTotal      Int      @default(0)
+  order                 Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product               Product  @relation(fields: [productId], references: [id])
+  review                Review?
 
   @@index([orderId])
 }
@@ -156,5 +200,25 @@ model Notification {
   order       Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
 
   @@index([isRead])
+  @@index([createdAt])
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  orderId       String
+  productId     String
+  orderItemId   String
+  customerName  String
+  customerEmail String
+  rating        Int
+  comment       String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  order         Order    @relation(fields: [orderId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id])
+  orderItem     OrderItem @relation(fields: [orderItemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([orderItemId])
+  @@index([productId])
   @@index([createdAt])
 }

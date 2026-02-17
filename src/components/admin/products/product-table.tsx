@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Pencil, ImagePlus, EyeOff, Eye, ImageIcon } from "lucide-react";
+import { Pencil, ImagePlus, EyeOff, Eye, ImageIcon, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format";
 import { getImageUrl } from "@/lib/image-url";
-import { apiPatch } from "@/lib/api-client";
+import { apiPatch, apiDelete } from "@/lib/api-client";
 import { ImageUpload } from "./image-upload";
 import type { AdminProductListItem } from "@/types/api";
 
@@ -95,6 +95,25 @@ export function ProductTable({
     onRefresh();
   }
 
+  async function handleDeleteImage(imageId: string) {
+    if (!confirm("Hapus gambar ini?")) return;
+
+    const res = await apiDelete(`/api/admin/products/images/${imageId}`);
+    if (!res.success) {
+      toast.error(res.error);
+      return;
+    }
+    toast.success("Gambar berhasil dihapus");
+    onRefresh();
+    // Also update current dialog product if it's open
+    if (imageDialogProduct) {
+      setImageDialogProduct({
+        ...imageDialogProduct,
+        images: imageDialogProduct.images.filter((img) => img.id !== imageId),
+      });
+    }
+  }
+
   return (
     <>
       <div className="rounded-[32px] bg-card shadow-soft ring-1 ring-warm-sand/30 overflow-hidden">
@@ -135,13 +154,13 @@ export function ProductTable({
                     {/* Product Info */}
                     <td className="py-4 pl-6 lg:pl-8">
                       <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 lg:h-16 lg:w-16 shrink-0 rounded-2xl bg-warm-sand/50 flex items-center justify-center overflow-hidden ring-1 ring-warm-sand/50">
+                        <div className="h-14 w-14 lg:h-16 lg:w-16 shrink-0 rounded-2xl bg-warm-sand/50 flex items-center justify-center overflow-hidden ring-1 ring-warm-sand/50 relative">
                           {product.images[0] ? (
                             <Image
                               src={getImageUrl(product.images[0].url)}
                               alt={product.name}
                               fill
-                              className="object-cover !relative h-full w-full"
+                              className="object-cover"
                               sizes="64px"
                             />
                           ) : (
@@ -338,7 +357,7 @@ export function ProductTable({
                   {imageDialogProduct.images.map((img) => (
                     <div
                       key={img.id}
-                      className="relative h-20 w-20 overflow-hidden rounded-2xl ring-1 ring-warm-sand/50"
+                      className="group relative h-20 w-20 overflow-hidden rounded-2xl ring-1 ring-warm-sand/50"
                     >
                       <Image
                         src={getImageUrl(img.url)}
@@ -347,14 +366,24 @@ export function ProductTable({
                         className="object-cover"
                         sizes="80px"
                       />
+                      <button
+                        onClick={() => handleDeleteImage(img.id)}
+                        className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-white"
+                        title="Hapus gambar"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   ))}
                 </div>
               )}
               <ImageUpload
                 productId={imageDialogProduct.id}
-                onUploaded={() => {
-                  setImageDialogProduct(null);
+                onUploaded={(newImage) => {
+                  setImageDialogProduct({
+                    ...imageDialogProduct,
+                    images: [...imageDialogProduct.images, newImage],
+                  });
                   onRefresh();
                 }}
               />

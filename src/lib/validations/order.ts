@@ -4,6 +4,7 @@ import { OrderStatus } from "@/generated/prisma/client";
 export const orderItemSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().positive(),
+  accessoryIds: z.array(z.string()).optional(),
 });
 
 export const createOrderSchema = z.object({
@@ -13,6 +14,7 @@ export const createOrderSchema = z.object({
   shippingAddress: z.string().min(1, "Address is required"),
   shippingZoneId: z.string().min(1, "Shipping zone is required"),
   notes: z.string().max(1000).optional(),
+  couponCode: z.string().max(30).optional(),
   items: z.array(orderItemSchema).min(1, "At least one item is required"),
 });
 

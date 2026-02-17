@@ -10,7 +10,10 @@ import { getImageUrl } from "@/lib/image-url";
 import type { CartItem } from "@/types/api";
 
 export function CartItemRow({ item }: { item: CartItem }) {
-  const { updateQuantity, removeItem } = useCart();
+  const { updateQuantity, removeItem, getItemKey } = useCart();
+  const key = getItemKey(item);
+  const accTotal = (item.accessories || []).reduce((s, a) => s + a.price, 0);
+  const unitPrice = item.price + accTotal;
 
   return (
     <article className="rounded-[30px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-4">
@@ -40,13 +43,23 @@ export function CartItemRow({ item }: { item: CartItem }) {
                 <p className="font-semibold text-[14px] text-slate-900 leading-5 group-hover:text-[#c85a2d] transition-colors">
                   {item.name}
                 </p>
-                <p className="mt-0.5 text-[12px] text-[#7a6a58]">
-                  Kualitas Premium • Pilihan Yoga
-                </p>
               </Link>
+              {item.accessories && item.accessories.length > 0 ? (
+                <div className="mt-1 space-y-0.5">
+                  {item.accessories.map((acc) => (
+                    <p key={acc.id} className="text-[11px] text-[#7a9d7f] font-medium">
+                      + {acc.name} ({formatCurrency(acc.price)})
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-0.5 text-[12px] text-[#7a6a58]">
+                  Tanpa aksesoris
+                </p>
+              )}
             </div>
             <button
-              onClick={() => removeItem(item.productId)}
+              onClick={() => removeItem(key)}
               className="min-h-[44px] min-w-[44px] grid place-items-center rounded-full bg-[#f5f1ed] ring-1 ring-[#e8dcc8] text-[#6b5b4b] hover:text-red-500 transition-colors"
             >
               <Trash2 className="w-[18px] h-[18px]" />
@@ -57,7 +70,7 @@ export function CartItemRow({ item }: { item: CartItem }) {
             <div className="inline-flex items-center gap-2 rounded-full bg-[#f5f1ed] ring-1 ring-[#e8dcc8] px-2.5 py-2">
               <button
                 onClick={() =>
-                  updateQuantity(item.productId, Math.max(1, item.quantity - 1))
+                  updateQuantity(key, Math.max(1, item.quantity - 1))
                 }
                 className="min-h-[44px] min-w-[44px] rounded-full bg-white ring-1 ring-[#e8dcc8] grid place-items-center text-[#5a4a3b] shadow-soft hover:bg-gray-50 transition-colors"
               >
@@ -67,7 +80,7 @@ export function CartItemRow({ item }: { item: CartItem }) {
                 {item.quantity}
               </span>
               <button
-                onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                onClick={() => updateQuantity(key, item.quantity + 1)}
                 className="min-h-[44px] min-w-[44px] rounded-full bg-white ring-1 ring-[#e8dcc8] grid place-items-center text-[#5a4a3b] shadow-soft hover:bg-gray-50 transition-colors"
                 disabled={item.stock !== null && item.quantity >= item.stock}
               >
@@ -77,10 +90,10 @@ export function CartItemRow({ item }: { item: CartItem }) {
 
             <div className="text-right">
               <p className="text-[12px] font-semibold text-[#7a6a58]">
-                {formatCurrency(item.price)}
+                {formatCurrency(unitPrice)}
               </p>
               <p className="mt-0.5 text-[14px] font-extrabold text-[#c85a2d]">
-                {formatCurrency(item.price * item.quantity)}
+                {formatCurrency(unitPrice * item.quantity)}
               </p>
             </div>
           </div>

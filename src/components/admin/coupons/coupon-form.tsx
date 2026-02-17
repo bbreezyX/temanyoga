@@ -5,65 +5,74 @@ import { Loader2, X } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { Switch } from "@/components/ui/switch";
 import { apiPost, apiPatch } from "@/lib/api-client";
-import type { AdminShippingZone } from "@/types/api";
+import type { AdminCoupon } from "@/types/api";
 
-interface ShippingZoneFormProps {
-  zone: AdminShippingZone | null;
+interface CouponFormProps {
+  coupon: AdminCoupon | null;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export function ShippingZoneForm({
-  zone,
+export function CouponForm({
+  coupon,
   onClose,
   onSaved,
-}: ShippingZoneFormProps) {
+}: CouponFormProps) {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [sortOrder, setSortOrder] = useState("0");
+  const [code, setCode] = useState("");
+  const [discountType, setDiscountType] = useState<"PERCENTAGE" | "FIXED_AMOUNT">("PERCENTAGE");
+  const [discountValue, setDiscountValue] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
   const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (zone) {
-      setName(zone.name);
-      setDescription(zone.description ?? "");
-      setPrice(String(zone.price));
-      setSortOrder(String(zone.sortOrder));
-      setIsActive(zone.isActive);
+    if (coupon) {
+      setCode(coupon.code);
+      setDiscountType(coupon.discountType as "PERCENTAGE" | "FIXED_AMOUNT");
+      setDiscountValue(String(coupon.discountValue));
+      setExpiresAt(
+        coupon.expiresAt
+          ? new Date(coupon.expiresAt).toISOString().slice(0, 16)
+          : ""
+      );
+      setIsActive(coupon.isActive);
     } else {
-      setName("");
-      setDescription("");
-      setPrice("");
-      setSortOrder("0");
+      setCode("");
+      setDiscountType("PERCENTAGE");
+      setDiscountValue("");
+      setExpiresAt("");
       setIsActive(true);
     }
-  }, [zone]);
+  }, [coupon]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const priceNum = parseInt(price, 10);
-    if (isNaN(priceNum) || priceNum < 0) {
-      toast.error("Harga harus berupa angka >= 0");
+    const valueNum = parseInt(discountValue, 10);
+    if (isNaN(valueNum) || valueNum <= 0) {
+      toast.error("Nilai diskon harus berupa angka > 0");
+      return;
+    }
+
+    if (discountType === "PERCENTAGE" && valueNum > 100) {
+      toast.error("Persentase diskon maksimal 100%");
       return;
     }
 
     const data = {
-      name: name.trim(),
-      description: description.trim() || undefined,
-      price: priceNum,
-      sortOrder: parseInt(sortOrder, 10) || 0,
-      ...(zone ? { isActive } : {}),
+      code: code.trim().toUpperCase(),
+      discountType,
+      discountValue: valueNum,
+      expiresAt: expiresAt ? new Date(expiresAt).toISOString() : null,
+      ...(coupon ? { isActive } : {}),
     };
 
     setLoading(true);
 
-    const res = zone
-      ? await apiPatch(`/api/admin/shipping-zones/${zone.id}`, data)
-      : await apiPost("/api/admin/shipping-zones", data);
+    const res = coupon
+      ? await apiPatch(`/api/admin/coupons/${coupon.id}`, data)
+      : await apiPost("/api/admin/coupons", data);
 
     setLoading(false);
 
@@ -72,7 +81,9 @@ export function ShippingZoneForm({
       return;
     }
 
-    toast.success(zone ? "Zona berhasil diperbarui" : "Zona berhasil dibuat");
+    toast.success(
+      coupon ? "Kupon berhasil diperbarui" : "Kupon berhasil dibuat"
+    );
     onSaved();
     onClose();
   }
@@ -82,10 +93,10 @@ export function ShippingZoneForm({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="font-display text-xl font-extrabold text-dark-brown">
-            {zone ? "Edit Zona Pengiriman" : "Tambah Zona Pengiriman Baru"}
+            {coupon ? "Edit Kupon" : "Tambah Kupon Baru"}
           </h2>
           <p className="text-xs text-warm-gray font-medium mt-1">
-            Atur biaya pengiriman berdasarkan area di bawah ini.
+            Atur kode diskon untuk pelanggan di bawah ini.
           </p>
         </div>
         <button
@@ -101,25 +112,25 @@ export function ShippingZoneForm({
           <div className="space-y-5">
             <div className="space-y-1.5">
               <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                Nama Zona
+                Kode Kupon
               </label>
               <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
                 required
-                placeholder="Contoh: Dalam Kota"
-                className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+                placeholder="Contoh: DISKON10"
+                className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-mono font-bold text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all uppercase"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                Deskripsi (opsional)
+                Berlaku Hingga (opsional)
               </label>
               <input
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Contoh: Pengiriman area Jabodetabek"
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value)}
                 className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
               />
             </div>
@@ -129,27 +140,33 @@ export function ShippingZoneForm({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                  Harga Ongkir (Rp)
+                  Tipe Diskon
                 </label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  required
-                  min={0}
-                  placeholder="15000"
+                <select
+                  value={discountType}
+                  onChange={(e) =>
+                    setDiscountType(
+                      e.target.value as "PERCENTAGE" | "FIXED_AMOUNT"
+                    )
+                  }
                   className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
-                />
+                >
+                  <option value="PERCENTAGE">Persentase (%)</option>
+                  <option value="FIXED_AMOUNT">Nominal (Rp)</option>
+                </select>
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                  Urutan
+                  {discountType === "PERCENTAGE" ? "Nilai (%)" : "Nilai (Rp)"}
                 </label>
                 <input
                   type="number"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  min={0}
+                  value={discountValue}
+                  onChange={(e) => setDiscountValue(e.target.value)}
+                  required
+                  min={1}
+                  max={discountType === "PERCENTAGE" ? 100 : undefined}
+                  placeholder={discountType === "PERCENTAGE" ? "10" : "50000"}
                   className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
                 />
               </div>
@@ -157,8 +174,8 @@ export function ShippingZoneForm({
 
             <div className="flex items-center justify-between rounded-2xl bg-cream px-5 py-3.5 ring-1 ring-warm-sand/50">
               <div>
-                <p className="text-sm font-bold text-dark-brown">Zona Aktif</p>
-                <p className="text-[10px] text-warm-gray">Aktifkan untuk digunakan pelanggan</p>
+                <p className="text-sm font-bold text-dark-brown">Status Kupon</p>
+                <p className="text-[10px] text-warm-gray">Kupon yang aktif bisa dipakai pelanggan</p>
               </div>
               <Switch
                 checked={isActive}
@@ -182,7 +199,7 @@ export function ShippingZoneForm({
             className="order-1 sm:order-2 px-10 py-3.5 font-bold text-sm text-white bg-terracotta rounded-full shadow-lg shadow-terracotta/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {zone ? "Simpan Perubahan" : "Buat Zona"}
+            {coupon ? "Simpan Perubahan" : "Buat Kupon"}
           </button>
         </div>
       </form>

@@ -11,11 +11,12 @@ export function ProductGrid({ products }: { products: ProductListItem[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10 items-stretch">
       {products.map((product, index) => (
         <div
           key={product.id}
           className={`
+            h-full flex flex-col
             ${index % 5 === 0 ? "sm:col-span-2 lg:col-span-1" : ""}
             ${index % 7 === 0 ? "md:rotate-1 hover:rotate-0" : ""}
             transition-transform duration-500

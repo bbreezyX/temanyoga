@@ -13,16 +13,23 @@ import {
   ArrowRight,
   MapPin,
   Loader2,
+  Ticket,
+  X,
+  Check,
 } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { apiFetch, apiPost } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
-import type { CreateOrderResponse, ShippingZone } from "@/types/api";
+import type {
+  CreateOrderResponse,
+  ShippingZone,
+  CouponValidationResult,
+} from "@/types/api";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, cartTotal, clearCart } = useCart();
+  const { items, cartTotal, clearCart, getItemKey } = useCart();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -31,9 +38,22 @@ export default function CheckoutPage() {
   const [zonesLoading, setZonesLoading] = useState(true);
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
 
+  // Coupon
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] =
+    useState<CouponValidationResult | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   const selectedZone = zones.find((z) => z.id === selectedZoneId) ?? null;
   const shippingCost = selectedZone?.price ?? 0;
-  const totalAmount = cartTotal + shippingCost;
+
+  const discountAmount = appliedCoupon
+    ? appliedCoupon.discountType === "PERCENTAGE"
+      ? Math.floor(cartTotal * appliedCoupon.discountValue / 100)
+      : Math.min(appliedCoupon.discountValue, cartTotal)
+    : 0;
+  const totalAmount = cartTotal - discountAmount + shippingCost;
 
   const orderPlaced = useRef(false);
 
@@ -53,6 +73,36 @@ export default function CheckoutPage() {
     }
     loadZones();
   }, []);
+
+  async function handleApplyCoupon() {
+    const code = couponCode.trim();
+    if (!code) return;
+
+    setCouponLoading(true);
+    setCouponError(null);
+
+    const res = await apiPost<CouponValidationResult>(
+      "/api/coupons/validate",
+      { code }
+    );
+    setCouponLoading(false);
+
+    if (!res.success) {
+      setCouponError(res.error);
+      setAppliedCoupon(null);
+      return;
+    }
+
+    setAppliedCoupon(res.data);
+    setCouponCode(res.data.code);
+    toast.success("Kupon berhasil diterapkan!");
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError(null);
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -93,9 +143,11 @@ export default function CheckoutPage() {
       shippingAddress,
       shippingZoneId: selectedZoneId,
       notes: notes || undefined,
+      couponCode: appliedCoupon?.code || undefined,
       items: items.map((i) => ({
         productId: i.productId,
         quantity: i.quantity,
+        accessoryIds: (i.accessories || []).map((a) => a.id),
       })),
     });
     setLoading(false);
@@ -107,9 +159,14 @@ export default function CheckoutPage() {
 
     orderPlaced.current = true;
     clearCart();
-    router.push(
-      `/checkout/success?code=${res.data.orderCode}&total=${res.data.totalAmount}&shipping=${res.data.shippingCost}`,
-    );
+    const successParams = new URLSearchParams({
+      code: res.data.orderCode,
+      total: String(res.data.totalAmount),
+      shipping: String(res.data.shippingCost),
+      discount: String(res.data.discountAmount),
+      ...(res.data.couponCode ? { coupon: res.data.couponCode } : {}),
+    });
+    router.push(`/checkout/success?${successParams.toString()}`);
   }
 
   if (items.length === 0) return null;
@@ -398,6 +455,80 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
+                {/* Coupon Code */}
+                <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-8 md:p-10">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-12 h-12 rounded-2xl bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center shrink-0">
+                      <Ticket className="w-6 h-6 text-[#c85a2d]" />
+                    </div>
+                    <div>
+                      <h2 className="font-display font-black tracking-tight text-[20px] text-slate-900">
+                        Kode Kupon
+                      </h2>
+                      <p className="text-[14px] text-[#6b5b4b]">
+                        Punya kode diskon? Masukkan di sini.
+                      </p>
+                    </div>
+                  </div>
+
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between gap-3 rounded-2xl bg-[#7a9d7f]/10 ring-1 ring-[#7a9d7f]/30 p-5">
+                      <div className="flex items-center gap-3">
+                        <Check className="w-5 h-5 text-[#7a9d7f]" />
+                        <div>
+                          <p className="font-bold text-[15px] text-slate-900">
+                            {appliedCoupon.code}
+                          </p>
+                          <p className="text-[13px] text-[#5a6a58]">
+                            {appliedCoupon.discountType === "PERCENTAGE"
+                              ? `Diskon ${appliedCoupon.discountValue}%`
+                              : `Diskon ${formatCurrency(appliedCoupon.discountValue)}`}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="h-9 w-9 rounded-full bg-white ring-1 ring-[#e8dcc8] grid place-items-center text-[#6b5b4b] hover:bg-red-50 hover:text-red-500 transition-all"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex gap-3">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => {
+                            setCouponCode(e.target.value.toUpperCase());
+                            setCouponError(null);
+                          }}
+                          placeholder="Masukkan kode kupon"
+                          className="flex-1 min-h-[56px] rounded-2xl bg-[#fcfaf8] ring-1 ring-[#e8dcc8] px-6 text-[15px] text-slate-900 placeholder:text-[#9a8772] focus:outline-none focus:ring-2 focus:ring-[#c85a2d]/30 transition-all font-mono font-bold uppercase"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !couponCode.trim()}
+                          className="min-h-[56px] px-6 rounded-2xl bg-[#3f3328] text-white font-bold text-[14px] hover:bg-[#2a231c] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {couponLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            "Terapkan"
+                          )}
+                        </button>
+                      </div>
+                      {couponError && (
+                        <p className="text-[13px] text-red-500 font-medium px-1">
+                          {couponError}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 {/* Notes */}
                 <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-8 md:p-10">
                   <div className="grid gap-2">
@@ -455,38 +586,51 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="px-8 py-6 space-y-4 max-h-[400px] overflow-y-auto overflow-x-hidden scrollbar-thin">
-                  {items.map((item) => (
-                    <div
-                      key={item.productId}
-                      className="flex gap-4 items-center"
-                    >
-                      <div className="relative h-16 w-16 rounded-2xl bg-[#f5f1ed] ring-1 ring-[#e8dcc8] overflow-hidden shrink-0">
-                        {item.image ? (
-                          <Image
-                            src={getImageUrl(item.image)}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center font-bold text-xs">
-                            NA
-                          </div>
-                        )}
-                        <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[#3f3328] text-white text-[10px] font-black grid place-items-center ring-2 ring-white">
-                          {item.quantity}
-                        </span>
+                  {items.map((item) => {
+                    const accTotal = (item.accessories || []).reduce((s, a) => s + a.price, 0);
+                    const unitPrice = item.price + accTotal;
+                    return (
+                      <div
+                        key={getItemKey(item)}
+                        className="flex gap-4 items-start"
+                      >
+                        <div className="relative h-16 w-16 rounded-2xl bg-[#f5f1ed] ring-1 ring-[#e8dcc8] overflow-hidden shrink-0">
+                          {item.image ? (
+                            <Image
+                              src={getImageUrl(item.image)}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center font-bold text-xs">
+                              NA
+                            </div>
+                          )}
+                          <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-[#3f3328] text-white text-[10px] font-black grid place-items-center ring-2 ring-white">
+                            {item.quantity}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-[14px] text-slate-900 truncate">
+                            {item.name}
+                          </p>
+                          {item.accessories && item.accessories.length > 0 && (
+                            <div className="mt-0.5 space-y-0.5">
+                              {item.accessories.map((acc) => (
+                                <p key={acc.id} className="text-[11px] text-[#7a9d7f] font-medium">
+                                  + {acc.name} ({formatCurrency(acc.price)})
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                          <p className="text-[13px] text-[#c85a2d] font-black mt-0.5">
+                            {formatCurrency(unitPrice)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-bold text-[14px] text-slate-900 truncate">
-                          {item.name}
-                        </p>
-                        <p className="text-[13px] text-[#c85a2d] font-black">
-                          {formatCurrency(item.price)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <div className="px-8 py-8 bg-[#3f3328] text-white space-y-4">
@@ -494,6 +638,12 @@ export default function CheckoutPage() {
                     <span>Subtotal</span>
                     <span>{formatCurrency(cartTotal)}</span>
                   </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between items-center text-[14px] text-[#7a9d7f]">
+                      <span>Diskon ({appliedCoupon?.code})</span>
+                      <span>-{formatCurrency(discountAmount)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center text-[14px] opacity-80">
                     <span>Ongkir{selectedZone ? ` (${selectedZone.name})` : ""}</span>
                     <span>
@@ -509,7 +659,7 @@ export default function CheckoutPage() {
                     <span className="font-black text-[22px] tracking-tight text-white underline decoration-[#c85a2d] decoration-4 underline-offset-4">
                       {selectedZone
                         ? formatCurrency(totalAmount)
-                        : formatCurrency(cartTotal)}
+                        : formatCurrency(cartTotal - discountAmount)}
                     </span>
                   </div>
                 </div>

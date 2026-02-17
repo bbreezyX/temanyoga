@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -12,12 +12,20 @@ import {
   ShieldCheck,
   RotateCcw,
   Star,
+  Puzzle,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
-import type { ProductDetail as ProductDetailType } from "@/types/api";
+import { apiFetch } from "@/lib/api-client";
+import { ProductReviews } from "@/components/review/product-reviews";
+import type {
+  ProductDetail as ProductDetailType,
+  AccessoryItem,
+  CartAccessory,
+} from "@/types/api";
 
 export function ProductDetail({ product }: { product: ProductDetailType }) {
   const { addItem } = useCart();
@@ -25,18 +33,85 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // Accessories
+  const [accessories, setAccessories] = useState<AccessoryItem[]>([]);
+  const [accessoriesLoading, setAccessoriesLoading] = useState(true);
+  const [selectedAccessories, setSelectedAccessories] = useState<
+    Map<string, string>
+  >(new Map()); // groupName -> accessoryId for groups
+  const [selectedIndependent, setSelectedIndependent] = useState<Set<string>>(
+    new Set()
+  ); // accessoryId for independent
+
+  useEffect(() => {
+    async function loadAccessories() {
+      const res = await apiFetch<AccessoryItem[]>("/api/accessories");
+      if (res.success) {
+        setAccessories(res.data);
+      }
+      setAccessoriesLoading(false);
+    }
+    loadAccessories();
+  }, []);
+
   // Fallback if no images
   const images =
     product.images.length > 0 ? product.images : [{ url: "", id: "fallback" }];
   const activeImage = images[activeImageIndex];
 
-  // Mock colors for now as they are not in the DB schema yet, or use a default
-  const colors = [
-    { name: "Terracotta", value: "#c85a2d" },
-    { name: "Sand", value: "#e8dcc8" },
-    { name: "Sage", value: "#7a9d7f" },
-  ];
-  const [selectedColor, setSelectedColor] = useState(colors[0]);
+  // Group accessories by groupName
+  const groups = new Map<string, AccessoryItem[]>();
+  const independentAccessories: AccessoryItem[] = [];
+  for (const acc of accessories) {
+    if (acc.groupName) {
+      if (!groups.has(acc.groupName)) groups.set(acc.groupName, []);
+      groups.get(acc.groupName)!.push(acc);
+    } else {
+      independentAccessories.push(acc);
+    }
+  }
+
+  // Calculate selected accessories total
+  const getSelectedAccessoriesList = (): CartAccessory[] => {
+    const result: CartAccessory[] = [];
+    for (const [, accId] of selectedAccessories) {
+      const acc = accessories.find((a) => a.id === accId);
+      if (acc) result.push({ id: acc.id, name: acc.name, price: acc.price, groupName: acc.groupName });
+    }
+    for (const accId of selectedIndependent) {
+      const acc = accessories.find((a) => a.id === accId);
+      if (acc) result.push({ id: acc.id, name: acc.name, price: acc.price, groupName: acc.groupName });
+    }
+    return result;
+  };
+
+  const selectedAccList = getSelectedAccessoriesList();
+  const accessoriesTotal = selectedAccList.reduce((s, a) => s + a.price, 0);
+  const displayPrice = Number(product.price) + accessoriesTotal;
+
+  const handleGroupSelect = (groupName: string, accId: string | null) => {
+    setSelectedAccessories((prev) => {
+      const next = new Map(prev);
+      if (accId) {
+        next.set(groupName, accId);
+      } else {
+        next.delete(groupName);
+      }
+      return next;
+    });
+  };
+
+  const handleIndependentToggle = (accId: string) => {
+    setSelectedIndependent((prev) => {
+      const next = new Set(prev);
+      if (next.has(accId)) {
+        next.delete(accId);
+      } else {
+        next.add(accId);
+      }
+      return next;
+    });
+  };
 
   const handleAddToCart = () => {
     addItem({
@@ -47,8 +122,8 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
       image: product.images[0]?.url ?? null,
       quantity,
       stock: product.stock,
+      accessories: selectedAccList,
     });
-    // setIsOpen(true); // Cart sheet control is not in context yet
     toast.success("Produk berhasil ditambahkan ke keranjang");
   };
 
@@ -101,9 +176,9 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
             {/* Floating Badge */}
             <div className="absolute top-6 left-6 inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur-sm ring-1 ring-[#e8dcc8] px-4 py-2 shadow-soft">
               <Star className="w-4 h-4 text-[#c85a2d] fill-[#c85a2d]" />
-              <span className="text-[13px] font-bold text-[#5a4a3b]">
-                4.9 (128 ulasan)
-              </span>
+              <a href="#ulasan" className="text-[13px] font-bold text-[#5a4a3b] hover:text-[#c85a2d] transition-colors">
+                Lihat Ulasan
+              </a>
             </div>
           </div>
 
@@ -144,8 +219,13 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
             </h1>
             <div className="mt-4 flex items-center gap-4">
               <p className="text-[28px] md:text-[36px] font-black tracking-tight text-[#c85a2d]">
-                {formatCurrency(Number(product.price))}
+                {formatCurrency(displayPrice)}
               </p>
+              {accessoriesTotal > 0 && (
+                <span className="text-[14px] font-medium text-[#6b5b4b] line-through">
+                  {formatCurrency(Number(product.price))}
+                </span>
+              )}
               <div className="h-8 w-px bg-[#e8dcc8]"></div>
               <div className="flex items-center gap-1.5 text-sm font-bold text-[#7a9d7f]">
                 <ShieldCheck className="w-4 h-4" />
@@ -162,46 +242,175 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
           </div>
 
           <div className="space-y-8">
-            {/* Color Selection (Mocked) */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[14px] font-black text-[#3f3328] uppercase tracking-wider">
-                  Pilih Warna
-                </span>
-                <span className="text-[13px] font-medium text-[#7a6a58]">
-                  Warna: <span className="font-bold text-[#c85a2d]">{selectedColor.name}</span>
-                </span>
+            {/* Accessories Selection */}
+            {accessoriesLoading ? (
+              <div className="flex items-center gap-3 py-4">
+                <Loader2 className="w-5 h-5 animate-spin text-[#c85a2d]" />
+                <span className="text-[14px] text-[#6b5b4b]">Memuat aksesoris...</span>
               </div>
-              <div className="flex flex-wrap gap-3">
-                {colors.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color)}
-                    className={`group relative flex items-center justify-center rounded-full bg-white px-5 py-3 shadow-soft ring-1 transition-all transform hover:-translate-y-0.5 ${
-                      selectedColor.name === color.name
-                        ? "ring-[#c85a2d] bg-[#fdf8f6]"
-                        : "ring-[#e8dcc8] hover:ring-[#c85a2d]/50"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span
-                        className="h-5 w-5 rounded-full ring-2 ring-white shadow-sm"
-                        style={{ backgroundColor: color.value }}
-                      />
-                      <span
-                        className={`text-[14px] font-bold ${
-                          selectedColor.name === color.name
-                            ? "text-[#c85a2d]"
-                            : "text-[#5a4a3b]"
+            ) : accessories.length > 0 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <Puzzle className="w-5 h-5 text-[#c85a2d]" />
+                  <span className="text-[14px] font-black text-[#3f3328] uppercase tracking-wider">
+                    Pilih Aksesoris
+                  </span>
+                </div>
+
+                {/* Grouped accessories (radio) */}
+                {[...groups.entries()].map(([groupName, groupItems]) => (
+                  <div key={groupName} className="space-y-3">
+                    <p className="text-[13px] font-bold text-[#5a4a3b] uppercase tracking-wider">
+                      {groupName}
+                    </p>
+                    <div className="grid gap-2">
+                      {/* None option */}
+                      <label
+                        className={`flex items-center gap-4 rounded-2xl p-4 cursor-pointer transition-all ring-1 ${
+                          !selectedAccessories.has(groupName)
+                            ? "bg-[#fdf8f6] ring-[#c85a2d]/40 ring-2"
+                            : "bg-[#fcfaf8] ring-[#e8dcc8] hover:ring-[#c85a2d]/20"
                         }`}
                       >
-                        {color.name}
-                      </span>
+                        <input
+                          type="radio"
+                          name={`group-${groupName}`}
+                          checked={!selectedAccessories.has(groupName)}
+                          onChange={() => handleGroupSelect(groupName, null)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 rounded-full ring-2 shrink-0 flex items-center justify-center transition-all ${
+                            !selectedAccessories.has(groupName)
+                              ? "ring-[#c85a2d] bg-[#c85a2d]"
+                              : "ring-[#d4c5b3] bg-white"
+                          }`}
+                        >
+                          {!selectedAccessories.has(groupName) && (
+                            <div className="w-2 h-2 rounded-full bg-white"></div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-[14px] text-[#6b5b4b]">Tidak ada</p>
+                        </div>
+                        <span className="text-[14px] font-bold text-[#9a8772]">—</span>
+                      </label>
+                      {groupItems.map((acc) => {
+                        const isSelected = selectedAccessories.get(groupName) === acc.id;
+                        return (
+                          <label
+                            key={acc.id}
+                            className={`flex items-center gap-4 rounded-2xl p-4 cursor-pointer transition-all ring-1 ${
+                              isSelected
+                                ? "bg-[#fdf8f6] ring-[#c85a2d]/40 ring-2"
+                                : "bg-[#fcfaf8] ring-[#e8dcc8] hover:ring-[#c85a2d]/20"
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name={`group-${groupName}`}
+                              checked={isSelected}
+                              onChange={() => handleGroupSelect(groupName, acc.id)}
+                              className="sr-only"
+                            />
+                            <div
+                              className={`w-5 h-5 rounded-full ring-2 shrink-0 flex items-center justify-center transition-all ${
+                                isSelected
+                                  ? "ring-[#c85a2d] bg-[#c85a2d]"
+                                  : "ring-[#d4c5b3] bg-white"
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="w-2 h-2 rounded-full bg-white"></div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-[14px] text-slate-900">{acc.name}</p>
+                              {acc.description && (
+                                <p className="text-[12px] text-[#6b5b4b] mt-0.5">{acc.description}</p>
+                              )}
+                            </div>
+                            <span className="font-black text-[14px] text-[#c85a2d] shrink-0">
+                              +{formatCurrency(acc.price)}
+                            </span>
+                          </label>
+                        );
+                      })}
                     </div>
-                  </button>
+                  </div>
                 ))}
+
+                {/* Independent accessories (checkboxes) */}
+                {independentAccessories.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-[13px] font-bold text-[#5a4a3b] uppercase tracking-wider">
+                      Tambahan
+                    </p>
+                    <div className="grid gap-2">
+                      {independentAccessories.map((acc) => {
+                        const isSelected = selectedIndependent.has(acc.id);
+                        return (
+                          <label
+                            key={acc.id}
+                            className={`flex items-center gap-4 rounded-2xl p-4 cursor-pointer transition-all ring-1 ${
+                              isSelected
+                                ? "bg-[#fdf8f6] ring-[#c85a2d]/40 ring-2"
+                                : "bg-[#fcfaf8] ring-[#e8dcc8] hover:ring-[#c85a2d]/20"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => handleIndependentToggle(acc.id)}
+                              className="sr-only"
+                            />
+                            <div
+                              className={`w-5 h-5 rounded-md ring-2 shrink-0 flex items-center justify-center transition-all ${
+                                isSelected
+                                  ? "ring-[#c85a2d] bg-[#c85a2d]"
+                                  : "ring-[#d4c5b3] bg-white"
+                              }`}
+                            >
+                              {isSelected && (
+                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-[14px] text-slate-900">{acc.name}</p>
+                              {acc.description && (
+                                <p className="text-[12px] text-[#6b5b4b] mt-0.5">{acc.description}</p>
+                              )}
+                            </div>
+                            <span className="font-black text-[14px] text-[#c85a2d] shrink-0">
+                              +{formatCurrency(acc.price)}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Selected summary */}
+                {selectedAccList.length > 0 && (
+                  <div className="rounded-2xl bg-[#7a9d7f]/10 ring-1 ring-[#7a9d7f]/20 p-4">
+                    <p className="text-[12px] font-bold text-[#5a6a58] uppercase tracking-wider mb-2">
+                      Aksesoris Terpilih
+                    </p>
+                    <div className="space-y-1">
+                      {selectedAccList.map((acc) => (
+                        <div key={acc.id} className="flex justify-between text-[13px]">
+                          <span className="text-[#3f3328] font-medium">{acc.name}</span>
+                          <span className="text-[#7a9d7f] font-bold">+{formatCurrency(acc.price)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             {/* Quantity and Add to Cart */}
             <div className="flex flex-col sm:flex-row gap-4">
@@ -266,6 +475,8 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
           </div>
         </div>
       </section>
+
+      <ProductReviews productSlug={product.slug} />
     </div>
   );
 }

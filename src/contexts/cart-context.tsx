@@ -10,14 +10,23 @@ import {
 } from "react";
 import type { CartItem } from "@/types/api";
 
+function getCartItemKey(item: CartItem): string {
+  const accIds = (item.accessories || [])
+    .map((a) => a.id)
+    .sort()
+    .join(",");
+  return `${item.productId}__${accIds}`;
+}
+
 interface CartContextType {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeItem: (key: string) => void;
+  updateQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
+  getItemKey: (item: CartItem) => string;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -28,7 +37,13 @@ function loadCart(): CartItem[] {
   if (typeof window === "undefined") return [];
   try {
     const stored = localStorage.getItem(CART_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    const items = JSON.parse(stored) as CartItem[];
+    // Migrate old cart items without accessories field
+    return items.map((item) => ({
+      ...item,
+      accessories: item.accessories || [],
+    }));
   } catch {
     return [];
   }
@@ -52,30 +67,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items, loaded]);
 
   const addItem = useCallback((item: CartItem) => {
+    const newItem = { ...item, accessories: item.accessories || [] };
+    const newKey = getCartItemKey(newItem);
+
     setItems((prev) => {
-      const existing = prev.find((i) => i.productId === item.productId);
+      const existing = prev.find((i) => getCartItemKey(i) === newKey);
       if (existing) {
         return prev.map((i) =>
-          i.productId === item.productId
-            ? { ...i, quantity: i.quantity + item.quantity }
+          getCartItemKey(i) === newKey
+            ? { ...i, quantity: i.quantity + newItem.quantity }
             : i
         );
       }
-      return [...prev, item];
+      return [...prev, newItem];
     });
   }, []);
 
-  const removeItem = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.productId !== productId));
+  const removeItem = useCallback((key: string) => {
+    setItems((prev) => prev.filter((i) => getCartItemKey(i) !== key));
   }, []);
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const updateQuantity = useCallback((key: string, quantity: number) => {
     if (quantity <= 0) {
-      setItems((prev) => prev.filter((i) => i.productId !== productId));
+      setItems((prev) => prev.filter((i) => getCartItemKey(i) !== key));
       return;
     }
     setItems((prev) =>
-      prev.map((i) => (i.productId === productId ? { ...i, quantity } : i))
+      prev.map((i) => (getCartItemKey(i) === key ? { ...i, quantity } : i))
     );
   }, []);
 
@@ -84,10 +102,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const cartCount = items.reduce((sum, i) => sum + i.quantity, 0);
-  const cartTotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const cartTotal = items.reduce((sum, i) => {
+    const accTotal = (i.accessories || []).reduce((a, acc) => a + acc.price, 0);
+    return sum + (i.price + accTotal) * i.quantity;
+  }, 0);
 
   return (
-    <CartContext value={{ items, addItem, removeItem, updateQuantity, clearCart, cartCount, cartTotal }}>
+    <CartContext value={{
+      items,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+      cartCount,
+      cartTotal,
+      getItemKey: getCartItemKey,
+    }}>
       {children}
     </CartContext>
   );

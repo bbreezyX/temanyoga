@@ -1,4 +1,4 @@
-import type { OrderStatus, PaymentProofStatus } from "@/generated/prisma/enums";
+import type { OrderStatus, PaymentProofStatus, DiscountType } from "@/generated/prisma/enums";
 
 export interface ShippingZone {
   id: string;
@@ -59,6 +59,30 @@ export interface AdminProductListResponse {
   pagination: Pagination;
 }
 
+export interface AccessoryItem {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  groupName: string | null;
+  imageUrl: string | null;
+  sortOrder: number;
+}
+
+export interface AdminAccessory extends AccessoryItem {
+  imageKey: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CartAccessory {
+  id: string;
+  name: string;
+  price: number;
+  groupName: string | null;
+}
+
 export interface CartItem {
   productId: string;
   name: string;
@@ -67,6 +91,12 @@ export interface CartItem {
   quantity: number;
   stock: number | null;
   image: string | null;
+  accessories: CartAccessory[];
+}
+
+export interface AccessorySnapshot {
+  name: string;
+  price: number;
 }
 
 export interface OrderItem {
@@ -76,12 +106,34 @@ export interface OrderItem {
   quantity: number;
   unitPriceSnapshot: number;
   productNameSnapshot: string;
+  accessoriesSnapshot: string | null;
+  accessoriesTotal: number;
+}
+
+export interface CouponValidationResult {
+  code: string;
+  discountType: DiscountType;
+  discountValue: number;
+}
+
+export interface AdminCoupon {
+  id: string;
+  code: string;
+  discountType: DiscountType;
+  discountValue: number;
+  isActive: boolean;
+  expiresAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  _count: { orders: number };
 }
 
 export interface CreateOrderResponse {
   orderCode: string;
   totalAmount: number;
   shippingCost: number;
+  discountAmount: number;
+  couponCode: string | null;
   status: OrderStatus;
   items: OrderItem[];
 }
@@ -112,6 +164,8 @@ export interface AdminOrderListItem {
   status: OrderStatus;
   totalAmount: number;
   shippingCost: number;
+  discountAmount: number;
+  couponCode: string | null;
   shippingZoneSnapshot: string | null;
   notes: string | null;
   trackingNumber: string | null;
@@ -157,6 +211,8 @@ export interface AdminOrderDetail {
   status: OrderStatus;
   totalAmount: number;
   shippingCost: number;
+  discountAmount: number;
+  couponCode: string | null;
   shippingZoneSnapshot: string | null;
   notes: string | null;
   trackingNumber: string | null;
@@ -172,4 +228,33 @@ export interface AdminDashboardStats {
   totalRevenue: number;
   totalProducts: number;
   recentOrders: AdminOrderListItem[];
+}
+
+export interface ReviewItem {
+  id: string;
+  rating: number;
+  comment: string | null;
+  customerName: string;
+  createdAt: string;
+}
+
+export interface ReviewListResponse {
+  reviews: ReviewItem[];
+  averageRating: number;
+  totalReviews: number;
+}
+
+export interface ReviewableItem {
+  orderItemId: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  quantity: number;
+  hasReview: boolean;
+}
+
+export interface VerifyOrderResponse {
+  orderCode: string;
+  customerName: string;
+  items: ReviewableItem[];
 }
