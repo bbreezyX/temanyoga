@@ -40,7 +40,6 @@ export function PaginationControls({
           key={p}
           variant={p === page ? "default" : "outline"}
           size="icon"
-          active={p === page}
           asChild
         >
           <Link href={getUrl(p)}>{p}</Link>
