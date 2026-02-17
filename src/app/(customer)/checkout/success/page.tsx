@@ -18,17 +18,159 @@ import {
   Dot,
   Wallet,
   Copy,
-  Check,
 } from "lucide-react";
 import { apiUpload, apiFetch } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
 import type { PaymentProofResponse, OrderStatusResponse } from "@/types/api";
 
+const CONFETTI_STYLES: React.CSSProperties[] = [
+  {
+    left: "5%",
+    top: "10%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "0.2s",
+    animationDuration: "3.1s",
+  },
+  {
+    left: "15%",
+    top: "85%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "0.8s",
+    animationDuration: "4.5s",
+  },
+  {
+    left: "25%",
+    top: "40%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "1.2s",
+    animationDuration: "2.8s",
+  },
+  {
+    left: "35%",
+    top: "65%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "0.5s",
+    animationDuration: "3.9s",
+  },
+  {
+    left: "45%",
+    top: "20%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "1.5s",
+    animationDuration: "4.1s",
+  },
+  {
+    left: "55%",
+    top: "80%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "0.3s",
+    animationDuration: "3.3s",
+  },
+  {
+    left: "65%",
+    top: "30%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "1.8s",
+    animationDuration: "4.7s",
+  },
+  {
+    left: "75%",
+    top: "55%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "0.9s",
+    animationDuration: "2.5s",
+  },
+  {
+    left: "85%",
+    top: "15%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "1.4s",
+    animationDuration: "3.8s",
+  },
+  {
+    left: "95%",
+    top: "70%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "0.6s",
+    animationDuration: "4.3s",
+  },
+  {
+    left: "10%",
+    top: "35%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "1.1s",
+    animationDuration: "2.9s",
+  },
+  {
+    left: "20%",
+    top: "90%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "0.4s",
+    animationDuration: "3.7s",
+  },
+  {
+    left: "30%",
+    top: "15%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "1.6s",
+    animationDuration: "4.6s",
+  },
+  {
+    left: "40%",
+    top: "75%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "0.7s",
+    animationDuration: "3.2s",
+  },
+  {
+    left: "50%",
+    top: "45%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "1.3s",
+    animationDuration: "4.0s",
+  },
+  {
+    left: "60%",
+    top: "10%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "0.2s",
+    animationDuration: "2.7s",
+  },
+  {
+    left: "70%",
+    top: "85%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "1.9s",
+    animationDuration: "4.4s",
+  },
+  {
+    left: "80%",
+    top: "40%",
+    backgroundColor: "#e8dcc8",
+    animationDelay: "1.0s",
+    animationDuration: "3.5s",
+  },
+  {
+    left: "90%",
+    top: "60%",
+    backgroundColor: "#c85a2d",
+    animationDelay: "0.1s",
+    animationDuration: "3.9s",
+  },
+  {
+    left: "15%",
+    top: "25%",
+    backgroundColor: "#7a9d7f",
+    animationDelay: "0.8s",
+    animationDuration: "4.2s",
+  },
+];
+
 function PaymentUploadContent() {
   const searchParams = useSearchParams();
   const toast = useToast();
   const orderCode = searchParams.get("code") ?? "";
-  
+
   const [orderData, setOrderData] = useState<OrderStatusResponse | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -36,9 +178,12 @@ function PaymentUploadContent() {
   const [isSuccess, setIsSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const totalValue = orderData?.totalAmount ?? Number(searchParams.get("total") ?? 0);
-  const shippingCostValue = orderData?.shippingCost ?? Number(searchParams.get("shipping") ?? 0);
-  const discountValue = orderData?.discountAmount ?? Number(searchParams.get("discount") ?? 0);
+  const totalValue =
+    orderData?.totalAmount ?? Number(searchParams.get("total") ?? 0);
+  const shippingCostValue =
+    orderData?.shippingCost ?? Number(searchParams.get("shipping") ?? 0);
+  const discountValue =
+    orderData?.discountAmount ?? Number(searchParams.get("discount") ?? 0);
   const couponCodeParam = orderData?.couponCode ?? searchParams.get("coupon");
   const subtotalValue = totalValue + discountValue - shippingCostValue;
 
@@ -61,9 +206,16 @@ function PaymentUploadContent() {
   if (notFound) {
     return (
       <div className="bg-[#f5f1ed] min-h-screen flex flex-col items-center justify-center p-4 text-center">
-        <h1 className="font-display text-2xl font-black mb-4">Pesanan Tidak Ditemukan</h1>
-        <p className="text-[#6b5b4b] mb-8">Maaf, kami tidak dapat menemukan pesanan dengan kode tersebut.</p>
-        <Link href="/products" className="px-8 py-3 bg-[#c85a2d] text-white rounded-full font-bold">
+        <h1 className="font-display text-2xl font-black mb-4">
+          Pesanan Tidak Ditemukan
+        </h1>
+        <p className="text-[#6b5b4b] mb-8">
+          Maaf, kami tidak dapat menemukan pesanan dengan kode tersebut.
+        </p>
+        <Link
+          href="/products"
+          className="px-8 py-3 bg-[#c85a2d] text-white rounded-full font-bold"
+        >
           Kembali Belanja
         </Link>
       </div>
@@ -126,17 +278,11 @@ function PaymentUploadContent() {
       <div className="bg-[#f5f1ed] min-h-screen text-slate-900 font-sans flex flex-col items-center justify-center p-4 overflow-hidden relative">
         {/* Simple CSS Confetti (Background) */}
         <div className="absolute inset-0 pointer-events-none opacity-40">
-          {[...Array(20)].map((_, i) => (
+          {CONFETTI_STYLES.map((style, i) => (
             <div
               key={i}
               className="absolute w-2 h-2 rounded-full animate-floatIn"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                backgroundColor: i % 3 === 0 ? "#c85a2d" : i % 3 === 1 ? "#7a9d7f" : "#e8dcc8",
-                animationDelay: `${Math.random() * 2}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-              }}
+              style={style}
             />
           ))}
         </div>
@@ -154,30 +300,38 @@ function PaymentUploadContent() {
           </h1>
           <p className="text-[#6b5b4b] mb-8 leading-relaxed text-[15px]">
             Terima kasih! Bukti pembayaran Anda telah kami terima. Tim kami akan
-            memverifikasi pesanan Anda dalam <span className="font-bold">1-6 jam</span> ke depan.
+            memverifikasi pesanan Anda dalam{" "}
+            <span className="font-bold">1-6 jam</span> ke depan.
           </p>
 
           <div className="bg-[#fcfaf8] rounded-[28px] ring-1 ring-[#e8dcc8] p-5 mb-10 text-left">
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#e8dcc8]/50">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a6a58]">Nomor Pesanan</p>
-                <p className="text-[18px] font-black text-[#3f3328]">{orderCode}</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a6a58]">
+                  Nomor Pesanan
+                </p>
+                <p className="text-[18px] font-black text-[#3f3328]">
+                  {orderCode}
+                </p>
               </div>
-              <button 
+              <button
                 onClick={() => copyCode(orderCode)}
                 className="w-10 h-10 rounded-full bg-white ring-1 ring-[#e8dcc8] grid place-items-center text-[#c85a2d] hover:bg-[#f5f1ed] transition-all"
               >
                 <Copy className="w-4 h-4" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 rounded-full bg-[#7a9d7f]/10 text-[#7a9d7f] grid place-items-center shrink-0 mt-0.5">
                   <BadgeCheck className="w-3.5 h-3.5" />
                 </div>
                 <p className="text-[13px] leading-relaxed text-[#6b5b4b]">
-                  <span className="font-bold text-[#3f3328]">Verifikasi Manual:</span> Tim admin kami akan mengecek bukti transfer Anda.
+                  <span className="font-bold text-[#3f3328]">
+                    Verifikasi Manual:
+                  </span>{" "}
+                  Tim admin kami akan mengecek bukti transfer Anda.
                 </p>
               </div>
               <div className="flex items-start gap-3">
@@ -185,7 +339,11 @@ function PaymentUploadContent() {
                   <Truck className="w-3.5 h-3.5" />
                 </div>
                 <p className="text-[13px] leading-relaxed text-[#6b5b4b]">
-                  <span className="font-bold text-[#3f3328]">Notifikasi WA/Email:</span> Anda akan menerima kabar saat status berubah menjadi <span className="italic">Dikirim</span>.
+                  <span className="font-bold text-[#3f3328]">
+                    Notifikasi WA/Email:
+                  </span>{" "}
+                  Anda akan menerima kabar saat status berubah menjadi{" "}
+                  <span className="italic">Dikirim</span>.
                 </p>
               </div>
             </div>
@@ -207,9 +365,15 @@ function PaymentUploadContent() {
             </Link>
           </div>
         </div>
-        
-        <p className="mt-8 text-[12px] text-[#6b5b4b] animate-floatIn" style={{ animationDelay: '0.4s' }}>
-          Ada masalah? <Link href="/contact" className="underline font-bold">Hubungi Support</Link>
+
+        <p
+          className="mt-8 text-[12px] text-[#6b5b4b] animate-floatIn"
+          style={{ animationDelay: "0.4s" }}
+        >
+          Ada masalah?{" "}
+          <Link href="/contact" className="underline font-bold">
+            Hubungi Support
+          </Link>
         </p>
       </div>
     );
@@ -485,7 +649,7 @@ function PaymentUploadContent() {
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
-                
+
                 {/* Shine animation on hover when enabled */}
                 {!loading && file && (
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine" />
