@@ -263,3 +263,19 @@ export interface VerifyOrderResponse {
   customerName: string;
   items: ReviewableItem[];
 }
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateUserInput {
+  email: string;
+  name: string;
+  password: string;
+  role: "ADMIN" | "CUSTOMER";
+}

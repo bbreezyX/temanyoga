@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, ShoppingCart, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Ticket, Puzzle, Home } from "lucide-react";
+import { Package, ShoppingCart, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Ticket, Puzzle, Home, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoutButton } from "./logout-button";
 import { apiFetch } from "@/lib/api-client";
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/admin/orders", label: "Pesanan", icon: ShoppingCart },
   { href: "/admin/accessories", label: "Aksesoris", icon: Puzzle },
   { href: "/admin/coupons", label: "Kupon", icon: Ticket },
+  { href: "/admin/users", label: "Pengguna", icon: Users },
   { href: "/admin/settings", label: "Pengaturan", icon: Settings },
 ];
 

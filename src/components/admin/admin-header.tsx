@@ -38,6 +38,7 @@ export function AdminHeader() {
           <SheetContent
             side="left"
             className="p-0 w-72 border-none bg-dark-brown"
+            showCloseButton={false}
           >
             <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
             <AdminSidebar />
