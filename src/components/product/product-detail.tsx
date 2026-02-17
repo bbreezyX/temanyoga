@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   RotateCcw,
   Star,
+  Clock,
+  Info,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { useCart } from "@/contexts/cart-context";
@@ -157,10 +159,6 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
 
         <div className="flex flex-col py-0 lg:py-2">
           <div className="mb-6 md:mb-8">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 px-3 py-1 mb-4">
-              <span className="w-2 h-2 rounded-full bg-[#c85a2d] animate-pulse"></span>
-              <span className="text-[10px] md:text-[11px] font-bold text-[#c85a2d] uppercase tracking-wider">Tersedia Sekarang</span>
-            </div>
             <h1 className="font-display text-[28px] sm:text-[36px] md:text-[44px] lg:text-[52px] leading-[1.1] tracking-tight font-black text-slate-900">
               {product.name}
             </h1>
@@ -181,11 +179,25 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
             </div>
           </div>
 
-          <div className="prose prose-slate max-w-none mb-8 md:mb-10">
+          <div className="prose prose-slate max-w-none mb-6 md:mb-8">
             <p className="text-[15px] md:text-[17px] leading-relaxed text-[#6b5b4b]">
               {product.description ||
                 "Produk handmade berkualitas tinggi yang dirajut dengan penuh cinta oleh pengrajin lokal berbakat."}
             </p>
+          </div>
+
+          <div className="mb-8 md:mb-10 p-4 md:p-5 rounded-3xl bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 flex items-start gap-3 md:gap-4">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-[#c85a2d]/10 text-[#c85a2d] grid place-items-center shrink-0">
+              <Info className="w-4 h-4 md:w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[13px] md:text-[14px] font-bold text-[#3f3328] mb-1">
+                Pre-order (Made to Order)
+              </p>
+              <p className="text-[12px] md:text-[13px] leading-relaxed text-[#6b5b4b]">
+                Semua produk kami dibuat setelah pemesanan. Waktu produksi <span className="font-bold text-[#c85a2d]">±3 minggu</span> sebelum dikirim ke alamat Anda. Pesanan akan diproses setelah pembayaran dikonfirmasi.
+              </p>
+            </div>
           </div>
 
           <div className="space-y-8">
@@ -234,23 +246,32 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
               </button>
             </div>
 
-            <div className="pt-6 md:pt-8 grid grid-cols-2 gap-3 md:gap-4 border-t border-[#e8dcc8]">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 p-3 md:p-4 rounded-3xl bg-white/50 ring-1 ring-[#e8dcc8]/50 text-center sm:text-left">
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-[#7a9d7f]/10 text-[#7a9d7f] grid place-items-center shrink-0">
-                  <Truck className="w-4 h-4 md:w-5 h-5" />
+            <div className="pt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 border-t border-[#e8dcc8]">
+              <div className="flex items-start gap-3.5">
+                <div className="w-9 h-9 rounded-xl bg-[#c85a2d]/10 flex items-center justify-center shrink-0">
+                  <Clock className="w-4.5 h-4.5 text-[#c85a2d]" />
                 </div>
                 <div>
-                  <p className="text-[12px] md:text-[13px] font-bold text-[#3f3328]">Pengiriman Cepat</p>
-                  <p className="text-[11px] md:text-[12px] text-[#6b5b4b]">Estimasi 1-3 hari</p>
+                  <p className="text-[13px] font-bold text-[#3f3328] leading-snug">Produksi ±3 Minggu</p>
+                  <p className="text-[11px] text-[#6b5b4b] mt-0.5 leading-normal">Made to order setelah pembayaran</p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4 p-3 md:p-4 rounded-3xl bg-white/50 ring-1 ring-[#e8dcc8]/50 text-center sm:text-left">
-                <div className="w-9 h-9 md:w-10 md:h-10 rounded-2xl bg-[#c85a2d]/10 text-[#c85a2d] grid place-items-center shrink-0">
-                  <RotateCcw className="w-4 h-4 md:w-5 h-5" />
+              <div className="flex items-start gap-3.5">
+                <div className="w-9 h-9 rounded-xl bg-[#7a9d7f]/10 flex items-center justify-center shrink-0">
+                  <Truck className="w-4.5 h-4.5 text-[#7a9d7f]" />
                 </div>
                 <div>
-                  <p className="text-[12px] md:text-[13px] font-bold text-[#3f3328]">Garansi Retur</p>
-                  <p className="text-[11px] md:text-[12px] text-[#6b5b4b]">7 hari pengembalian</p>
+                  <p className="text-[13px] font-bold text-[#3f3328] leading-snug">Pengiriman Terpercaya</p>
+                  <p className="text-[11px] text-[#6b5b4b] mt-0.5 leading-normal">Setelah produksi selesai</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3.5 sm:col-span-2 lg:col-span-1">
+                <div className="w-9 h-9 rounded-xl bg-[#c85a2d]/10 flex items-center justify-center shrink-0">
+                  <RotateCcw className="w-4.5 h-4.5 text-[#c85a2d]" />
+                </div>
+                <div>
+                  <p className="text-[13px] font-bold text-[#3f3328] leading-snug">Garansi Retur</p>
+                  <p className="text-[11px] text-[#6b5b4b] mt-0.5 leading-normal">7 hari pengembalian</p>
                 </div>
               </div>
             </div>

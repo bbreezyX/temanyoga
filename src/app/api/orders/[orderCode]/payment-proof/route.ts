@@ -122,7 +122,8 @@ export async function POST(
     sendEmailToCustomer(
       order.customerEmail,
       emailData.subject,
-      emailData.html
+      emailData.html,
+      emailData.text,
     ).catch((err) => console.error("Email to customer failed:", err));
 
     return apiSuccess(

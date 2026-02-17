@@ -63,10 +63,10 @@ export function orderCreatedCustomer(
     ``,
     `📸 *Konfirmasi:*`,
     `Setelah transfer, mohon unggah bukti pembayaran di tautan berikut:`,
-    `${siteUrl}/checkout/success?code=${order.orderCode}`,
+    `${siteUrl}/checkout/success/${order.orderCode}`,
     ``,
     `📍 *Lacak Pesanan:*`,
-    `${siteUrl}/track-order?code=${order.orderCode}`,
+    `${siteUrl}/track-order/${order.orderCode}`,
     ``,
     `_Terima kasih telah menjadi bagian dari perjalanan yoga kami!_ 🙏`,
   );
@@ -89,7 +89,7 @@ export function paymentApprovedCustomer(
     `Pesanan Anda sedang kami siapkan untuk segera dikirim.`,
     ``,
     `📍 *Pantau Pesanan:*`,
-    `${siteUrl}/track-order?code=${orderCode}`,
+    `${siteUrl}/track-order/${orderCode}`,
     ``,
     `Terima kasih atas kepercayaannya! 🙏`,
   ].join("\n");
@@ -118,7 +118,7 @@ export function paymentRejectedCustomer(
     ``,
     `📸 *Tindakan Diperlukan:*`,
     `Silakan unggah kembali bukti pembayaran yang valid melalui tautan di bawah ini agar kami dapat memproses pesanan Anda:`,
-    `${siteUrl}/checkout/success?code=${orderCode}`,
+    `${siteUrl}/checkout/success/${orderCode}`,
     ``,
     `Jika ada kendala, jangan ragu untuk menghubungi kami. Terima kasih.`,
   );
@@ -145,7 +145,7 @@ export function orderShippedCustomer(
     `• No. Resi: *${tracking.trackingNumber}*`,
     ``,
     `📍 *Lacak Pengiriman:*`,
-    `${siteUrl}/track-order?code=${orderCode}`,
+    `${siteUrl}/track-order/${orderCode}`,
     ``,
     `Semoga produk kami segera sampai dengan selamat! 🙏`,
   ].join("\n");
@@ -209,7 +209,7 @@ export function getStatusChangeMessage(
         `Pesanan *${orderCode}* telah dikirim.`,
         ``,
         `📍 *Lacak Pesanan:*`,
-        `${siteUrl}/track-order?code=${orderCode}`,
+        `${siteUrl}/track-order/${orderCode}`,
       ].join("\n");
     case "COMPLETED":
       return orderCompletedCustomer(orderCode, customerName);

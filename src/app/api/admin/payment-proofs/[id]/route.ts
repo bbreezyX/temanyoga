@@ -92,6 +92,7 @@ export async function PATCH(
         proof.order.customerEmail,
         emailData.subject,
         emailData.html,
+        emailData.text,
       ).catch((err) => console.error("Email to customer failed:", err));
     } else {
       sendWhatsAppToCustomer(
@@ -114,6 +115,7 @@ export async function PATCH(
         proof.order.customerEmail,
         emailData.subject,
         emailData.html,
+        emailData.text,
       ).catch((err) => console.error("Email to customer failed:", err));
     }
 

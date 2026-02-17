@@ -106,7 +106,7 @@ export default function AdminDashboardPage() {
       {/* Welcome Section */}
       <div className="animate-fade-in-up">
         <h1 className="font-display text-4xl font-extrabold text-foreground tracking-tight">
-          Ikhtisar Dashboard
+          Dashboard
         </h1>
         <p className="mt-2 text-muted-foreground font-medium">
           Selamat datang kembali. Inilah yang terjadi di toko Anda hari ini.
@@ -322,7 +322,9 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex justify-between items-center mb-4 px-1">
-                <span className="text-sm font-medium text-muted-foreground">Jumlah</span>
+                <span className="text-sm font-medium text-muted-foreground">
+                  Jumlah
+                </span>
                 <span className="text-base font-bold text-foreground">
                   {formatCurrency(order.totalAmount)}
                 </span>
@@ -331,49 +333,59 @@ export default function AdminDashboardPage() {
               <div className="flex gap-2">
                 {/* Mobile Contextual Actions */}
                 {updatingId === order.id ? (
-                   <div className="flex-1 h-10 flex items-center justify-center bg-muted/20 rounded-xl">
+                  <div className="flex-1 h-10 flex items-center justify-center bg-muted/20 rounded-xl">
                     <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                   </div>
+                  </div>
                 ) : (
                   <>
                     {/* Primary Action Button (if any) */}
-{order.status === "AWAITING_VERIFICATION" && (
-                         <Link href={`/admin/orders/${order.id}`} className="flex-1">
-                           <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm">
-                             <CheckCircle className="h-4 w-4" /> Verifikasi
-                           </button>
-                         </Link>
-                       )}
-                       {order.status === "PAID" && (
-                         <button
-                           onClick={() => handleUpdateStatus(order.id, "PROCESSING")}
-                           className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white font-bold shadow-sm"
-                         >
-                           <Layers className="h-4 w-4" /> Proses
-                         </button>
-                       )}
-                       {order.status === "PROCESSING" && (
-                         <Link href={`/admin/orders/${order.id}`} className="flex-1">
-                           <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-terracotta text-white font-bold shadow-sm">
-                             <Truck className="h-4 w-4" /> Kirim
-                           </button>
-                         </Link>
-                       )}
-                       {order.status === "SHIPPED" && (
-                         <button
-                           onClick={() => handleUpdateStatus(order.id, "COMPLETED")}
-                           className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm"
-                         >
-                           <CheckCircle className="h-4 w-4" /> Selesai
-                         </button>
-                       )}
+                    {order.status === "AWAITING_VERIFICATION" && (
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="flex-1"
+                      >
+                        <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm">
+                          <CheckCircle className="h-4 w-4" /> Verifikasi
+                        </button>
+                      </Link>
+                    )}
+                    {order.status === "PAID" && (
+                      <button
+                        onClick={() =>
+                          handleUpdateStatus(order.id, "PROCESSING")
+                        }
+                        className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white font-bold shadow-sm"
+                      >
+                        <Layers className="h-4 w-4" /> Proses
+                      </button>
+                    )}
+                    {order.status === "PROCESSING" && (
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="flex-1"
+                      >
+                        <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-terracotta text-white font-bold shadow-sm">
+                          <Truck className="h-4 w-4" /> Kirim
+                        </button>
+                      </Link>
+                    )}
+                    {order.status === "SHIPPED" && (
+                      <button
+                        onClick={() =>
+                          handleUpdateStatus(order.id, "COMPLETED")
+                        }
+                        className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm"
+                      >
+                        <CheckCircle className="h-4 w-4" /> Selesai
+                      </button>
+                    )}
 
-                     {/* View Details Button */}
-                     <Link href={`/admin/orders/${order.id}`} className="flex-1">
-                       <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-card text-foreground border border-border hover:bg-muted font-bold shadow-sm">
-                         <Eye className="h-4 w-4" /> Detail
-                       </button>
-                     </Link>
+                    {/* View Details Button */}
+                    <Link href={`/admin/orders/${order.id}`} className="flex-1">
+                      <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-card text-foreground border border-border hover:bg-muted font-bold shadow-sm">
+                        <Eye className="h-4 w-4" /> Detail
+                      </button>
+                    </Link>
                   </>
                 )}
               </div>

@@ -157,7 +157,7 @@ export default async function HomePage() {
               </span>
             </h1>
 
-            <p className="mt-8 text-[16px] md:text-[20px] leading-relaxed text-slate-600 max-w-[40ch] font-medium">
+<p className="mt-8 text-[16px] md:text-[20px] leading-relaxed text-slate-600 max-w-[40ch] font-medium">
               Perjalanan yoga lebih bermakna bersama dTeman. Koleksi boneka
               rajut eksklusif yang membawa energi positif di setiap asana Anda.
             </p>
@@ -294,7 +294,7 @@ export default async function HomePage() {
       <section id="products" className="mb-20 md:mb-32 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="py-16 md:py-24 bg-white rounded-[40px] md:rounded-[64px] shadow-soft relative z-20 overflow-hidden ring-1 ring-[#e8dcc8]/50">
           <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full bg-[#7a9d7f]/5 blur-[60px] pointer-events-none"></div>
-          <div className="relative z-10 px-6 md:px-16 max-w-7xl mx-auto mb-16">
+<div className="relative z-10 px-6 md:px-16 max-w-7xl mx-auto mb-16">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <h2 className="font-display text-[32px] md:text-[56px] font-black leading-[1.1] tracking-tight">
                 Kurasi <span className="text-[#c85a2d]">Terbaru</span>
@@ -314,22 +314,8 @@ export default async function HomePage() {
                 href={`/products/${product.slug}`}
                 className="group flex-shrink-0 w-[300px] md:w-full relative bg-white rounded-[48px] overflow-hidden ring-1 ring-slate-100/80 hover:ring-[#c85a2d]/20 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col h-full transform-gpu"
               >
-                <div className="aspect-[4/5] overflow-hidden relative isolate">
+<div className="aspect-[4/5] overflow-hidden relative isolate">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-                  
-                  {/* Floating Badges Container */}
-                  <div className="absolute top-4 inset-x-4 flex justify-between items-start z-20 pointer-events-none">
-                    
-                    <div className="px-2.5 py-1 rounded-full bg-[#7a9d7f]/90 backdrop-blur-md border border-white/10 shadow-lg flex items-center gap-1.5">
-                      <div className="relative flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
-                      </div>
-                      <span className="text-[9px] font-black uppercase tracking-wider text-white">
-                        Tersedia
-                      </span>
-                    </div>
-                  </div>
 
                   {product.images[0] ? (
                     <Image

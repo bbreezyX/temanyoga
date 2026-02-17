@@ -6,7 +6,7 @@ type SendResult = {
   detail?: string;
 };
 
-const DEFAULT_FROM = "D`TEMAN YOGA <noreply@ditemaniyoga.com>";
+const DEFAULT_FROM = "D'TEMAN YOGA <notifikasi@ditemaniyoga.com>";
 
 let resendClient: Resend | null = null;
 
@@ -38,6 +38,7 @@ export async function sendEmailToCustomer(
   to: string,
   subject: string,
   html: string,
+  text?: string,
 ): Promise<SendResult> {
   try {
     const enabled = await isEmailEnabled();
@@ -52,11 +53,19 @@ export async function sendEmailToCustomer(
 
     const from = (await getSiteSetting("email_from")) || DEFAULT_FROM;
 
+    const replyTo =
+      (await getSiteSetting("email_reply_to")) || "cs@ditemaniyoga.com";
+
     const { error } = await resend.emails.send({
       from,
       to,
+      replyTo,
       subject,
       html,
+      text: text || undefined,
+      headers: {
+        "X-Entity-Ref-ID": `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      },
     });
 
     if (error) {

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ShoppingCart, Menu, X } from "lucide-react";
+import { ShoppingCart, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/cart-context";
@@ -197,19 +197,26 @@ export function Header() {
                     isScrolled ? "h-9 w-9 bg-primary/5 hover:bg-primary/10" : "h-11 w-11 hover:bg-foreground/5",
                   )}
                 >
-                  <Menu
-                    className={cn(
-                      "transition-all",
-                      isScrolled ? "h-4 w-4" : "h-5 w-5",
-                      mobileOpen && "scale-0 opacity-0",
-                    )}
-                  />
-                  <X
-                    className={cn(
-                      "absolute h-5 w-5 transition-all scale-0 opacity-0",
-                      mobileOpen && "scale-100 opacity-100",
-                    )}
-                  />
+                  <div className="relative flex h-5 w-5 items-center justify-center">
+                    <span
+                      className={cn(
+                        "absolute h-0.5 w-5 bg-current transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)]",
+                        mobileOpen ? "rotate-45" : "-translate-y-1.5"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "absolute h-0.5 w-5 bg-current transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)]",
+                        mobileOpen ? "opacity-0 scale-x-0" : "opacity-100"
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "absolute h-0.5 w-5 bg-current transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)]",
+                        mobileOpen ? "-rotate-45" : "translate-y-1.5"
+                      )}
+                    />
+                  </div>
                 </Button>
               </SheetTrigger>
               <SheetContent

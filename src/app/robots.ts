@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/api/", "/checkout/success"],
+      disallow: ["/admin/", "/api/", "/checkout/success/"],
     },
     sitemap: "https://ditemaniyoga.com/sitemap.xml",
   };

@@ -16,6 +16,7 @@ import {
   Ticket,
   X,
   Check,
+  Clock,
 } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { apiFetch, apiPost } from "@/lib/api-client";
@@ -164,15 +165,11 @@ export default function CheckoutPage() {
     orderPlaced.current = true;
     clearCart();
     window.scrollTo(0, 0);
-    const successParams = new URLSearchParams({
-      code: res.data.orderCode,
-      total: String(res.data.totalAmount),
-      shipping: String(res.data.shippingCost),
-      discount: String(res.data.discountAmount),
-      ...(res.data.couponCode ? { coupon: res.data.couponCode } : {}),
-      email: customerEmail,
-    });
-    router.push(`/checkout/success?${successParams.toString()}`);
+
+    // Save email for verification on success page (to keep URL clean)
+    sessionStorage.setItem(`checkout_email_${res.data.orderCode}`, customerEmail);
+
+    router.push(`/checkout/success/${res.data.orderCode}`);
   }
 
   if (items.length === 0) return null;
@@ -701,6 +698,20 @@ export default function CheckoutPage() {
                   <p className="mt-1 text-[13px] leading-relaxed text-[#5a6a58]">
                     Kami bekerja sama dengan partner pengiriman terpercaya untuk
                     memastikan pesanan Anda sampai dengan selamat.
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-3xl bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 p-6 flex items-start gap-4">
+                <div className="w-10 h-10 rounded-2xl bg-white grid place-items-center shrink-0 shadow-sm">
+                  <Clock className="w-5 h-5 text-[#c85a2d]" />
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-black text-slate-900">
+                    Pre-order (Made to Order)
+                  </h3>
+                  <p className="mt-1 text-[13px] leading-relaxed text-[#6b5b4b]">
+                    Semua produk dibuat setelah pemesanan. Produksi <span className="font-bold text-[#c85a2d]">±3 minggu</span> + pengiriman.
                   </p>
                 </div>
               </div>

@@ -73,7 +73,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
           <div className="flex items-end justify-between">
             <div className="flex flex-col">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
-                Investasi
+                Harga
               </span>
               <p className="text-[20px] md:text-[22px] font-display font-black text-[#c85a2d] leading-none">
                 {formatCurrency(Number(product.price))}
@@ -81,15 +81,17 @@ export function ProductCard({ product }: { product: ProductListItem }) {
             </div>
 
             {!outOfStock ? (
-              <div className="flex items-center gap-1.5 bg-[#7a9d7f]/10 px-3 py-1 rounded-full">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#7a9d7f]"></div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#7a9d7f]">
-                  Ready
+              <div className="flex flex-col items-end gap-0.5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#c85a2d]">
+                  ~3 minggu
+                </span>
+                <span className="text-[9px] font-medium text-[#6b5b4b]">
+                  produksi
                 </span>
               </div>
             ) : (
               <span className="text-[10px] font-black uppercase tracking-widest text-red-400">
-                Restocking
+                Closed
               </span>
             )}
           </div>
