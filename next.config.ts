@@ -25,9 +25,14 @@ const nextConfig: NextConfig = {
             value: "strict-origin-when-cross-origin",
           },
           { key: "X-DNS-Prefetch-Control", value: "on" },
+        ],
+      },
+      {
+        source: "/api/admin/email-preview",
+        headers: [
           {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=()",
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
         ],
       },

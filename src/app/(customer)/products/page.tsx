@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ProductGrid } from "@/components/product/product-grid";
 import { PaginationControls } from "@/components/product/pagination-controls";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import type { ProductListItem } from "@/types/api";
 import { cn } from "@/lib/utils";
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 async function getProducts(page: number, limit: number, sort: string = "latest") {
-  const orderBy: any = {};
+  const orderBy: Prisma.ProductOrderByWithRelationInput = {};
   switch (sort) {
     case "price-asc":
       orderBy.price = "asc";

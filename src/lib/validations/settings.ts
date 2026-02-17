@@ -12,6 +12,9 @@ export const updateSettingsSchema = z.object({
     .url("Invalid URL format")
     .max(500)
     .optional(),
+  bank_name: z.string().max(100).optional(),
+  bank_account_number: z.string().max(100).optional(),
+  bank_account_name: z.string().max(100).optional(),
 });
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
@@ -22,6 +25,9 @@ export const SETTING_KEYS = [
   "whatsapp_admin_phone",
   "email_enabled",
   "site_url",
+  "bank_name",
+  "bank_account_number",
+  "bank_account_name",
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];

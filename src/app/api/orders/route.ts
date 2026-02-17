@@ -259,8 +259,31 @@ export async function POST(request: Request) {
     broadcastNotification(notification);
 
     // Send WhatsApp notifications (fire-and-forget)
-    const siteUrl =
-      (await getSiteSetting("site_url")) || "https://ditemaniyoga.com";
+    const settings = await prisma.siteSetting.findMany({
+      where: {
+        key: {
+          in: [
+            "site_url",
+            "bank_name",
+            "bank_account_number",
+            "bank_account_name",
+          ],
+        },
+      },
+    });
+
+    const settingsMap: Record<string, string> = {};
+    for (const s of settings) {
+      settingsMap[s.key] = s.value;
+    }
+
+    const siteUrl = settingsMap.site_url || "https://ditemaniyoga.com";
+    const bankData = {
+      bankName: settingsMap.bank_name || "BCA",
+      accountNumber: settingsMap.bank_account_number || "1234567890",
+      accountName: settingsMap.bank_account_name || "D'TEMAN YOGA Studio",
+    };
+
     const waOrderData = {
       orderCode: order.orderCode,
       customerName: order.customerName,
@@ -272,7 +295,7 @@ export async function POST(request: Request) {
 
     sendWhatsAppToCustomer(
       order.customerPhone,
-      orderCreatedCustomer(waOrderData, siteUrl),
+      orderCreatedCustomer(waOrderData, siteUrl, bankData),
     ).catch((err) => console.error("WA to customer failed:", err));
 
     sendWhatsAppToAdmin(orderCreatedAdmin(waOrderData)).catch((err) =>
@@ -280,7 +303,7 @@ export async function POST(request: Request) {
     );
 
     // Send email notification to customer (fire-and-forget)
-    const emailData = orderCreatedEmail(waOrderData, siteUrl);
+    const emailData = orderCreatedEmail(waOrderData, siteUrl, bankData);
     sendEmailToCustomer(
       order.customerEmail,
       emailData.subject,

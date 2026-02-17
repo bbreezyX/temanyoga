@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye } from "lucide-react";
+import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/toast";
 import { apiFetch, apiPatch } from "@/lib/api-client";
@@ -68,7 +69,16 @@ export function EmailSettings() {
             Kirim notifikasi otomatis ke pelanggan via email (Resend)
           </p>
         </div>
-        <Switch checked={enabled} onCheckedChange={setEnabled} />
+        <div className="flex items-center gap-4">
+          <Link
+            href="/admin/settings/email-preview"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-warm-sand/50 text-[10px] font-bold text-terracotta hover:bg-warm-sand/10 transition-colors"
+          >
+            <Eye className="h-3 w-3" />
+            <span>Preview Template</span>
+          </Link>
+          <Switch checked={enabled} onCheckedChange={setEnabled} />
+        </div>
       </div>
 
       <p className="text-[10px] text-warm-gray">

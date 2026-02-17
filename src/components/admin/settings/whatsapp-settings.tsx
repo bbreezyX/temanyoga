@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Loader2, MessageCircle, Send } from "lucide-react";
+import { Loader2, MessageCircle, Send, Eye } from "lucide-react";
+import Link from "next/link";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/toast";
 import { apiFetch, apiPatch, apiPost } from "@/lib/api-client";
@@ -99,39 +100,49 @@ export function WhatsAppSettings() {
             Kirim notifikasi otomatis ke pelanggan dan admin via WhatsApp
           </p>
         </div>
-        <Switch checked={enabled} onCheckedChange={setEnabled} />
+        <div className="flex items-center gap-4">
+          <Link
+            href="/admin/settings/whatsapp-preview"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-warm-sand/50 text-[10px] font-bold text-terracotta hover:bg-warm-sand/10 transition-colors"
+          >
+            <Eye className="h-3 w-3" />
+            <span>Preview Template</span>
+          </Link>
+          <Switch checked={enabled} onCheckedChange={setEnabled} />
+        </div>
       </div>
 
-      {/* Admin Phone */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-          Nomor WhatsApp Admin
-        </label>
-        <input
-          value={adminPhone}
-          onChange={(e) => setAdminPhone(e.target.value)}
-          placeholder="08123456789"
-          className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
-        />
-        <p className="text-[10px] text-warm-gray">
-          Nomor ini akan menerima notifikasi pesanan baru dan bukti pembayaran
-        </p>
-      </div>
+      {/* Admin Phone & Site URL */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-1.5">
+          <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
+            Nomor WhatsApp Admin
+          </label>
+          <input
+            value={adminPhone}
+            onChange={(e) => setAdminPhone(e.target.value)}
+            placeholder="08123456789"
+            className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+          />
+          <p className="text-[10px] text-warm-gray">
+            Menerima notifikasi pesanan baru & bukti bayar
+          </p>
+        </div>
 
-      {/* Site URL */}
-      <div className="space-y-1.5">
-        <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
-          URL Website
-        </label>
-        <input
-          value={siteUrl}
-          onChange={(e) => setSiteUrl(e.target.value)}
-          placeholder="https://ditemaniyoga.com"
-          className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
-        />
-        <p className="text-[10px] text-warm-gray">
-          Digunakan untuk link tracking pesanan di pesan WhatsApp
-        </p>
+        <div className="space-y-1.5">
+          <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
+            URL Website
+          </label>
+          <input
+            value={siteUrl}
+            onChange={(e) => setSiteUrl(e.target.value)}
+            placeholder="https://ditemaniyoga.com"
+            className="w-full rounded-2xl bg-cream px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all"
+          />
+          <p className="text-[10px] text-warm-gray">
+            Digunakan untuk link tracking di WhatsApp
+          </p>
+        </div>
       </div>
 
       {/* Action Buttons */}

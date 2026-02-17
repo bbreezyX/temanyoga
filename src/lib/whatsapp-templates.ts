@@ -9,6 +9,12 @@ type OrderData = {
   discountAmount: number;
 };
 
+type BankData = {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+};
+
 type TrackingData = {
   courier: string;
   trackingNumber: string;
@@ -26,43 +32,43 @@ function formatRupiah(amount: number): string {
  */
 export function orderCreatedCustomer(
   order: OrderData,
-  siteUrl: string
+  siteUrl: string,
+  bank?: BankData,
 ): string {
   const lines = [
-    `Halo ${order.customerName}!`,
+    `*Halo ${order.customerName}!* 👋`,
     ``,
-    `Pesanan Anda telah berhasil dibuat.`,
+    `Terima kasih telah berbelanja di *D'TEMAN YOGA*. Pesanan Anda telah berhasil dibuat.`,
     ``,
-    `Kode Pesanan: *${order.orderCode}*`,
-    `Total: *${formatRupiah(order.totalAmount)}*`,
+    `📦 *Detail Pesanan:*`,
+    `• Kode: *${order.orderCode}*`,
+    `• Total: *${formatRupiah(order.totalAmount)}*`,
   ];
 
   if (order.discountAmount > 0) {
-    lines.push(`Diskon: -${formatRupiah(order.discountAmount)}`);
+    lines.push(`• Diskon: -${formatRupiah(order.discountAmount)}`);
   }
   if (order.shippingCost > 0) {
-    lines.push(`Ongkir: ${formatRupiah(order.shippingCost)}`);
+    lines.push(`• Ongkir: ${formatRupiah(order.shippingCost)}`);
   }
 
   lines.push(
     ``,
-    `Silakan transfer ke salah satu rekening berikut:`,
+    `🏦 *Informasi Pembayaran:*`,
+    `Silakan transfer ke rekening berikut:`,
     ``,
-    `*Bank BCA*`,
-    `No. Rek: 1234567890`,
-    `a/n TemanYoga Studio`,
+    `*Bank ${bank?.bankName || "BCA"}*`,
+    `No. Rek: *${bank?.accountNumber || "1234567890"}*`,
+    `a/n ${bank?.accountName || "D'TEMAN YOGA Studio"}`,
     ``,
-    `*Bank Mandiri*`,
-    `No. Rek: 0987654321`,
-    `a/n TemanYoga Studio`,
-    ``,
-    `Setelah transfer, upload bukti pembayaran di:`,
+    `📸 *Konfirmasi:*`,
+    `Setelah transfer, mohon unggah bukti pembayaran di tautan berikut:`,
     `${siteUrl}/checkout/success?code=${order.orderCode}`,
     ``,
-    `Lacak pesanan Anda:`,
+    `📍 *Lacak Pesanan:*`,
     `${siteUrl}/track-order?code=${order.orderCode}`,
     ``,
-    `Terima kasih telah berbelanja di Temanyoga!`
+    `_Terima kasih telah menjadi bagian dari perjalanan yoga kami!_ 🙏`,
   );
 
   return lines.join("\n");
@@ -74,18 +80,18 @@ export function orderCreatedCustomer(
 export function paymentApprovedCustomer(
   orderCode: string,
   customerName: string,
-  siteUrl: string
+  siteUrl: string,
 ): string {
   return [
-    `Halo ${customerName}!`,
+    `*Halo ${customerName}!* ✨`,
     ``,
-    `Pembayaran untuk pesanan *${orderCode}* telah diverifikasi.`,
-    `Pesanan Anda sedang diproses.`,
+    `Kabar baik! Pembayaran untuk pesanan *${orderCode}* telah kami verifikasi.`,
+    `Pesanan Anda sedang kami siapkan untuk segera dikirim.`,
     ``,
-    `Lacak pesanan Anda:`,
+    `📍 *Pantau Pesanan:*`,
     `${siteUrl}/track-order?code=${orderCode}`,
     ``,
-    `Terima kasih!`,
+    `Terima kasih atas kepercayaannya! 🙏`,
   ].join("\n");
 }
 
@@ -96,24 +102,25 @@ export function paymentRejectedCustomer(
   orderCode: string,
   customerName: string,
   siteUrl: string,
-  reason?: string
+  reason?: string,
 ): string {
   const lines = [
-    `Halo ${customerName},`,
+    `*Halo ${customerName},*`,
     ``,
-    `Mohon maaf, bukti pembayaran untuk pesanan *${orderCode}* tidak dapat diverifikasi.`,
+    `Mohon maaf, bukti pembayaran untuk pesanan *${orderCode}* tidak dapat kami verifikasi.`,
   ];
 
   if (reason) {
-    lines.push(`Alasan: ${reason}`);
+    lines.push(``, `⚠️ *Alasan:* ${reason}`);
   }
 
   lines.push(
     ``,
-    `Silakan upload ulang bukti pembayaran di:`,
+    `📸 *Tindakan Diperlukan:*`,
+    `Silakan unggah kembali bukti pembayaran yang valid melalui tautan di bawah ini agar kami dapat memproses pesanan Anda:`,
     `${siteUrl}/checkout/success?code=${orderCode}`,
     ``,
-    `Jika ada pertanyaan, silakan hubungi kami.`
+    `Jika ada kendala, jangan ragu untuk menghubungi kami. Terima kasih.`,
   );
 
   return lines.join("\n");
@@ -126,20 +133,21 @@ export function orderShippedCustomer(
   orderCode: string,
   customerName: string,
   tracking: TrackingData,
-  siteUrl: string
+  siteUrl: string,
 ): string {
   return [
-    `Halo ${customerName}!`,
+    `*Halo ${customerName}!* 🚚`,
     ``,
-    `Pesanan *${orderCode}* telah dikirim.`,
+    `Pesanan *${orderCode}* Anda telah dikirim!`,
     ``,
-    `Kurir: *${tracking.courier}*`,
-    `No. Resi: *${tracking.trackingNumber}*`,
+    `📦 *Info Pengiriman:*`,
+    `• Kurir: *${tracking.courier}*`,
+    `• No. Resi: *${tracking.trackingNumber}*`,
     ``,
-    `Lacak pesanan Anda:`,
+    `📍 *Lacak Pengiriman:*`,
     `${siteUrl}/track-order?code=${orderCode}`,
     ``,
-    `Terima kasih telah berbelanja di Temanyoga!`,
+    `Semoga produk kami segera sampai dengan selamat! 🙏`,
   ].join("\n");
 }
 
@@ -148,15 +156,16 @@ export function orderShippedCustomer(
  */
 export function orderCompletedCustomer(
   orderCode: string,
-  customerName: string
+  customerName: string,
 ): string {
   return [
-    `Halo ${customerName}!`,
+    `*Halo ${customerName}!* 🥳`,
     ``,
-    `Pesanan *${orderCode}* telah selesai.`,
+    `Pesanan *${orderCode}* telah dinyatakan selesai.`,
     ``,
-    `Terima kasih telah berbelanja di Temanyoga!`,
-    `Kami harap Anda puas dengan produk kami.`,
+    `Terima kasih banyak telah berbelanja di *D'TEMAN YOGA*. Kami harap produk kami dapat mendukung aktivitas yoga Anda dengan maksimal.`,
+    ``,
+    `Sampai jumpa di pesanan berikutnya! ✨`,
   ].join("\n");
 }
 
@@ -165,14 +174,16 @@ export function orderCompletedCustomer(
  */
 export function orderCancelledCustomer(
   orderCode: string,
-  customerName: string
+  customerName: string,
 ): string {
   return [
-    `Halo ${customerName},`,
+    `*Halo ${customerName},*`,
     ``,
     `Pesanan *${orderCode}* telah dibatalkan.`,
     ``,
-    `Jika Anda merasa ini adalah kesalahan atau memiliki pertanyaan, silakan hubungi kami.`,
+    `Jika Anda merasa ini adalah kesalahan atau memiliki pertanyaan, silakan hubungi tim kami untuk bantuan lebih lanjut.`,
+    ``,
+    `Terima kasih.`,
   ].join("\n");
 }
 
@@ -185,7 +196,7 @@ export function getStatusChangeMessage(
   orderCode: string,
   customerName: string,
   siteUrl: string,
-  tracking?: TrackingData | null
+  tracking?: TrackingData | null,
 ): string | null {
   switch (status) {
     case "SHIPPED":
@@ -193,11 +204,11 @@ export function getStatusChangeMessage(
         return orderShippedCustomer(orderCode, customerName, tracking, siteUrl);
       }
       return [
-        `Halo ${customerName}!`,
+        `*Halo ${customerName}!* 🚚`,
         ``,
         `Pesanan *${orderCode}* telah dikirim.`,
         ``,
-        `Lacak pesanan Anda:`,
+        `📍 *Lacak Pesanan:*`,
         `${siteUrl}/track-order?code=${orderCode}`,
       ].join("\n");
     case "COMPLETED":
@@ -216,12 +227,14 @@ export function getStatusChangeMessage(
  */
 export function orderCreatedAdmin(order: OrderData): string {
   return [
-    `*Pesanan Baru!*`,
+    `🔔 *PESANAN BARU!*`,
     ``,
-    `Kode: *${order.orderCode}*`,
-    `Nama: ${order.customerName}`,
-    `Telp: ${order.customerPhone}`,
-    `Total: *${formatRupiah(order.totalAmount)}*`,
+    `• Kode: *${order.orderCode}*`,
+    `• Nama: ${order.customerName}`,
+    `• Telp: ${order.customerPhone}`,
+    `• Total: *${formatRupiah(order.totalAmount)}*`,
+    ``,
+    `Silakan cek panel admin untuk detail selengkapnya.`,
   ].join("\n");
 }
 
@@ -230,14 +243,14 @@ export function orderCreatedAdmin(order: OrderData): string {
  */
 export function paymentProofUploadedAdmin(
   orderCode: string,
-  customerName: string
+  customerName: string,
 ): string {
   return [
-    `*Bukti Pembayaran Diunggah*`,
+    `💳 *BUKTI PEMBAYARAN DIUNGGAH*`,
     ``,
-    `Pesanan: *${orderCode}*`,
-    `Dari: ${customerName}`,
+    `• Pesanan: *${orderCode}*`,
+    `• Dari: ${customerName}`,
     ``,
-    `Silakan verifikasi di panel admin.`,
+    `Silakan lakukan verifikasi pembayaran di panel admin.`,
   ].join("\n");
 }

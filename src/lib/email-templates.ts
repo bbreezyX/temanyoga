@@ -9,6 +9,12 @@ type OrderData = {
   discountAmount: number;
 };
 
+type BankData = {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+};
+
 type TrackingData = {
   courier: string;
   trackingNumber: string;
@@ -27,18 +33,19 @@ function emailWrapper(body: string): string {
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f5;padding:32px 16px">
+<body style="margin:0;padding:0;background-color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#3f3328">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;padding:32px 16px">
 <tr><td align="center">
-<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
-<tr><td style="background-color:#16a34a;padding:24px 32px;text-align:center">
-<h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px">Temanyoga</h1>
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background-color:#ffffff;border:1px solid #e8dcc8;border-radius:16px;overflow:hidden">
+<tr><td style="background-color:#f5f1ed;padding:32px;text-align:center;border-bottom:1px solid #e8dcc8">
+<h1 style="margin:0;color:#c85a2d;font-size:24px;font-weight:800;letter-spacing:-0.5px;text-transform:uppercase">D'TEMAN YOGA</h1>
+<p style="margin:4px 0 0;color:#6b5b4b;font-size:13px;letter-spacing:1px">TEMAN SETIA YOGAMU</p>
 </td></tr>
-<tr><td style="padding:32px">
+<tr><td style="padding:40px 32px">
 ${body}
 </td></tr>
-<tr><td style="padding:16px 32px;background-color:#f9fafb;text-align:center;border-top:1px solid #e5e7eb">
-<p style="margin:0;color:#9ca3af;font-size:12px">Temanyoga &mdash; Teman Setia Yogamu</p>
+<tr><td style="padding:24px 32px;background-color:#f5f1ed;text-align:center;border-top:1px solid #e8dcc8">
+<p style="margin:0;color:#6b5b4b;font-size:12px;font-weight:500">&copy; ${new Date().getFullYear()} D'TEMAN YOGA. All rights reserved.</p>
 </td></tr>
 </table>
 </td></tr>
@@ -49,7 +56,7 @@ ${body}
 
 function button(url: string, label: string): string {
   return `<table cellpadding="0" cellspacing="0" style="margin:24px 0"><tr><td>
-<a href="${url}" style="display:inline-block;padding:12px 28px;background-color:#16a34a;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:600;font-size:14px">${label}</a>
+<a href="${url}" style="display:inline-block;padding:14px 32px;background-color:#c85a2d;color:#ffffff;text-decoration:none;border-radius:12px;font-weight:700;font-size:14px;letter-spacing:0.5px">${label}</a>
 </td></tr></table>`;
 }
 
@@ -57,46 +64,46 @@ function button(url: string, label: string): string {
 
 export function orderCreatedEmail(
   order: OrderData,
-  siteUrl: string
+  siteUrl: string,
+  bank?: BankData,
 ): EmailContent {
   let amountRows = "";
   if (order.discountAmount > 0) {
-    amountRows += `<tr><td style="padding:4px 0;color:#6b7280">Diskon</td><td style="padding:4px 0;text-align:right;color:#16a34a">-${formatRupiah(order.discountAmount)}</td></tr>`;
+    amountRows += `<tr><td style="padding:8px 0;color:#6b5b4b">Diskon</td><td style="padding:8px 0;text-align:right;color:#c85a2d;font-weight:600">-${formatRupiah(order.discountAmount)}</td></tr>`;
   }
   if (order.shippingCost > 0) {
-    amountRows += `<tr><td style="padding:4px 0;color:#6b7280">Ongkir</td><td style="padding:4px 0;text-align:right">${formatRupiah(order.shippingCost)}</td></tr>`;
+    amountRows += `<tr><td style="padding:8px 0;color:#6b5b4b">Ongkir</td><td style="padding:8px 0;text-align:right;color:#3f3328;font-weight:600">${formatRupiah(order.shippingCost)}</td></tr>`;
   }
 
   const body = `
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${order.customerName}</strong>!</p>
-<p style="margin:0 0 24px;color:#374151;font-size:15px">Pesanan Anda telah berhasil dibuat.</p>
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${order.customerName}!</h2>
+<p style="margin:0 0 24px;color:#6b5b4b;font-size:16px;line-height:1.5">Pesanan Anda telah berhasil dibuat. Silakan lakukan pembayaran agar pesanan Anda dapat segera kami proses.</p>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border-radius:8px;padding:16px;margin-bottom:24px">
-<tr><td style="padding:4px 0;color:#6b7280">Kode Pesanan</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827">${order.orderCode}</td></tr>
-<tr><td style="padding:4px 0;color:#6b7280">Total</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827">${formatRupiah(order.totalAmount)}</td></tr>
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f1ed;border-radius:12px;padding:20px;margin-bottom:32px;border:1px solid #e8dcc8">
+<tr><td style="padding:8px 0;color:#6b5b4b">Kode Pesanan</td><td style="padding:8px 0;text-align:right;font-weight:700;color:#3f3328">${order.orderCode}</td></tr>
 ${amountRows}
+<tr><td style="padding:12px 0 0;color:#3f3328;font-weight:700;border-top:1px solid #e8dcc8;font-size:18px">Total Pembayaran</td><td style="padding:12px 0 0;text-align:right;font-weight:800;color:#c85a2d;border-top:1px solid #e8dcc8;font-size:18px">${formatRupiah(order.totalAmount)}</td></tr>
 </table>
 
-<p style="margin:0 0 12px;color:#374151;font-size:15px;font-weight:600">Silakan transfer ke salah satu rekening berikut:</p>
+<p style="margin:0 0 16px;color:#3f3328;font-size:16px;font-weight:700">Metode Pembayaran:</p>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:12px">
-<tr><td><strong style="color:#166534">Bank BCA</strong><br><span style="color:#374151">No. Rek: 1234567890</span><br><span style="color:#6b7280">a/n TemanYoga Studio</span></td></tr>
+<div style="margin-bottom:24px">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border:1px solid #e8dcc8;border-radius:12px;padding:16px;margin-bottom:12px">
+<tr><td>
+<span style="color:#6b5b4b;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Bank ${bank?.bankName || "BCA"}</span><br>
+<strong style="color:#3f3328;font-size:18px">${bank?.accountNumber || "1234567890"}</strong><br>
+<span style="color:#6b5b4b;font-size:14px">a/n ${bank?.accountName || "D'TEMAN YOGA Studio"}</span>
+</td></tr>
 </table>
+</div>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:24px">
-<tr><td><strong style="color:#166534">Bank Mandiri</strong><br><span style="color:#374151">No. Rek: 0987654321</span><br><span style="color:#6b7280">a/n TemanYoga Studio</span></td></tr>
-</table>
+<p style="margin:0;color:#6b5b4b;font-size:15px;line-height:1.5">Setelah melakukan transfer, mohon unggah bukti pembayaran melalui tautan di bawah ini:</p>
+${button(`${siteUrl}/checkout/success?code=${order.orderCode}`, "Unggah Bukti Pembayaran")}
 
-<p style="margin:0 0 8px;color:#374151;font-size:15px">Setelah transfer, upload bukti pembayaran:</p>
-${button(`${siteUrl}/checkout/success?code=${order.orderCode}`, "Upload Bukti Pembayaran")}
-
-<p style="margin:0 0 8px;color:#374151;font-size:15px">Lacak pesanan Anda:</p>
-${button(`${siteUrl}/track-order?code=${order.orderCode}`, "Lacak Pesanan")}
-
-<p style="margin:0;color:#6b7280;font-size:14px">Terima kasih telah berbelanja di Temanyoga!</p>`;
+<p style="margin:32px 0 0;color:#6b5b4b;font-size:14px;text-align:center;font-style:italic">Terima kasih telah mempercayakan kebutuhan yoga Anda kepada D'TEMAN YOGA.</p>`;
 
   return {
-    subject: `Konfirmasi Pesanan ${order.orderCode} - Temanyoga`,
+    subject: `Konfirmasi Pesanan ${order.orderCode} - D'TEMAN YOGA`,
     html: emailWrapper(body),
   };
 }
@@ -104,14 +111,14 @@ ${button(`${siteUrl}/track-order?code=${order.orderCode}`, "Lacak Pesanan")}
 export function paymentProofReceivedEmail(
   orderCode: string,
   customerName: string,
-  siteUrl: string
+  siteUrl: string,
 ): EmailContent {
   const body = `
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${customerName}</strong>!</p>
-<p style="margin:0 0 24px;color:#374151;font-size:15px">Bukti pembayaran untuk pesanan <strong>${orderCode}</strong> telah kami terima dan sedang dalam proses verifikasi.</p>
-<p style="margin:0 0 8px;color:#374151;font-size:15px">Lacak pesanan Anda:</p>
-${button(`${siteUrl}/track-order?code=${orderCode}`, "Lacak Pesanan")}
-<p style="margin:0;color:#6b7280;font-size:14px">Kami akan mengabari Anda setelah pembayaran diverifikasi.</p>`;
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${customerName}!</h2>
+<p style="margin:0 0 24px;color:#6b5b4b;font-size:16px;line-height:1.5">Bukti pembayaran untuk pesanan <strong>${orderCode}</strong> telah kami terima. Tim kami akan segera melakukan verifikasi pembayaran Anda.</p>
+<p style="margin:0 0 8px;color:#6b5b4b;font-size:15px">Anda dapat memantau status pesanan Anda melalui tautan di bawah ini:</p>
+${button(`${siteUrl}/track-order?code=${orderCode}`, "Lacak Status Pesanan")}
+<p style="margin:24px 0 0;color:#6b5b4b;font-size:14px;line-height:1.5">Kami akan mengirimkan email notifikasi selanjutnya setelah pembayaran berhasil diverifikasi.</p>`;
 
   return {
     subject: `Bukti Pembayaran Diterima - ${orderCode}`,
@@ -122,17 +129,17 @@ ${button(`${siteUrl}/track-order?code=${orderCode}`, "Lacak Pesanan")}
 export function paymentApprovedEmail(
   orderCode: string,
   customerName: string,
-  siteUrl: string
+  siteUrl: string,
 ): EmailContent {
   const body = `
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${customerName}</strong>!</p>
-<p style="margin:0 0 24px;color:#374151;font-size:15px">Pembayaran untuk pesanan <strong>${orderCode}</strong> telah diverifikasi. Pesanan Anda sedang diproses.</p>
-<p style="margin:0 0 8px;color:#374151;font-size:15px">Lacak pesanan Anda:</p>
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${customerName}!</h2>
+<p style="margin:0 0 24px;color:#6b5b4b;font-size:16px;line-height:1.5">Kabar baik! Pembayaran untuk pesanan <strong>${orderCode}</strong> telah berhasil diverifikasi. Pesanan Anda kini masuk ke tahap pemrosesan.</p>
+<p style="margin:0 0 8px;color:#6b5b4b;font-size:15px">Pantau terus perkembangan pesanan Anda di sini:</p>
 ${button(`${siteUrl}/track-order?code=${orderCode}`, "Lacak Pesanan")}
-<p style="margin:0;color:#6b7280;font-size:14px">Terima kasih!</p>`;
+<p style="margin:24px 0 0;color:#6b5b4b;font-size:14px">Terima kasih telah berbelanja di D'TEMAN YOGA!</p>`;
 
   return {
-    subject: `Pembayaran Diverifikasi - ${orderCode}`,
+    subject: `Pembayaran Berhasil Diverifikasi - ${orderCode}`,
     html: emailWrapper(body),
   };
 }
@@ -141,22 +148,25 @@ export function paymentRejectedEmail(
   orderCode: string,
   customerName: string,
   siteUrl: string,
-  reason?: string
+  reason?: string,
 ): EmailContent {
   const reasonBlock = reason
-    ? `<p style="margin:0 0 16px;color:#dc2626;font-size:14px;background-color:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px">Alasan: ${reason}</p>`
+    ? `<div style="margin:0 0 24px;background-color:#fff1f2;border:1px solid #fecaca;border-radius:12px;padding:16px">
+         <strong style="color:#e11d48;display:block;margin-bottom:4px;font-size:14px">Alasan Penolakan:</strong>
+         <p style="margin:0;color:#9f1239;font-size:15px;line-height:1.5">${reason}</p>
+       </div>`
     : "";
 
   const body = `
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Mohon maaf, bukti pembayaran untuk pesanan <strong>${orderCode}</strong> tidak dapat diverifikasi.</p>
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${customerName},</h2>
+<p style="margin:0 0 24px;color:#6b5b4b;font-size:16px;line-height:1.5">Mohon maaf, bukti pembayaran untuk pesanan <strong>${orderCode}</strong> tidak dapat kami verifikasi.</p>
 ${reasonBlock}
-<p style="margin:0 0 8px;color:#374151;font-size:15px">Silakan upload ulang bukti pembayaran:</p>
-${button(`${siteUrl}/checkout/success?code=${orderCode}`, "Upload Ulang")}
-<p style="margin:0;color:#6b7280;font-size:14px">Jika ada pertanyaan, silakan hubungi kami.</p>`;
+<p style="margin:0 0 8px;color:#6b5b4b;font-size:15px">Silakan unggah kembali bukti pembayaran yang valid agar pesanan Anda dapat segera kami proses:</p>
+${button(`${siteUrl}/checkout/success?code=${orderCode}`, "Unggah Ulang Bukti Pembayaran")}
+<p style="margin:24px 0 0;color:#6b5b4b;font-size:14px">Jika Anda butuh bantuan, silakan hubungi tim dukungan kami.</p>`;
 
   return {
-    subject: `Pembayaran Perlu Diperbarui - ${orderCode}`,
+    subject: `Perhatian: Pembayaran Perlu Diperbarui - ${orderCode}`,
     html: emailWrapper(body),
   };
 }
@@ -165,53 +175,54 @@ export function orderShippedEmail(
   orderCode: string,
   customerName: string,
   tracking: TrackingData,
-  siteUrl: string
+  siteUrl: string,
 ): EmailContent {
   const body = `
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${customerName}</strong>!</p>
-<p style="margin:0 0 24px;color:#374151;font-size:15px">Pesanan <strong>${orderCode}</strong> telah dikirim.</p>
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${customerName}!</h2>
+<p style="margin:0 0 24px;color:#6b5b4b;font-size:16px;line-height:1.5">Pesanan <strong>${orderCode}</strong> Anda telah dikirim dan sedang dalam perjalanan menuju lokasi Anda.</p>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f9fafb;border-radius:8px;padding:16px;margin-bottom:24px">
-<tr><td style="padding:4px 0;color:#6b7280">Kurir</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827">${tracking.courier}</td></tr>
-<tr><td style="padding:4px 0;color:#6b7280">No. Resi</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#111827">${tracking.trackingNumber}</td></tr>
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f1ed;border-radius:12px;padding:20px;margin-bottom:32px;border:1px solid #e8dcc8">
+<tr><td style="padding:4px 0;color:#6b5b4b">Kurir</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#3f3328">${tracking.courier}</td></tr>
+<tr><td style="padding:4px 0;color:#6b5b4b">Nomor Resi</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#c85a2d">${tracking.trackingNumber}</td></tr>
 </table>
 
-<p style="margin:0 0 8px;color:#374151;font-size:15px">Lacak pesanan Anda:</p>
-${button(`${siteUrl}/track-order?code=${orderCode}`, "Lacak Pesanan")}
-<p style="margin:0;color:#6b7280;font-size:14px">Terima kasih telah berbelanja di Temanyoga!</p>`;
+<p style="margin:0 0 8px;color:#6b5b4b;font-size:15px">Gunakan nomor resi di atas untuk melacak pesanan Anda:</p>
+${button(`${siteUrl}/track-order?code=${orderCode}`, "Lacak Pengiriman")}
+<p style="margin:24px 0 0;color:#6b5b4b;font-size:14px">Semoga produk kami segera sampai dengan selamat!</p>`;
 
   return {
-    subject: `Pesanan Dikirim - ${orderCode}`,
+    subject: `Pesanan Anda Telah Dikirim - ${orderCode}`,
     html: emailWrapper(body),
   };
 }
 
 export function orderCompletedEmail(
   orderCode: string,
-  customerName: string
+  customerName: string,
 ): EmailContent {
   const body = `
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${customerName}</strong>!</p>
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Pesanan <strong>${orderCode}</strong> telah selesai.</p>
-<p style="margin:0;color:#374151;font-size:15px">Terima kasih telah berbelanja di Temanyoga! Kami harap Anda puas dengan produk kami.</p>`;
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${customerName}!</h2>
+<p style="margin:0 0 16px;color:#6b5b4b;font-size:16px;line-height:1.5">Pesanan <strong>${orderCode}</strong> Anda telah selesai.</p>
+<p style="margin:0;color:#6b5b4b;font-size:16px;line-height:1.5">Terima kasih banyak telah berbelanja di D'TEMAN YOGA! Kami harap Anda menyukai produk kami dan dapat menemani aktivitas yoga Anda dengan baik.</p>
+<p style="margin:24px 0 0;color:#6b5b4b;font-size:14px">Sampai jumpa di pesanan berikutnya!</p>`;
 
   return {
-    subject: `Pesanan Selesai - ${orderCode}`,
+    subject: `Pesanan Selesai - Terima kasih! ${orderCode}`,
     html: emailWrapper(body),
   };
 }
 
 export function orderCancelledEmail(
   orderCode: string,
-  customerName: string
+  customerName: string,
 ): EmailContent {
   const body = `
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Pesanan <strong>${orderCode}</strong> telah dibatalkan.</p>
-<p style="margin:0;color:#6b7280;font-size:14px">Jika Anda merasa ini adalah kesalahan atau memiliki pertanyaan, silakan hubungi kami.</p>`;
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${customerName},</h2>
+<p style="margin:0 0 16px;color:#6b5b4b;font-size:16px;line-height:1.5">Pesanan <strong>${orderCode}</strong> telah dibatalkan.</p>
+<p style="margin:0;color:#6b5b4b;font-size:16px;line-height:1.5">Jika Anda merasa ini adalah kesalahan atau memiliki pertanyaan mengenai pembatalan ini, jangan ragu untuk menghubungi kami.</p>`;
 
   return {
-    subject: `Pesanan Dibatalkan - ${orderCode}`,
+    subject: `Informasi Pembatalan Pesanan - ${orderCode}`,
     html: emailWrapper(body),
   };
 }
@@ -225,7 +236,7 @@ export function getStatusChangeEmail(
   orderCode: string,
   customerName: string,
   siteUrl: string,
-  tracking?: TrackingData | null
+  tracking?: TrackingData | null,
 ): EmailContent | null {
   switch (status) {
     case "SHIPPED":
@@ -235,9 +246,9 @@ export function getStatusChangeEmail(
       return {
         subject: `Pesanan Dikirim - ${orderCode}`,
         html: emailWrapper(`
-<p style="margin:0 0 16px;color:#374151;font-size:15px">Halo <strong>${customerName}</strong>!</p>
-<p style="margin:0 0 24px;color:#374151;font-size:15px">Pesanan <strong>${orderCode}</strong> telah dikirim.</p>
-<p style="margin:0 0 8px;color:#374151;font-size:15px">Lacak pesanan Anda:</p>
+<h2 style="margin:0 0 16px;color:#3f3328;font-size:20px;font-weight:700">Halo ${customerName}!</h2>
+<p style="margin:0 0 24px;color:#6b5b4b;font-size:16px;line-height:1.5">Pesanan <strong>${orderCode}</strong> telah dikirim.</p>
+<p style="margin:0 0 8px;color:#6b5b4b;font-size:15px">Lacak pesanan Anda:</p>
 ${button(`${siteUrl}/track-order?code=${orderCode}`, "Lacak Pesanan")}`),
       };
     case "COMPLETED":

@@ -95,8 +95,19 @@ function PaymentUploadContent() {
   const subtotalValue = totalValue + discountValue - shippingCostValue;
 
   const [notFound, setNotFound] = useState(false);
+  const [bankSettings, setBankSettings] = useState({
+    bank_name: "BCA",
+    bank_account_number: "1234567890",
+    bank_account_name: "D'TEMAN YOGA Studio",
+  });
 
   useEffect(() => {
+    apiFetch<typeof bankSettings>("/api/settings").then((res) => {
+      if (res.success) {
+        setBankSettings(res.data);
+      }
+    });
+
     if (orderCode) {
       apiFetch<OrderStatusResponse>(`/api/orders/${orderCode}/status`).then(
         (res) => {
@@ -470,9 +481,9 @@ function PaymentUploadContent() {
             <div className="grid gap-3">
               <div className="p-4 rounded-[26px] bg-[#fcfaf8] ring-1 ring-[#e8dcc8] hover:shadow-soft transition-all group">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-extrabold text-[14px]">Bank BCA</span>
+                  <span className="font-extrabold text-[14px]">Bank {bankSettings.bank_name}</span>
                   <button
-                    onClick={() => copyCode("1234567890")}
+                    onClick={() => copyCode(bankSettings.bank_account_number)}
                     className="flex items-center gap-1.5 text-[#c85a2d] text-[12px] font-bold hover:underline"
                   >
                     <Copy className="w-3 h-3" />
@@ -480,30 +491,10 @@ function PaymentUploadContent() {
                   </button>
                 </div>
                 <p className="text-[18px] font-mono font-bold tracking-tight text-[#3f3328] group-hover:text-[#c85a2d] transition-colors">
-                  123 456 7890
+                  {bankSettings.bank_account_number.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3")}
                 </p>
                 <p className="text-[12px] text-[#6b5b4b] mt-1">
-                  a/n TemanYoga Studio
-                </p>
-              </div>
-              <div className="p-4 rounded-[26px] bg-[#fcfaf8] ring-1 ring-[#e8dcc8] hover:shadow-soft transition-all group">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-extrabold text-[14px]">
-                    Bank Mandiri
-                  </span>
-                  <button
-                    onClick={() => copyCode("0987654321")}
-                    className="flex items-center gap-1.5 text-[#c85a2d] text-[12px] font-bold hover:underline"
-                  >
-                    <Copy className="w-3 h-3" />
-                    Salin No.
-                  </button>
-                </div>
-                <p className="text-[18px] font-mono font-bold tracking-tight text-[#3f3328] group-hover:text-[#c85a2d] transition-colors">
-                  098 765 4321
-                </p>
-                <p className="text-[12px] text-[#6b5b4b] mt-1">
-                  a/n TemanYoga Studio
+                  a/n {bankSettings.bank_account_name}
                 </p>
               </div>
             </div>
