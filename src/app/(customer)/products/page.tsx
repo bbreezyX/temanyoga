@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "Jelajahi koleksi boneka rajut yoga dari dTeman Yoga. Teman setia untuk setiap asana Anda.",
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 async function getProducts(page: number, limit: number) {
   const [products, total] = await Promise.all([

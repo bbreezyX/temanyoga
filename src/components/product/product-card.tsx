@@ -26,6 +26,7 @@ export function ProductCard({ product }: { product: ProductListItem }) {
                 fill
                 className="object-cover transition-transform duration-1000 group-hover:scale-110"
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                loading="lazy"
               />
             ) : (
               <div className="h-full w-full flex items-center justify-center text-muted-foreground/30">

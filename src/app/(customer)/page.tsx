@@ -28,7 +28,7 @@ async function getFeaturedProducts() {
   }
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function HomePage() {
   const products = await getFeaturedProducts();
@@ -308,7 +308,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="flex overflow-x-auto pb-12 px-6 md:px-8 gap-6 no-scrollbar md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible relative z-10">
-            {products.map((product) => (
+            {products.map((product, index) => (
               <Link
                 key={product.id}
                 href={`/products/${product.slug}`}
@@ -323,6 +323,8 @@ export default async function HomePage() {
                       fill
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       sizes="(max-width: 768px) 280px, 25vw"
+                      priority={index < 2}
+                      loading={index < 2 ? undefined : "lazy"}
                     />
                   ) : (
                     <div className="h-full w-full bg-slate-100 grid place-items-center">

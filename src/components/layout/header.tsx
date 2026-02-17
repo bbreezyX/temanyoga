@@ -1,20 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { useCart } from "@/contexts/cart-context";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useToast } from "@/components/ui/toast";
+import { SheetTrigger, SheetTitle, Sheet } from "@/components/ui/sheet";
+
+const SheetContent = dynamic(
+  () => import("@/components/ui/sheet").then((mod) => mod.SheetContent),
+  { ssr: false }
+);
 
 const NAV_LINKS = [
   { href: "/products", label: "Produk" },

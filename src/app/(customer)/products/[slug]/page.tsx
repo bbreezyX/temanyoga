@@ -2,18 +2,30 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductDetail } from "@/components/product/product-detail";
 import { prisma } from "@/lib/prisma";
+import type { ProductDetail as ProductDetailType } from "@/types/api";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const products = await prisma.product.findMany({
+    where: { isActive: true },
+    select: { slug: true },
+  });
+  return products.map((product) => ({ slug: product.slug }));
+}
 
 async function getProduct(slug: string) {
-  return prisma.product.findUnique({
+  const product = await prisma.product.findUnique({
     where: { slug, isActive: true },
     include: { images: { orderBy: { order: "asc" } } },
   });
+  if (!product) return null;
+  return JSON.parse(JSON.stringify(product)) as ProductDetailType;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -33,7 +45,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
   return (
     <main className="bg-[#f5f1ed] min-h-screen">
-      <ProductDetail product={product as any} />
+      <ProductDetail product={product} />
     </main>
   );
 }
