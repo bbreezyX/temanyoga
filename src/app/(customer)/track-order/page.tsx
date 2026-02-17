@@ -27,12 +27,12 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 const STEPS = [
-  { status: "PENDING_PAYMENT", label: "Pesanan Dibuat", icon: Clock },
-  { status: "AWAITING_VERIFICATION", label: "Verifikasi", icon: ShieldCheck },
-  { status: "PAID", label: "Dibayar", icon: CreditCard },
-  { status: "PROCESSING", label: "Diproses", icon: Shirt },
-  { status: "SHIPPED", label: "Dalam Perjalanan", icon: Truck },
-  { status: "COMPLETED", label: "Sampai Tujuan", icon: CheckCircle2 },
+  { status: "PENDING_PAYMENT", label: "Pesanan Dibuat", sub: "Menunggu pembayaran", icon: Clock },
+  { status: "AWAITING_VERIFICATION", label: "Verifikasi", sub: "Bukti sedang dicek", icon: ShieldCheck },
+  { status: "PAID", label: "Dibayar", sub: "Pembayaran diverifikasi", icon: CreditCard },
+  { status: "PROCESSING", label: "Diproses", sub: "Produk sedang disiapkan", icon: Shirt },
+  { status: "SHIPPED", label: "Dikirim", sub: "Pesanan dalam perjalanan", icon: Truck },
+  { status: "COMPLETED", label: "Selesai", sub: "Pesanan telah diterima", icon: CheckCircle2 },
 ];
 
 function TrackOrderContent() {
@@ -110,42 +110,39 @@ function TrackOrderContent() {
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 mb-8">
               <span className="flex h-2 w-2 rounded-full bg-[#c85a2d] animate-pulse"></span>
               <span className="text-[11px] md:text-[12px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
-                Track Your Journey • 2026
+                Status Pesanan Anda
               </span>
             </div>
 
             <h1 className="font-display text-[48px] md:text-[72px] leading-[0.95] tracking-[-0.04em] font-black text-slate-900 mb-8">
-              Lacak{" "}
-              <span className="text-[#c85a2d] italic serif font-medium">
-                dPerjalanan
-              </span>{" "}
-              <br />
-              Pesanan Anda
+              Lacak Pesanan
             </h1>
 
             <p className="text-[16px] md:text-[18px] text-slate-500 mb-12 max-w-xl mx-auto font-medium leading-relaxed">
-              Setiap paket membawa ketenangan untuk latihan yoga Anda. Masukkan
-              kode pesanan unik dTeman untuk melihat posisi paket saat ini.
+              Masukkan kode pesanan Anda untuk melihat status pengiriman secara real-time.
             </p>
 
-            <div className="relative max-w-lg mx-auto">
+            <div className="relative max-w-xl mx-auto">
               <form onSubmit={handleSubmit} className="relative group">
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="Kode Pesanan (e.g. TY-88912)"
-                  className="w-full h-[72px] rounded-full bg-white px-8 pr-16 text-lg font-bold text-slate-900 ring-1 ring-slate-200 focus:ring-[#c85a2d] focus:outline-none shadow-sm transition-all placeholder:text-slate-300"
+                  placeholder="Masukkan Kode Pesanan"
+                  className="w-full h-[80px] rounded-[32px] bg-white px-10 pr-20 text-xl font-display font-black text-slate-900 ring-2 ring-slate-100 focus:ring-[#c85a2d] focus:outline-none shadow-soft transition-all placeholder:text-slate-300"
                 />
                 <button
                   type="submit"
                   disabled={loading || !code.trim()}
-                  className="absolute right-2 top-2 h-[56px] w-[56px] rounded-full bg-[#c85a2d] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
+                  className="absolute right-3 top-3 h-[56px] px-8 rounded-[24px] bg-[#c85a2d] text-white font-black flex items-center justify-center gap-2 shadow-lg hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
                 >
                   {loading ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
-                    <Search className="w-6 h-6" />
+                    <>
+                      <span className="hidden md:inline">Lacak</span>
+                      <Search className="w-6 h-6" />
+                    </>
                   )}
                 </button>
               </form>
@@ -212,24 +209,37 @@ function TrackOrderContent() {
                     ></div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-6 gap-8 md:gap-4 relative z-10">
+                  <div className="grid grid-cols-1 md:grid-cols-6 gap-6 md:gap-4 relative z-10">
                     {STEPS.map((step, i) => {
                       const isCompleted = i <= activeStep;
+                      const isPast = i < activeStep;
                       const isActive = i === activeStep;
                       const Icon = step.icon;
 
                       return (
                         <div
                           key={i}
-                          className="flex md:flex-col items-center md:items-center gap-6 md:gap-4 group"
+                          className="flex md:flex-col items-center md:items-center gap-5 md:gap-4 group relative"
                         >
+                          {/* Vertical connector for mobile */}
+                          {i < STEPS.length - 1 && (
+                            <div className="md:hidden absolute left-[28px] top-[56px] w-[2px] h-[calc(100%-40px)] bg-slate-100 -z-10">
+                              <div
+                                className={cn(
+                                  "w-full h-full bg-[#c85a2d] transition-all duration-700 origin-top",
+                                  isPast ? "scale-y-100" : "scale-y-0"
+                                )}
+                              />
+                            </div>
+                          )}
+
                           <div
                             className={cn(
-                              "w-14 h-14 md:w-16 md:h-16 rounded-[var(--rounded-organic-1)] flex items-center justify-center transition-all duration-500 shadow-sm",
+                              "w-14 h-14 md:w-16 md:h-16 rounded-[var(--rounded-organic-1)] flex items-center justify-center transition-all duration-500 shadow-sm z-10",
                               isCompleted
-                                ? "bg-[#c85a2d] text-white rotate-6"
-                                : "bg-slate-50 text-slate-300",
-                              isActive && "ring-4 ring-[#c85a2d]/20 scale-110",
+                                ? "bg-[#c85a2d] text-white rotate-6 shadow-lg shadow-[#c85a2d]/20"
+                                : "bg-slate-50 text-slate-300 ring-1 ring-slate-100",
+                              isActive && "ring-4 ring-[#c85a2d]/20 scale-110 md:scale-125",
                             )}
                           >
                             <Icon
@@ -239,26 +249,22 @@ function TrackOrderContent() {
                               )}
                             />
                           </div>
-                          <div className="text-left md:text-center flex flex-col gap-1">
+                          <div className="text-left md:text-center flex flex-col pt-1">
                             <span
                               className={cn(
-                                "text-[10px] font-black uppercase tracking-widest",
+                                "text-sm md:text-[15px] font-black leading-tight transition-colors",
                                 isCompleted
-                                  ? "text-[#c85a2d]"
+                                  ? "text-slate-900"
                                   : "text-slate-300",
                               )}
                             >
-                              Step 0{i + 1}
-                            </span>
-                            <span
-                              className={cn(
-                                "text-sm font-bold leading-tight",
-                                isCompleted
-                                  ? "text-slate-900"
-                                  : "text-slate-400",
-                              )}
-                            >
                               {step.label}
+                            </span>
+                            <span className={cn(
+                              "text-[10px] md:text-[11px] font-bold uppercase tracking-wider mt-1",
+                              isActive ? "text-[#c85a2d] animate-pulse" : "text-slate-400 opacity-60"
+                            )}>
+                              {step.sub}
                             </span>
                           </div>
                         </div>
@@ -312,14 +318,12 @@ function TrackOrderContent() {
                             Informasi Pengiriman
                           </p>
                           <h3 className="text-3xl font-black tracking-tight mb-2 opacity-95">
-                            Paket Sedang <br className="hidden md:block" />{" "}
                             {order.status === "COMPLETED"
-                              ? "Sampai!"
-                              : "Berlayar"}
+                              ? "Pesanan Tiba!"
+                              : "Paket Dikirim"}
                           </h3>
                           <p className="text-slate-400 font-medium max-w-xs">
-                            {order.courier || "Ekspedisi Pilihan"} — Diantarkan
-                            dengan penuh kasih sayang.
+                            {order.courier || "Ekspedisi"} — Pesanan Anda sedang diproses oleh pihak kurir.
                           </p>
                         </div>
                       </div>
@@ -400,12 +404,10 @@ function TrackOrderContent() {
                   </div>
                   <div className="space-y-4">
                     <h4 className="text-base font-black tracking-tight">
-                      Butuh Perjalanan Cepat?
+                      Informasi Pengiriman
                     </h4>
                     <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                      Kami senantiasa berusaha mengirimkan &apos;dTeman&apos;
-                      pilihan Anda secepat mungkin. Proses verifikasi biasanya
-                      memakan waktu maksimal 1x24 jam.
+                      Kami berusaha mengirimkan pesanan Anda secepat mungkin. Proses verifikasi biasanya memakan waktu maksimal 1x24 jam.
                     </p>
                     <Link
                       href="/products"
@@ -426,8 +428,7 @@ function TrackOrderContent() {
         <section className="pb-32 px-4 md:px-8 max-w-5xl mx-auto flex flex-col items-center text-center">
           <div className="w-16 h-[2px] bg-[#e8dcc8] mb-12"></div>
           <p className="text-slate-400 font-medium max-w-sm leading-relaxed mb-8">
-            Belum memiliki pesanan? Temukan boneka rajut yang akan menemani
-            setiap detak jantung yoga Anda hari ini.
+            Belum memiliki pesanan? Temukan koleksi boneka rajut terbaru kami hari ini.
           </p>
           <Link
             href="/products"

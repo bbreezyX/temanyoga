@@ -79,19 +79,30 @@ export async function POST(request: Request) {
 
     // Validate group constraints and build order items
     let subtotal = 0;
-    const orderItems = items.map((item) => {
+    const orderItems: {
+      productId: string;
+      quantity: number;
+      unitPriceSnapshot: number;
+      productNameSnapshot: string;
+      accessoriesSnapshot: string | null;
+      accessoriesTotal: number;
+    }[] = [];
+
+    for (const item of items) {
       const product = productMap.get(item.productId)!;
       const itemAccessories: { name: string; price: number }[] = [];
       let accTotal = 0;
 
       if (item.accessoryIds && item.accessoryIds.length > 0) {
-        // Validate max 1 per group
+        // Deduplicate accessory IDs for the same item
+        const uniqueAccIds = Array.from(new Set(item.accessoryIds));
         const groupSeen = new Map<string, string>();
-        for (const accId of item.accessoryIds) {
+
+        for (const accId of uniqueAccIds) {
           const acc = accessoryMap.get(accId)!;
           if (acc.groupName) {
             if (groupSeen.has(acc.groupName)) {
-              throw new Error(`Hanya bisa pilih 1 aksesoris dari grup "${acc.groupName}"`);
+              return badRequest(`Hanya bisa pilih 1 aksesoris dari grup "${acc.groupName}" untuk produk "${product.name}"`);
             }
             groupSeen.set(acc.groupName, acc.id);
           }
@@ -103,15 +114,15 @@ export async function POST(request: Request) {
       const itemTotal = (product.price + accTotal) * item.quantity;
       subtotal += itemTotal;
 
-      return {
+      orderItems.push({
         productId: item.productId,
         quantity: item.quantity,
         unitPriceSnapshot: product.price,
         productNameSnapshot: product.name,
         accessoriesSnapshot: itemAccessories.length > 0 ? JSON.stringify(itemAccessories) : null,
         accessoriesTotal: accTotal,
-      };
-    });
+      });
+    }
 
     // Validate and calculate coupon discount
     let couponId: string | null = null;
@@ -223,10 +234,7 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("POST /api/orders error:", error);
-    if (error instanceof Error && (
-      error.message.includes("Insufficient stock") ||
-      error.message.includes("Hanya bisa pilih")
-    )) {
+    if (error instanceof Error && error.message.includes("Insufficient stock")) {
       return badRequest(error.message);
     }
     return serverError();

@@ -142,6 +142,11 @@ export interface OrderStatusResponse {
   orderCode: string;
   status: OrderStatus;
   totalAmount: number;
+  shippingCost: number;
+  discountAmount: number;
+  couponCode: string | null;
+  customerName: string;
+  shippingAddress: string;
   trackingNumber: string | null;
   courier: string | null;
   createdAt: string;

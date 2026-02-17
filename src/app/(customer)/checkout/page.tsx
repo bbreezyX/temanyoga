@@ -511,12 +511,15 @@ export default function CheckoutPage() {
                           type="button"
                           onClick={handleApplyCoupon}
                           disabled={couponLoading || !couponCode.trim()}
-                          className="min-h-[56px] px-6 rounded-2xl bg-[#3f3328] text-white font-bold text-[14px] hover:bg-[#2a231c] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className="min-h-[56px] px-4 md:px-6 rounded-2xl bg-[#3f3328] text-white font-bold text-[14px] hover:bg-[#2a231c] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shrink-0"
                         >
                           {couponLoading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            "Terapkan"
+                            <>
+                              <span className="hidden md:inline">Terapkan</span>
+                              <Check className="w-5 h-5 md:hidden" />
+                            </>
                           )}
                         </button>
                       </div>

@@ -32,8 +32,8 @@ export default async function ProductDetailPage({ params }: Props) {
   if (!product) notFound();
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="bg-[#f5f1ed] min-h-screen">
       <ProductDetail product={product as any} />
-    </div>
+    </main>
   );
 }

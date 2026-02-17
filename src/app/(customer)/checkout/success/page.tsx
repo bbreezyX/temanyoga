@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useRef } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,28 +17,61 @@ import {
   Home,
   Dot,
   Wallet,
+  Copy,
+  Check,
 } from "lucide-react";
-import { apiUpload } from "@/lib/api-client";
+import { apiUpload, apiFetch } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
-import type { PaymentProofResponse } from "@/types/api";
+import type { PaymentProofResponse, OrderStatusResponse } from "@/types/api";
 
 function PaymentUploadContent() {
   const searchParams = useSearchParams();
   const toast = useToast();
-  const orderCode = searchParams.get("code") ?? "TY-8F2A1";
-  const totalValue = Number(searchParams.get("total") ?? 0);
-  const shippingCostValue = Number(searchParams.get("shipping") ?? 0);
-  const discountValue = Number(searchParams.get("discount") ?? 0);
-  const couponCodeParam = searchParams.get("coupon");
-  const subtotalValue = totalValue + discountValue - shippingCostValue;
-  const now = new Date();
-  const formattedDate = `${now.getDate()} Feb ${now.getFullYear()} • ${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
-
+  const orderCode = searchParams.get("code") ?? "";
+  
+  const [orderData, setOrderData] = useState<OrderStatusResponse | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const totalValue = orderData?.totalAmount ?? Number(searchParams.get("total") ?? 0);
+  const shippingCostValue = orderData?.shippingCost ?? Number(searchParams.get("shipping") ?? 0);
+  const discountValue = orderData?.discountAmount ?? Number(searchParams.get("discount") ?? 0);
+  const couponCodeParam = orderData?.couponCode ?? searchParams.get("coupon");
+  const subtotalValue = totalValue + discountValue - shippingCostValue;
+
+  const [notFound, setNotFound] = useState(false);
+
+  useEffect(() => {
+    if (orderCode) {
+      apiFetch<OrderStatusResponse>(`/api/orders/${orderCode}/status`).then(
+        (res) => {
+          if (res.success) {
+            setOrderData(res.data);
+          } else {
+            setNotFound(true);
+          }
+        },
+      );
+    }
+  }, [orderCode]);
+
+  if (notFound) {
+    return (
+      <div className="bg-[#f5f1ed] min-h-screen flex flex-col items-center justify-center p-4 text-center">
+        <h1 className="font-display text-2xl font-black mb-4">Pesanan Tidak Ditemukan</h1>
+        <p className="text-[#6b5b4b] mb-8">Maaf, kami tidak dapat menemukan pesanan dengan kode tersebut.</p>
+        <Link href="/products" className="px-8 py-3 bg-[#c85a2d] text-white rounded-full font-bold">
+          Kembali Belanja
+        </Link>
+      </div>
+    );
+  }
+
+  const now = orderData ? new Date(orderData.createdAt) : new Date();
+  const formattedDate = `${now.getDate()} ${now.toLocaleString("id-ID", { month: "short" })} ${now.getFullYear()} • ${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -90,36 +123,94 @@ function PaymentUploadContent() {
   // SUCCESS SCREEN (After Upload)
   if (isSuccess) {
     return (
-      <div className="bg-[#f5f1ed] min-h-screen text-slate-900 font-sans flex flex-col items-center justify-center p-4">
-        <div className="bg-white rounded-[40px] p-10 shadow-soft text-center ring-1 ring-[#e8dcc8] max-w-md w-full animate-floatIn">
-          <div className="h-24 w-24 rounded-full bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center mx-auto mb-8">
-            <span className="grid place-items-center w-16 h-16 rounded-full bg-[#7a9d7f] text-white shadow-lg shadow-[#7a9d7f]/20">
-              <CheckCircle2 className="h-10 w-10" />
+      <div className="bg-[#f5f1ed] min-h-screen text-slate-900 font-sans flex flex-col items-center justify-center p-4 overflow-hidden relative">
+        {/* Simple CSS Confetti (Background) */}
+        <div className="absolute inset-0 pointer-events-none opacity-40">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 rounded-full animate-floatIn"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                backgroundColor: i % 3 === 0 ? "#c85a2d" : i % 3 === 1 ? "#7a9d7f" : "#e8dcc8",
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 3}s`,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="bg-white rounded-[40px] p-8 md:p-10 shadow-lift text-center ring-1 ring-[#e8dcc8] max-w-md w-full animate-floatIn relative z-10">
+          <div className="h-28 w-28 rounded-full bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center mx-auto mb-8 relative">
+            <div className="absolute inset-0 rounded-full bg-[#7a9d7f]/20 animate-ping" />
+            <span className="grid place-items-center w-20 h-20 rounded-full bg-[#7a9d7f] text-white shadow-lg shadow-[#7a9d7f]/20 relative z-10">
+              <CheckCircle2 className="h-12 w-12" />
             </span>
           </div>
-          <h1 className="font-display text-[28px] font-black text-slate-900 mb-3">
+
+          <h1 className="font-display text-[32px] font-black text-slate-900 mb-2 leading-tight">
             Bukti Terkirim!
           </h1>
-          <p className="text-[#6b5b4b] mb-10 leading-relaxed text-[16px]">
+          <p className="text-[#6b5b4b] mb-8 leading-relaxed text-[15px]">
             Terima kasih! Bukti pembayaran Anda telah kami terima. Tim kami akan
-            memverifikasi pesanan Anda dalam 1-6 jam ke depan.
+            memverifikasi pesanan Anda dalam <span className="font-bold">1-6 jam</span> ke depan.
           </p>
-          <div className="space-y-4">
+
+          <div className="bg-[#fcfaf8] rounded-[28px] ring-1 ring-[#e8dcc8] p-5 mb-10 text-left">
+            <div className="flex items-center justify-between mb-4 pb-4 border-b border-[#e8dcc8]/50">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#7a6a58]">Nomor Pesanan</p>
+                <p className="text-[18px] font-black text-[#3f3328]">{orderCode}</p>
+              </div>
+              <button 
+                onClick={() => copyCode(orderCode)}
+                className="w-10 h-10 rounded-full bg-white ring-1 ring-[#e8dcc8] grid place-items-center text-[#c85a2d] hover:bg-[#f5f1ed] transition-all"
+              >
+                <Copy className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-[#7a9d7f]/10 text-[#7a9d7f] grid place-items-center shrink-0 mt-0.5">
+                  <BadgeCheck className="w-3.5 h-3.5" />
+                </div>
+                <p className="text-[13px] leading-relaxed text-[#6b5b4b]">
+                  <span className="font-bold text-[#3f3328]">Verifikasi Manual:</span> Tim admin kami akan mengecek bukti transfer Anda.
+                </p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-[#7a9d7f]/10 text-[#7a9d7f] grid place-items-center shrink-0 mt-0.5">
+                  <Truck className="w-3.5 h-3.5" />
+                </div>
+                <p className="text-[13px] leading-relaxed text-[#6b5b4b]">
+                  <span className="font-bold text-[#3f3328]">Notifikasi WA/Email:</span> Anda akan menerima kabar saat status berubah menjadi <span className="italic">Dikirim</span>.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3">
             <Link
               href={`/track-order?code=${orderCode}`}
-              className="inline-flex items-center justify-center gap-2 w-full min-h-[64px] rounded-full bg-[#c85a2d] text-white font-bold text-[17px] shadow-soft hover:brightness-110 transition-all"
+              className="inline-flex items-center justify-center gap-2 w-full min-h-[60px] rounded-full bg-[#c85a2d] text-white font-bold text-[16px] shadow-soft hover:brightness-110 active:scale-95 transition-all group"
             >
-              <ScanSearch className="w-5 h-5" />
+              <ScanSearch className="w-5 h-5 group-hover:rotate-12 transition-transform" />
               <span>Lacak Pesanan</span>
             </Link>
             <Link
               href="/products"
-              className="inline-flex items-center justify-center w-full min-h-[64px] rounded-full bg-white ring-1 ring-[#e8dcc8] text-[#5a4a3b] font-bold text-[17px] hover:bg-[#fcfaf8] transition-all"
+              className="inline-flex items-center justify-center w-full min-h-[60px] rounded-full bg-white ring-1 ring-[#e8dcc8] text-[#5a4a3b] font-bold text-[16px] hover:bg-[#fcfaf8] active:scale-95 transition-all"
             >
               Kembali Belanja
             </Link>
           </div>
         </div>
+        
+        <p className="mt-8 text-[12px] text-[#6b5b4b] animate-floatIn" style={{ animationDelay: '0.4s' }}>
+          Ada masalah? <Link href="/contact" className="underline font-bold">Hubungi Support</Link>
+        </p>
       </div>
     );
   }
@@ -153,15 +244,16 @@ function PaymentUploadContent() {
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-[26px] bg-[#f5f1ed] ring-1 ring-[#e8dcc8] p-4 text-center">
+                <div className="rounded-[26px] bg-[#f5f1ed] ring-1 ring-[#e8dcc8] p-4 text-center group transition-all hover:bg-white hover:shadow-soft">
                   <p className="text-[11px] font-semibold text-[#7a6a58]">
                     Kode pesanan
                   </p>
                   <button
                     onClick={() => copyCode(orderCode)}
-                    className="mt-1 text-[16px] font-extrabold tracking-tight text-[#3f3328] hover:text-[#c85a2d] transition-colors"
+                    className="mt-1 flex items-center justify-center gap-2 w-full text-[16px] font-extrabold tracking-tight text-[#3f3328] group-hover:text-[#c85a2d] transition-colors"
                   >
-                    {orderCode}
+                    <span>{orderCode}</span>
+                    <Copy className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100" />
                   </button>
                 </div>
                 <div className="rounded-[26px] bg-[#f5f1ed] ring-1 ring-[#e8dcc8] p-4 text-center">
@@ -181,7 +273,7 @@ function PaymentUploadContent() {
                       Pelanggan
                     </p>
                     <p className="mt-1 text-[14px] font-extrabold text-slate-900 leading-tight">
-                      Alya Putri
+                      {orderData?.customerName || "..."}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
@@ -229,18 +321,21 @@ function PaymentUploadContent() {
 
           <div className="rounded-[30px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-5">
             <ol className="relative space-y-4">
+              {/* Vertical line connecting steps */}
+              <div className="absolute left-[17.5px] top-5 bottom-5 w-0.5 bg-[#e8dcc8]" />
+
               <li className="relative flex items-start gap-3">
-                <div className="shrink-0 mt-0.5">
-                  <div className="w-9 h-9 rounded-full bg-[#c85a2d] text-white grid place-items-center shadow-sm ring-2 ring-[#c85a2d]/25">
+                <div className="shrink-0 z-10">
+                  <div className="w-9 h-9 rounded-full bg-[#c85a2d] text-white grid place-items-center shadow-sm ring-4 ring-white">
                     <Dot className="w-5 h-5" strokeWidth={4} />
                   </div>
                 </div>
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 pt-1">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-[14px] font-extrabold text-slate-900">
                       Menunggu Pembayaran
                     </p>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#c85a2d] bg-[#c85a2d]/10 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#c85a2d] bg-[#c85a2d]/10 px-2 py-0.5 rounded animate-pulse">
                       Sekarang
                     </span>
                   </div>
@@ -274,12 +369,12 @@ function PaymentUploadContent() {
                 },
               ].map((step, idx) => (
                 <li key={idx} className="relative flex items-start gap-3">
-                  <div className="shrink-0 mt-0.5">
-                    <div className="w-9 h-9 rounded-full bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center text-[#7a6a58]">
+                  <div className="shrink-0 z-10">
+                    <div className="w-9 h-9 rounded-full bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center text-[#7a6a58] shadow-sm ring-4 ring-white">
                       <step.icon className="w-4 h-4" />
                     </div>
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-1 pt-1">
                     <p className="text-[14px] font-extrabold text-[#3f3328]">
                       {step.label}
                     </p>
@@ -300,36 +395,38 @@ function PaymentUploadContent() {
           </h2>
           <div className="rounded-[30px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-5 space-y-5">
             <div className="grid gap-3">
-              <div className="p-4 rounded-[26px] bg-[#fcfaf8] ring-1 ring-[#e8dcc8]">
+              <div className="p-4 rounded-[26px] bg-[#fcfaf8] ring-1 ring-[#e8dcc8] hover:shadow-soft transition-all group">
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-extrabold text-[14px]">Bank BCA</span>
                   <button
                     onClick={() => copyCode("1234567890")}
-                    className="text-[#c85a2d] text-[12px] font-bold hover:underline"
+                    className="flex items-center gap-1.5 text-[#c85a2d] text-[12px] font-bold hover:underline"
                   >
+                    <Copy className="w-3 h-3" />
                     Salin No.
                   </button>
                 </div>
-                <p className="text-[18px] font-mono font-bold tracking-tight">
+                <p className="text-[18px] font-mono font-bold tracking-tight text-[#3f3328] group-hover:text-[#c85a2d] transition-colors">
                   123 456 7890
                 </p>
                 <p className="text-[12px] text-[#6b5b4b] mt-1">
                   a/n TemanYoga Studio
                 </p>
               </div>
-              <div className="p-4 rounded-[26px] bg-[#fcfaf8] ring-1 ring-[#e8dcc8]">
+              <div className="p-4 rounded-[26px] bg-[#fcfaf8] ring-1 ring-[#e8dcc8] hover:shadow-soft transition-all group">
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-extrabold text-[14px]">
                     Bank Mandiri
                   </span>
                   <button
                     onClick={() => copyCode("0987654321")}
-                    className="text-[#c85a2d] text-[12px] font-bold hover:underline"
+                    className="flex items-center gap-1.5 text-[#c85a2d] text-[12px] font-bold hover:underline"
                   >
+                    <Copy className="w-3 h-3" />
                     Salin No.
                   </button>
                 </div>
-                <p className="text-[18px] font-mono font-bold tracking-tight">
+                <p className="text-[18px] font-mono font-bold tracking-tight text-[#3f3328] group-hover:text-[#c85a2d] transition-colors">
                   098 765 4321
                 </p>
                 <p className="text-[12px] text-[#6b5b4b] mt-1">
@@ -374,18 +471,24 @@ function PaymentUploadContent() {
               <button
                 onClick={handleUpload}
                 disabled={!file || loading}
-                className="w-full min-h-[56px] rounded-full bg-[#c85a2d] text-white font-bold text-[16px] hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group"
+                className="relative overflow-hidden w-full min-h-[60px] rounded-full bg-[#c85a2d] text-white font-bold text-[17px] hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group shadow-soft"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Mengunggah...</span>
+                    <span>Sedang Mengirim...</span>
                   </>
                 ) : (
                   <>
+                    {!file && <Wallet className="w-5 h-5 opacity-50" />}
                     <span>Kirim Bukti Pembayaran</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
+                )}
+                
+                {/* Shine animation on hover when enabled */}
+                {!loading && file && (
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine" />
                 )}
               </button>
             </div>
@@ -411,10 +514,8 @@ function PaymentUploadContent() {
                 <p className="text-[12px] font-semibold text-[#7a6a58]">
                   Alamat Pengiriman
                 </p>
-                <p className="mt-1 text-[14px] leading-6 text-[#3f3328]">
-                  Jl. Kemuning No. 18, RT 02/RW 05, Tebet
-                  <br />
-                  Jakarta Selatan, 12820
+                <p className="mt-1 text-[14px] leading-6 text-[#3f3328] whitespace-pre-line">
+                  {orderData?.shippingAddress || "..."}
                 </p>
               </div>
               <div className="text-right">
