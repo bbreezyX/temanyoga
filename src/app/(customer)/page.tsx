@@ -5,11 +5,8 @@ import { prisma } from "@/lib/prisma";
 import {
   Sparkles,
   ArrowRight,
-  ShoppingBag,
-  CreditCard,
   Lock,
   Hand,
-  Truck,
   Scissors,
   Palette,
   Star,
