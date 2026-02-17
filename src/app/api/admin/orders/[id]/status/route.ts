@@ -10,6 +10,8 @@ import { updateOrderStatusSchema } from "@/lib/validations/order";
 import { validateStatusTransition } from "@/lib/order-status";
 import { InvalidStatusTransitionError } from "@/lib/errors";
 import { broadcastNotification } from "@/lib/notification-broadcast";
+import { sendWhatsAppToCustomer, getSiteSetting } from "@/lib/whatsapp";
+import { getStatusChangeMessage } from "@/lib/whatsapp-templates";
 
 export async function PATCH(
   request: Request,
@@ -59,6 +61,31 @@ export async function PATCH(
     });
 
     broadcastNotification(notification);
+
+    // Send WhatsApp notification to customer for relevant status changes (fire-and-forget)
+    const siteUrl =
+      (await getSiteSetting("site_url")) || "https://temanyoga.com";
+    const tracking =
+      updated.trackingNumber && updated.courier
+        ? {
+            trackingNumber: updated.trackingNumber,
+            courier: updated.courier,
+          }
+        : null;
+
+    const waMessage = getStatusChangeMessage(
+      updated.status,
+      updated.orderCode,
+      updated.customerName,
+      siteUrl,
+      tracking
+    );
+
+    if (waMessage) {
+      sendWhatsAppToCustomer(updated.customerPhone, waMessage).catch((err) =>
+        console.error("WA to customer failed:", err)
+      );
+    }
 
     return apiSuccess(updated);
   } catch (error) {

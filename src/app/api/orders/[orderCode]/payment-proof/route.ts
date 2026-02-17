@@ -10,6 +10,8 @@ import {
 import { uploadToR2 } from "@/lib/r2";
 import { broadcastNotification } from "@/lib/notification-broadcast";
 import { rateLimiters, getClientIp } from "@/lib/rate-limit";
+import { sendWhatsAppToAdmin } from "@/lib/whatsapp";
+import { paymentProofUploadedAdmin } from "@/lib/whatsapp-templates";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -101,6 +103,11 @@ export async function POST(
     });
 
     broadcastNotification(notification);
+
+    // Send WhatsApp notification to admin (fire-and-forget)
+    sendWhatsAppToAdmin(
+      paymentProofUploadedAdmin(order.orderCode, order.customerName)
+    ).catch((err) => console.error("WA to admin failed:", err));
 
     return apiSuccess(
       {

@@ -12,7 +12,6 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 import type { AdminDashboardStats } from "@/types/api";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Home", icon: Home },
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Produk", icon: Package },
   { href: "/admin/orders", label: "Pesanan", icon: ShoppingCart },

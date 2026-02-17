@@ -11,6 +11,15 @@ import { createOrderSchema } from "@/lib/validations/order";
 import { generateOrderCode } from "@/lib/order-code";
 import { broadcastNotification } from "@/lib/notification-broadcast";
 import { rateLimiters, getClientIp } from "@/lib/rate-limit";
+import {
+  sendWhatsAppToCustomer,
+  sendWhatsAppToAdmin,
+  getSiteSetting,
+} from "@/lib/whatsapp";
+import {
+  orderCreatedCustomer,
+  orderCreatedAdmin,
+} from "@/lib/whatsapp-templates";
 
 export async function POST(request: Request) {
   try {
@@ -246,6 +255,27 @@ export async function POST(request: Request) {
     });
 
     broadcastNotification(notification);
+
+    // Send WhatsApp notifications (fire-and-forget)
+    const siteUrl =
+      (await getSiteSetting("site_url")) || "https://temanyoga.com";
+    const waOrderData = {
+      orderCode: order.orderCode,
+      customerName: order.customerName,
+      customerPhone: order.customerPhone,
+      totalAmount: order.totalAmount,
+      shippingCost: order.shippingCost,
+      discountAmount: order.discountAmount,
+    };
+
+    sendWhatsAppToCustomer(
+      order.customerPhone,
+      orderCreatedCustomer(waOrderData, siteUrl)
+    ).catch((err) => console.error("WA to customer failed:", err));
+
+    sendWhatsAppToAdmin(orderCreatedAdmin(waOrderData)).catch((err) =>
+      console.error("WA to admin failed:", err)
+    );
 
     return apiSuccess(
       {

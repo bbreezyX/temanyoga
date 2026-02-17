@@ -203,6 +203,12 @@ model Notification {
   @@index([createdAt])
 }
 
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model Review {
   id            String   @id @default(cuid())
   orderId       String

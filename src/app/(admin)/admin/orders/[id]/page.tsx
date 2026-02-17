@@ -749,10 +749,15 @@ export default function AdminOrderDetailPage() {
                   </div>
                 </div>
                 <div className="mt-6 pt-6 border-t border-warm-sand/30">
-                  <button className="w-full bg-cream text-dark-brown rounded-full py-3.5 font-bold text-sm flex items-center justify-center gap-2 hover:bg-warm-sand transition-colors">
+                  <Link
+                    href={`https://wa.me/${order.customerPhone.replace(/\D/g, "")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-cream text-dark-brown rounded-full py-3.5 font-bold text-sm flex items-center justify-center gap-2 hover:bg-warm-sand transition-colors"
+                  >
                     <MessageCircle className="text-lg" />
                     Chat Customer
-                  </button>
+                  </Link>
                 </div>
               </section>
             </div>

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -17,6 +18,13 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
 
+const SITE_URL = "https://ditemaniyoga.com";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: SITE_URL,
+  },
+};
 
 async function getFeaturedProducts() {
   try {
@@ -51,10 +59,66 @@ export default async function HomePage() {
   const products = await getFeaturedProducts();
   const reviews = await getLatestReviews();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "D`TEMAN YOGA",
+        url: SITE_URL,
+        logo: {
+          "@type": "ImageObject",
+          url: `${SITE_URL}/images/brand-logo.png`,
+        },
+        description:
+          "Boneka rajut yoga premium handmade oleh pengrajin lokal Indonesia. Simbol kedamaian dan teman setia dalam setiap asana.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: "D`TEMAN YOGA",
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        inLanguage: "id-ID",
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${SITE_URL}/#webpage`,
+        url: SITE_URL,
+        name: "D`TEMAN YOGA — Menemani Perjalanan Yoga Anda",
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+        about: { "@id": `${SITE_URL}/#organization` },
+        description:
+          "Temukan boneka rajut yoga premium dari D`TEMAN YOGA. Handmade dengan cinta oleh pengrajin lokal Indonesia.",
+        inLanguage: "id-ID",
+      },
+      ...(products.length > 0
+        ? [
+            {
+              "@type": "ItemList",
+              name: "Produk Unggulan",
+              numberOfItems: products.length,
+              itemListElement: products.map((product, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                url: `${SITE_URL}/products/${product.slug}`,
+                name: product.name,
+              })),
+            },
+          ]
+        : []),
+    ],
+  };
+
   return (
     <div className="bg-[#f5f1ed] min-h-screen text-slate-900 font-sans selection:bg-[#c85a2d] selection:text-white">
-      {/* 
-        HERO SECTION - IMMERSIVE & EXPRESSIVE 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/*
+        HERO SECTION - IMMERSIVE & EXPRESSIVE
       */}
       <section className="relative pt-6 pb-6 px-4 md:px-8 max-w-7xl mx-auto">
         <div className="relative min-h-[70svh] md:min-h-[75svh] lg:min-h-[80svh] flex flex-col items-start justify-center py-12 md:py-20 px-6 md:px-16 rounded-[40px] md:rounded-[64px] bg-white overflow-hidden shadow-soft ring-1 ring-[#e8dcc8]/50 animate-floatIn">

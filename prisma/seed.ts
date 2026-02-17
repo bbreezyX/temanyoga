@@ -61,6 +61,22 @@ async function main() {
     console.log("Product created:", product.name);
   }
 
+  // Create default site settings
+  const defaultSettings = [
+    { key: "whatsapp_enabled", value: "true" },
+    { key: "whatsapp_admin_phone", value: "" },
+    { key: "site_url", value: "https://temanyoga.com" },
+  ];
+
+  for (const setting of defaultSettings) {
+    await prisma.siteSetting.upsert({
+      where: { key: setting.key },
+      update: {},
+      create: setting,
+    });
+    console.log("Setting created:", setting.key);
+  }
+
   console.log("Seeding complete!");
 }
 

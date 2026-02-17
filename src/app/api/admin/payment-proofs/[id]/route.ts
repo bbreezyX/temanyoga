@@ -7,6 +7,11 @@ import {
   serverError,
 } from "@/lib/api-response";
 import { reviewPaymentProofSchema } from "@/lib/validations/payment-proof";
+import { sendWhatsAppToCustomer, getSiteSetting } from "@/lib/whatsapp";
+import {
+  paymentApprovedCustomer,
+  paymentRejectedCustomer,
+} from "@/lib/whatsapp-templates";
 
 export async function PATCH(
   request: Request,
@@ -58,6 +63,31 @@ export async function PATCH(
 
       return updatedProof;
     });
+
+    // Send WhatsApp notification to customer (fire-and-forget)
+    const siteUrl =
+      (await getSiteSetting("site_url")) || "https://temanyoga.com";
+
+    if (parsed.data.status === PaymentProofStatus.APPROVED) {
+      sendWhatsAppToCustomer(
+        proof.order.customerPhone,
+        paymentApprovedCustomer(
+          proof.order.orderCode,
+          proof.order.customerName,
+          siteUrl
+        )
+      ).catch((err) => console.error("WA to customer failed:", err));
+    } else {
+      sendWhatsAppToCustomer(
+        proof.order.customerPhone,
+        paymentRejectedCustomer(
+          proof.order.orderCode,
+          proof.order.customerName,
+          siteUrl,
+          parsed.data.notes || undefined
+        )
+      ).catch((err) => console.error("WA to customer failed:", err));
+    }
 
     return apiSuccess(result);
   } catch (error) {
