@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { DiscountType } from "@/generated/prisma/client";
+import { DiscountType } from "@prisma/client";
 
 export const createCouponSchema = z.object({
   code: z

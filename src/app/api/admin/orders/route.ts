@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@/generated/prisma/client";
+import { OrderStatus } from "@prisma/client";
 import { apiSuccess, serverError } from "@/lib/api-response";
 
 export async function GET(request: NextRequest) {

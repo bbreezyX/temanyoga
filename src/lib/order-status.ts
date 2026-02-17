@@ -1,4 +1,4 @@
-import { OrderStatus } from "@/generated/prisma/client";
+import { OrderStatus } from "@prisma/client";
 import { InvalidStatusTransitionError } from "./errors";
 
 const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {

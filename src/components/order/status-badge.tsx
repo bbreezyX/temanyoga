@@ -1,4 +1,4 @@
-import type { OrderStatus } from "@/generated/prisma/enums";
+import type { OrderStatus } from "@prisma/client";
 import { getStatusLabel } from "@/lib/format";
 import { cn } from "@/lib/utils";
 

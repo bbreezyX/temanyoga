@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
-import { OrderStatus } from "@/generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 import type { OrderStatusResponse } from "@/types/api";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";

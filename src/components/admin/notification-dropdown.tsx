@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Bell, Package, CreditCard, Truck, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { NotificationType } from "@/generated/prisma/client";
+import { NotificationType } from "@prisma/client";
 
 interface Notification {
   id: string;

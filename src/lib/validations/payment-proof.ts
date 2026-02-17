@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PaymentProofStatus } from "@/generated/prisma/client";
+import { PaymentProofStatus } from "@prisma/client";
 
 export const reviewPaymentProofSchema = z.object({
   status: z.enum([PaymentProofStatus.APPROVED, PaymentProofStatus.REJECTED]),

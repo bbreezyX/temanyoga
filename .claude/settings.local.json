@@ -12,7 +12,8 @@
       "mcp__supabase__apply_migration",
       "Bash(taskkill:*)",
       "Bash(timeout:*)",
-      "Bash(npx prisma migrate dev:*)"
+      "Bash(npx prisma migrate dev:*)",
+      "mcp__context7__query-docs"
     ]
   }
 }

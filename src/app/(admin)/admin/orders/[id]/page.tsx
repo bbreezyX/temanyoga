@@ -25,7 +25,7 @@ import { apiFetch, apiPatch } from "@/lib/api-client";
 import { formatDateTime, formatCurrency } from "@/lib/format";
 import { getImageUrl } from "@/lib/image-url";
 import type { AdminOrderDetail } from "@/types/api";
-import { PaymentProofStatus } from "@/generated/prisma/enums";
+import { PaymentProofStatus } from "@prisma/client";
 import { ProofImageDialog } from "@/components/admin/orders/proof-image-dialog";
 
 export default function AdminOrderDetailPage() {

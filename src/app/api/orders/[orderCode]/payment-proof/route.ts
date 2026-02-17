@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { OrderStatus, NotificationType } from "@/generated/prisma/client";
+import { OrderStatus, NotificationType } from "@prisma/client";
 import { apiSuccess, badRequest, notFound, serverError } from "@/lib/api-response";
 import { uploadToR2 } from "@/lib/r2";
 import { broadcastNotification } from "@/lib/notification-broadcast";

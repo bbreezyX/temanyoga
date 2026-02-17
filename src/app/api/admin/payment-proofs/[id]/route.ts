@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { OrderStatus, PaymentProofStatus } from "@/generated/prisma/client";
+import { OrderStatus, PaymentProofStatus } from "@prisma/client";
 import {
   apiSuccess,
   badRequest,

@@ -1,4 +1,4 @@
-import type { OrderStatus, PaymentProofStatus, DiscountType } from "@/generated/prisma/enums";
+import type { OrderStatus, PaymentProofStatus, DiscountType } from "@prisma/client";
 
 export interface ShippingZone {
   id: string;

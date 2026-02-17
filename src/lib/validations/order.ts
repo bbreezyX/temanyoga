@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OrderStatus } from "@/generated/prisma/client";
+import { OrderStatus } from "@prisma/client";
 
 export const orderItemSchema = z.object({
   productId: z.string().min(1),

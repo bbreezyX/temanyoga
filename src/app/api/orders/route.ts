@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import type { ProductModel } from "@/generated/prisma/models";
-import { NotificationType } from "@/generated/prisma/client";
+import type { Product } from "@prisma/client";
+import { NotificationType } from "@prisma/client";
 import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
 import { createOrderSchema } from "@/lib/validations/order";
 import { generateOrderCode } from "@/lib/order-code";
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     }
 
     // Validate stock
-    const productMap = new Map<string, ProductModel>(
+    const productMap = new Map<string, Product>(
       products.map((p) => [p.id, p])
     );
     for (const item of items) {

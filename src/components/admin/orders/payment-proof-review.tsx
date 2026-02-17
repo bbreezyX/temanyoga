@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useToast } from "@/components/ui/toast";
 import { Check, X, Loader2, ZoomIn } from "lucide-react";
-import { PaymentProofStatus } from "@/generated/prisma/enums";
+import { PaymentProofStatus } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

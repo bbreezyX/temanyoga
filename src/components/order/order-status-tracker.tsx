@@ -1,4 +1,4 @@
-import { OrderStatus } from "@/generated/prisma/enums";
+import { OrderStatus } from "@prisma/client";
 import { cn } from "@/lib/utils";
 import { getStatusLabel } from "@/lib/format";
 import { Check } from "lucide-react";

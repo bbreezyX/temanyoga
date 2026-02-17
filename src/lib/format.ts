@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentProofStatus } from "@/generated/prisma/enums";
+import { OrderStatus, PaymentProofStatus } from "@prisma/client";
 
 const currencyFormatter = new Intl.NumberFormat("id-ID", {
   style: "currency",
