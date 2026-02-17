@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -127,42 +127,53 @@ export default function CheckoutPage() {
     setCouponError(null);
   }
 
-  const onSubmit = async (data: CheckoutFormData) => {
-    if (!selectedZoneId) {
-      toast.error("Mohon pilih zona pengiriman.");
-      return;
-    }
+  const onSubmit = useCallback(
+    async (data: CheckoutFormData) => {
+      if (!selectedZoneId) {
+        toast.error("Mohon pilih zona pengiriman.");
+        return;
+      }
 
-    const shippingAddress = `${data.address}, ${data.city}, ${data.zip}`;
+      const shippingAddress = `${data.address}, ${data.city}, ${data.zip}`;
 
-    const res = await apiPost<CreateOrderResponse>("/api/orders", {
-      customerName: data.customerName.trim(),
-      customerEmail: data.customerEmail.trim().toLowerCase(),
-      customerPhone: data.customerPhone.trim(),
-      shippingAddress,
-      shippingZoneId: selectedZoneId,
-      notes: data.notes?.trim() || undefined,
-      couponCode: appliedCoupon?.code || undefined,
-      items: items.map((i) => ({
-        productId: i.productId,
-        quantity: i.quantity,
-        accessoryIds: (i.accessories || []).map((a) => a.id),
-      })),
-    });
+      const res = await apiPost<CreateOrderResponse>("/api/orders", {
+        customerName: data.customerName.trim(),
+        customerEmail: data.customerEmail.trim().toLowerCase(),
+        customerPhone: data.customerPhone.trim(),
+        shippingAddress,
+        shippingZoneId: selectedZoneId,
+        notes: data.notes?.trim() || undefined,
+        couponCode: appliedCoupon?.code || undefined,
+        items: items.map((i) => ({
+          productId: i.productId,
+          quantity: i.quantity,
+          accessoryIds: (i.accessories || []).map((a) => a.id),
+        })),
+      });
 
-    if (!res.success) {
-      toast.error(res.error || "Gagal membuat pesanan");
-      return;
-    }
+      if (!res.success) {
+        toast.error(res.error || "Gagal membuat pesanan");
+        return;
+      }
 
-    orderPlaced.current = true;
-    clearCart();
-    window.scrollTo(0, 0);
+      orderPlaced.current = true;
+      clearCart();
+      window.scrollTo(0, 0);
 
-    sessionStorage.setItem(`checkout_email_${res.data.orderCode}`, data.customerEmail);
+      sessionStorage.setItem(`checkout_email_${res.data.orderCode}`, data.customerEmail);
 
-    router.push(`/checkout/success/${res.data.orderCode}`);
-  };
+      router.push(`/checkout/success/${res.data.orderCode}`);
+    },
+    [selectedZoneId, appliedCoupon, items, clearCart, router, toast, orderPlaced],
+  );
+
+  const formSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      void handleSubmit(onSubmit)(e as React.FormEvent<HTMLFormElement>);
+    },
+    [handleSubmit, onSubmit],
+  );
 
   if (items.length === 0) return null;
 
@@ -251,7 +262,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              <form className="space-y-6" onSubmit={formSubmit}>
                 <div className="rounded-[40px] bg-white shadow-soft ring-1 ring-[#e8dcc8] p-8 md:p-10">
                   <div className="flex items-center gap-4 mb-8">
                     <div className="w-12 h-12 rounded-2xl bg-[#f5f1ed] ring-1 ring-[#e8dcc8] grid place-items-center shrink-0">
