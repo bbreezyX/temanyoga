@@ -373,7 +373,16 @@ export default function AdminOrderDetailPage() {
                       >
                         <div className="flex items-start gap-4">
                           <div className="h-14 w-14 rounded-2xl bg-warm-sand/20 flex shrink-0 items-center justify-center ring-1 ring-warm-sand/50 overflow-hidden relative">
-                            <ImageIcon className="text-xl text-warm-gray/30 absolute" />
+                            {item.product.images?.[0]?.url ? (
+                              <Image
+                                src={getImageUrl(item.product.images[0].url)}
+                                alt={item.productNameSnapshot}
+                                fill
+                                className="object-cover"
+                              />
+                            ) : (
+                              <ImageIcon className="text-xl text-warm-gray/30 absolute" />
+                            )}
                           </div>
                           <div className="min-w-0 pr-2">
                             <p className="font-bold text-dark-brown text-sm line-clamp-2 leading-tight">
@@ -447,7 +456,18 @@ export default function AdminOrderDetailPage() {
                             <td className="py-5">
                               <div className="flex items-center gap-3 sm:gap-4">
                                 <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-warm-sand/20 flex shrink-0 items-center justify-center ring-1 ring-warm-sand/50 overflow-hidden relative">
-                                  <ImageIcon className="text-2xl text-warm-gray/30 absolute" />
+                                  {item.product.images?.[0]?.url ? (
+                                    <Image
+                                      src={getImageUrl(
+                                        item.product.images[0].url,
+                                      )}
+                                      alt={item.productNameSnapshot}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  ) : (
+                                    <ImageIcon className="text-2xl text-warm-gray/30 absolute" />
+                                  )}
                                 </div>
                                 <div className="min-w-0 pr-2">
                                   <p className="font-bold text-dark-brown text-sm sm:text-base line-clamp-2">

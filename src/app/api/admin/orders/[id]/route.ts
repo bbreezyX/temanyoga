@@ -21,7 +21,15 @@ export async function GET(
         items: {
           include: {
             product: {
-              select: { slug: true, isActive: true },
+              select: {
+                slug: true,
+                isActive: true,
+                images: {
+                  take: 1,
+                  orderBy: { order: "asc" },
+                  select: { url: true },
+                },
+              },
             },
           },
         },

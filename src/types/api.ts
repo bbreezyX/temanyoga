@@ -1,4 +1,8 @@
-import type { OrderStatus, PaymentProofStatus, DiscountType } from "@prisma/client";
+import type {
+  OrderStatus,
+  PaymentProofStatus,
+  DiscountType,
+} from "@prisma/client";
 
 export interface ShippingZone {
   id: string;
@@ -192,7 +196,11 @@ export interface AdminOrderListResponse {
 }
 
 export interface AdminOrderDetailItem extends OrderItem {
-  product: { slug: string; isActive: boolean };
+  product: {
+    slug: string;
+    isActive: boolean;
+    images: { url: string }[];
+  };
 }
 
 export interface AdminPaymentProof {
