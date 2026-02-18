@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Wand2, ImageOff } from "lucide-react";
+import { ImageOff, ArrowRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
 import type { ProductListItem } from "@/types/api";
@@ -10,91 +10,57 @@ export function ProductCard({ product }: { product: ProductListItem }) {
   const outOfStock = product.stock !== null && product.stock <= 0;
 
   return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="group block relative perspective-1000"
-    >
-      <div className="relative rounded-[48px] bg-white p-4 shadow-soft ring-1 ring-[#e8dcc8]/40 transition-[transform,box-shadow] duration-300 group-hover:shadow-lift group-hover:-translate-y-2 h-full flex flex-col overflow-hidden transform-gpu">
-        {/* Image and Floating Elements Wrapper */}
-        <div className="relative">
-          {/* Artistic Image Container with Organic Shape */}
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] bg-[#f5f1ed] isolate">
-            {image ? (
-              <Image
-                src={getImageUrl(image.url)}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                loading="lazy"
-              />
-            ) : (
-              <div className="h-full w-full flex items-center justify-center text-muted-foreground/30">
-                <ImageOff className="w-10 h-10 opacity-30" />
+    <Link href={`/products/${product.slug}`} className="group block relative">
+      <div className="flex flex-col gap-5">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-[40px] bg-[#f9f9f9] border border-[#e8dcc8]/40 isolate">
+          {image ? (
+            <Image
+              src={getImageUrl(image.url)}
+              alt={product.name}
+              fill
+              className="object-cover transition-all duration-1000 group-hover:scale-105 group-hover:rotate-1"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              loading="lazy"
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center text-[#9a8772]">
+              <ImageOff className="w-12 h-12 opacity-20" />
+            </div>
+          )}
+
+          {/* Premium Badges */}
+          <div className="absolute top-6 left-6 flex flex-col gap-2 z-20">
+            {outOfStock && (
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 border border-red-100 shadow-lift-sm text-red-500">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
+                  Sent Out
+                </span>
               </div>
             )}
-          </div>
-
-          {/* Glass Badge System */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/95 ring-1 ring-white/50 px-3 py-1.5 shadow-sm">
-              <Wand2 className="w-[12px] h-[12px] text-[#c85a2d]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#5a4a3b]">
-                Handmade
-              </span>
-            </div>
-
-            {outOfStock && (
-              <div className="inline-flex items-center gap-2 rounded-full bg-red-500/90 text-white px-3 py-1.5 shadow-sm">
-                <span className="text-[10px] font-black uppercase tracking-widest">
-                  Closed
+            {!outOfStock && (
+              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 border border-[#e8dcc8]/60 shadow-lift-sm text-[#c85a2d] opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
+                  Handmade
                 </span>
               </div>
             )}
           </div>
 
-          {/* Quick Action Overlay - Floating Arrow */}
-          <div className="absolute -bottom-6 right-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-[transform,opacity] duration-300 z-30 transform-gpu">
-            <div className="h-12 w-12 rounded-full bg-[#c85a2d] text-white flex items-center justify-center shadow-xl">
-              <ArrowRight className="w-6 h-6" />
+          {/* Simple Link Icon */}
+          <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-500 z-20 translate-x-4 group-hover:translate-x-0">
+            <div className="w-12 h-12 rounded-full bg-[#2d241c] text-white flex items-center justify-center shadow-lift-md">
+              <ArrowRight className="w-5 h-5" />
             </div>
           </div>
         </div>
 
-        <div className="pt-10 pb-2 px-2 flex flex-col flex-1">
-          <div className="flex justify-between items-start gap-3 mb-4">
-            <h3 className="font-display font-black text-[18px] md:text-[20px] text-slate-900 leading-[1.1] tracking-tight group-hover:text-[#c85a2d] transition-colors line-clamp-2 h-[2.2em]">
-              {product.name}
-            </h3>
-          </div>
-
-          <div className="flex-1"></div>
-
-          <div className="flex items-end justify-between">
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">
-                Harga
-              </span>
-              <p className="text-[20px] md:text-[22px] font-display font-black text-[#c85a2d] leading-none">
-                {formatCurrency(Number(product.price))}
-              </p>
-            </div>
-
-            {!outOfStock ? (
-              <div className="flex flex-col items-end gap-0.5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#c85a2d]">
-                  ~3 minggu
-                </span>
-                <span className="text-[9px] font-medium text-[#6b5b4b]">
-                  produksi
-                </span>
-              </div>
-            ) : (
-              <span className="text-[10px] font-black uppercase tracking-widest text-red-400">
-                Closed
-              </span>
-            )}
-          </div>
+        <div className="flex flex-col gap-2 px-2 items-center text-center">
+          <h3 className="font-display text-2xl font-black leading-tight text-[#2d241c] group-hover:text-[#c85a2d] transition-colors line-clamp-1 uppercase tracking-tight">
+            {product.name}
+          </h3>
+          <p className="text-[#6b5b4b] font-bold font-sans uppercase tracking-[0.2em] text-[13px]">
+            {formatCurrency(Number(product.price))}
+          </p>
         </div>
       </div>
     </Link>

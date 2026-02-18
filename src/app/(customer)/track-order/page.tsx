@@ -23,7 +23,7 @@ export default function TrackOrderPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#f5f1ed] flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center">
           <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-white shadow-sm ring-1 ring-[#e8dcc8] flex items-center justify-center">
             <Loader2 className="w-7 h-7 md:w-8 md:h-8 animate-spin text-[#c85a2d]" />
           </div>

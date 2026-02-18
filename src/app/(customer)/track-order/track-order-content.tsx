@@ -70,7 +70,7 @@ const StepItem = memo(function StepItem({
   return (
     <div className="flex md:flex-col items-center md:items-center gap-5 md:gap-4 group relative">
       {!isLast && (
-        <div className="md:hidden absolute left-[28px] top-[56px] w-[2px] h-[calc(100%-40px)] bg-slate-100 -z-10">
+        <div className="md:hidden absolute left-[28px] top-[56px] w-[2px] h-[calc(100%-40px)] bg-[#f9f9f9] -z-10">
           <div
             className={cn(
               "w-full bg-[#c85a2d] origin-top transition-transform duration-300 will-change-transform",
@@ -81,11 +81,12 @@ const StepItem = memo(function StepItem({
       )}
       <div
         className={cn(
-          "w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-transform duration-200 shadow-sm z-10 will-change-transform",
+          "w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-300 z-10",
           isCompleted
-            ? "bg-[#c85a2d] text-white rotate-6 shadow-md shadow-[#c85a2d]/15"
-            : "bg-slate-50 text-slate-300 ring-1 ring-slate-100",
-          isActive && "ring-4 ring-[#c85a2d]/20 scale-110 md:scale-125",
+            ? "bg-[#2d241c] text-white shadow-lift-sm"
+            : "bg-white text-[#9a8772] border border-[#e8dcc8]/60",
+          isActive &&
+            "bg-[#c85a2d] text-white scale-110 shadow-lift-sm border-none",
         )}
       >
         <Icon className="w-6 h-6 md:w-7 md:h-7" />
@@ -93,16 +94,17 @@ const StepItem = memo(function StepItem({
       <div className="text-left md:text-center flex flex-col pt-1">
         <span
           className={cn(
-            "text-sm md:text-[15px] font-black leading-tight",
-            isCompleted ? "text-slate-900" : "text-slate-300",
+            "text-sm md:text-[15px] font-black leading-tight uppercase tracking-wider",
+            isCompleted ? "text-[#2d241c]" : "text-[#9a8772]",
+            isActive && "text-[#c85a2d]",
           )}
         >
           {step.label}
         </span>
         <span
           className={cn(
-            "text-[10px] md:text-[11px] font-bold uppercase tracking-wider mt-1",
-            isActive ? "text-[#c85a2d]" : "text-slate-400 opacity-60",
+            "text-[10px] md:text-[11px] font-bold uppercase tracking-widest mt-1 opacity-60",
+            isActive ? "text-[#c85a2d]" : "text-[#6b5b4b]",
           )}
         >
           {step.sub}
@@ -120,12 +122,12 @@ const OrderStatusBadge = memo(function OrderStatusBadge({
   return (
     <div
       className={cn(
-        "px-6 py-3 rounded-full text-sm font-black uppercase tracking-widest ring-1",
+        "px-6 py-3 rounded-full text-xs font-black uppercase tracking-[0.2em] border",
         status === "COMPLETED"
-          ? "bg-[#7a9d7f]/10 text-[#7a9d7f] ring-[#7a9d7f]/20"
+          ? "bg-[#7a9d7f]/10 text-[#7a9d7f] border-[#7a9d7f]/20"
           : status === "CANCELLED"
-            ? "bg-red-50 text-red-600 ring-red-100"
-            : "bg-[#c85a2d]/10 text-[#c85a2d] ring-[#c85a2d]/20",
+            ? "bg-red-50 text-red-600 border-red-100"
+            : "bg-[#c85a2d]/10 text-[#c85a2d] border-[#c85a2d]/20",
       )}
     >
       {status.replace(/_/g, " ")}
@@ -145,9 +147,9 @@ const JourneyTrack = memo(function JourneyTrack({
 
   return (
     <div className="relative">
-      <div className="hidden md:block absolute top-[28px] left-[40px] right-[40px] h-[2px] bg-slate-100 z-0">
+      <div className="hidden md:block absolute top-[28px] left-[40px] right-[40px] h-[2px] bg-[#f9f9f9] z-0">
         <div
-          className="absolute top-0 left-0 h-full bg-[#c85a2d] transition-[width] duration-500 ease-out will-change-[width]"
+          className="absolute top-0 left-0 h-full bg-[#2d241c] transition-[width] duration-500 ease-out will-change-[width]"
           style={{ width: progressWidth }}
         />
       </div>
@@ -173,20 +175,20 @@ const OrderCodeCard = memo(function OrderCodeCard({
   orderCode: string;
 }) {
   return (
-    <div className="rounded-[32px] md:rounded-[40px] bg-white p-6 md:p-8 shadow-sm ring-1 ring-slate-100 flex flex-col justify-between group hover:shadow-md transition-shadow duration-200">
-      <div className="flex items-center justify-between mb-6 md:mb-8">
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-[#c85a2d] text-white grid place-items-center rotate-3 group-hover:rotate-6 transition-transform">
-          <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
+    <div className="rounded-[40px] bg-white p-8 border border-[#e8dcc8]/60 flex flex-col justify-between group hover:border-[#c85a2d]/40 transition-all shadow-sm">
+      <div className="flex items-center justify-between mb-8">
+        <div className="w-12 h-12 rounded-2xl bg-[#c85a2d] text-white flex items-center justify-center rotate-3 group-hover:rotate-6 transition-transform shadow-lift-sm">
+          <Sparkles className="w-6 h-6" />
         </div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#9a8772]">
           Informasi Pesanan
         </span>
       </div>
       <div>
-        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">
+        <h3 className="text-[11px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em] mb-2">
           Kode Pesanan
         </h3>
-        <p className="text-xl md:text-3xl font-mono font-black tracking-tight text-slate-900 group-hover:text-[#c85a2d] transition-colors">
+        <p className="text-3xl font-mono font-black tracking-tight text-[#2d241c] group-hover:text-[#c85a2d] transition-colors">
           {orderCode}
         </p>
       </div>
@@ -211,29 +213,22 @@ const SummaryStats = memo(function SummaryStats({
     [createdAt],
   );
 
-  const formattedTotal = useMemo(
-    () => formatCurrency(totalAmount),
-    [totalAmount],
-  );
-
   return (
-    <div className="grid grid-cols-2 gap-3 md:gap-4">
-      <div className="rounded-[28px] md:rounded-[40px] bg-[#7a9d7f]/5 p-4 md:p-6 ring-1 ring-[#7a9d7f]/20">
-        <Calendar className="w-5 h-5 md:w-6 md:h-6 text-[#7a9d7f] mb-3 md:mb-4" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-[#7a9d7f] mb-1">
+    <div className="grid grid-cols-2 gap-4">
+      <div className="rounded-[32px] md:rounded-[40px] bg-[#f9f9f9] p-6 border border-[#e8dcc8]/60">
+        <Calendar className="w-6 h-6 text-[#7a9d7f] mb-4" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b5b4b] mb-1">
           Tanggal
         </p>
-        <p className="text-xs md:text-sm font-black text-slate-900">
-          {formattedDate}
-        </p>
+        <p className="text-sm font-black text-[#2d241c]">{formattedDate}</p>
       </div>
-      <div className="rounded-[28px] md:rounded-[40px] bg-[#c85a2d]/5 p-4 md:p-6 ring-1 ring-[#c85a2d]/20">
-        <Package className="w-5 h-5 md:w-6 md:h-6 text-[#c85a2d] mb-3 md:mb-4" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-[#c85a2d] mb-1">
+      <div className="rounded-[32px] md:rounded-[40px] bg-[#f9f9f9] p-6 border border-[#e8dcc8]/60">
+        <Package className="w-6 h-6 text-[#c85a2d] mb-4" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b5b4b] mb-1">
           Total
         </p>
-        <p className="text-xs md:text-sm font-black text-slate-900">
-          {formattedTotal}
+        <p className="text-sm font-black text-[#c85a2d]">
+          {formatCurrency(totalAmount)}
         </p>
       </div>
     </div>
@@ -242,24 +237,25 @@ const SummaryStats = memo(function SummaryStats({
 
 const DeliveryInfo = memo(function DeliveryInfo() {
   return (
-    <div className="rounded-[28px] md:rounded-[40px] bg-white p-6 md:p-8 shadow-sm ring-1 ring-slate-100 relative group">
-      <div className="flex items-start gap-3 md:gap-4">
-        <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
-          <MapPin className="w-4 h-4 md:w-5 md:h-5 text-slate-400" />
+    <div className="rounded-[40px] bg-white p-8 border border-[#e8dcc8]/60 relative group">
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-full bg-[#f9f9f9] flex items-center justify-center shrink-0">
+          <MapPin className="w-5 h-5 text-[#9a8772]" />
         </div>
-        <div className="space-y-3 md:space-y-4">
-          <h4 className="text-sm md:text-base font-black tracking-tight">
-            Informasi Pengiriman
+        <div className="space-y-4">
+          <h4 className="text-[16px] font-black tracking-tight text-[#2d241c] uppercase tracking-wider">
+            Informasi Produksi
           </h4>
-          <p className="text-[11px] md:text-xs text-slate-500 leading-relaxed font-medium">
-            Kami berusaha mengirimkan pesanan Anda secepat mungkin. Proses
-            verifikasi biasanya memakan waktu maksimal 1x24 jam.
+          <p className="text-[13px] text-[#6b5b4b] leading-relaxed font-medium">
+            Setiap produk dTeman dibuat secara manual dengan cinta. Proses
+            handmade membutuhkan waktu ±3 minggu sebelum siap dikirim ke rumah
+            Anda.
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-[11px] md:text-xs font-black text-[#c85a2d] hover:gap-3 transition-all uppercase tracking-widest"
+            className="inline-flex items-center gap-2 text-[12px] font-black text-[#c85a2d] hover:gap-3 transition-all uppercase tracking-widest"
           >
-            Lihat Produk Lain <ArrowRight className="w-3 h-3" />
+            Kembali Berbelanja <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
       </div>
@@ -273,28 +269,26 @@ const PaymentAction = memo(function PaymentAction({
   orderCode: string;
 }) {
   return (
-    <div className="rounded-[28px] md:rounded-[40px] bg-[#fdf8f6] p-6 md:p-10 ring-1 ring-[#c85a2d]/10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
-      <div className="flex items-center gap-4 md:gap-6">
-        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-white shadow-sm ring-1 ring-[#c85a2d]/10 grid place-items-center shrink-0">
-          <CreditCard className="w-6 h-6 md:w-8 md:h-8 text-[#c85a2d]" />
+    <div className="rounded-[40px] bg-[#fdf8f6] p-8 md:p-12 border border-[#c85a2d]/20 flex flex-col md:flex-row items-center justify-between gap-8 animate-floatIn">
+      <div className="flex items-center gap-6">
+        <div className="w-16 h-16 rounded-2xl bg-white shadow-lift-sm flex items-center justify-center shrink-0">
+          <CreditCard className="w-8 h-8 text-[#c85a2d]" />
         </div>
         <div className="text-center md:text-left">
-          <h3 className="text-lg md:text-xl font-black tracking-tight mb-1">
+          <h3 className="text-xl md:text-2xl font-black tracking-tight text-[#2d241c] mb-2">
             Selesaikan Pembayaran
           </h3>
-          <p className="text-slate-500 font-medium text-xs md:text-sm">
+          <p className="text-[#6b5b4b] font-medium text-sm md:text-base">
             Transfer Anda dinanti untuk mulai menyiapkan dTeman pilihan Anda.
           </p>
         </div>
       </div>
       <Link
         href={`/checkout/success/${orderCode}`}
-        className="group relative inline-flex items-center justify-center gap-3 min-h-[48px] md:min-h-[56px] px-6 md:px-8 rounded-full bg-[#c85a2d] text-white font-black overflow-hidden shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+        className="group inline-flex items-center justify-center gap-3 h-16 px-10 rounded-full bg-[#c85a2d] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#2d241c] transition-all shadow-lift-sm whitespace-nowrap"
       >
-        <span className="relative z-10 text-sm md:text-base">
-          Upload Bukti Transaksi
-        </span>
-        <ArrowRight className="relative z-10 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
+        <span>Upload Bukti Bayar</span>
+        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
       </Link>
     </div>
   );
@@ -312,40 +306,42 @@ const TrackingInfo = memo(function TrackingInfo({
   onCopy: (text: string) => void;
 }) {
   return (
-    <div className="rounded-[32px] md:rounded-[48px] bg-slate-900 p-6 md:p-12 text-white overflow-hidden relative">
-      <div className="absolute top-0 right-0 w-48 h-48 md:w-80 md:h-80 bg-[#c85a2d]/10 blur-[40px] md:blur-[60px] -mr-24 md:-mr-40 -mt-24 md:-mt-40 pointer-events-none" />
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
-        <div className="flex items-center gap-4 md:gap-8">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-white/10 grid place-items-center shrink-0 ring-1 ring-white/20">
-            <Package className="w-8 h-8 md:w-10 md:h-10 text-[#c85a2d]" />
+    <div className="rounded-[48px] bg-[#2d241c] p-10 md:p-14 text-white relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-80 h-80 bg-[#c85a2d]/10 blur-[80px] -mr-40 -mt-40 pointer-events-none" />
+      <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+        <div className="flex items-center gap-8">
+          <div className="w-20 h-20 rounded-3xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10 backdrop-blur-sm">
+            <Package className="w-10 h-10 text-[#c85a2d]" />
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[#c85a2d] font-black uppercase tracking-[0.15em] md:tracking-[0.2em] text-[9px] md:text-[10px] mb-1 md:mb-2">
-              Informasi Pengiriman
+            <p className="text-[#c85a2d] font-black uppercase tracking-[0.2em] text-[11px] mb-3">
+              Informasi Pengirirman
             </p>
-            <h3 className="text-xl md:text-3xl font-black tracking-tight mb-1 md:mb-2 opacity-95">
+            <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-3">
               {status === "COMPLETED" ? "Pesanan Tiba!" : "Paket Dikirim"}
             </h3>
-            <p className="text-slate-400 font-medium text-xs md:text-sm max-w-xs">
-              {courier || "Ekspedisi"} - Pesanan Anda sedang diproses oleh pihak
-              kurir.
+            <p className="text-white/60 font-medium text-sm md:text-base max-w-sm">
+              <span className="text-white font-bold">
+                {courier || "Ekspedisi"}
+              </span>{" "}
+              — Pesanan Anda sedang diproses oleh kurir terpercaya kami.
             </p>
           </div>
         </div>
-        <div className="bg-white/10 rounded-2xl md:rounded-[32px] p-4 md:p-6 ring-1 ring-white/10 w-full md:w-auto text-center md:text-left">
-          <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 md:mb-2">
+        <div className="bg-white/5 rounded-[32px] p-8 border border-white/10 backdrop-blur-md w-full lg:w-auto text-center md:text-left">
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3">
             Nomor Resi
           </p>
-          <div className="flex items-center justify-center md:justify-start gap-3 md:gap-4">
-            <code className="text-lg md:text-2xl font-mono font-black tracking-tighter">
+          <div className="flex items-center justify-center md:justify-start gap-5">
+            <code className="text-2xl md:text-3xl font-mono font-black tracking-tight text-[#c85a2d]">
               {trackingNumber}
             </code>
             <button
               onClick={() => onCopy(trackingNumber)}
-              className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white text-slate-900 grid place-items-center hover:scale-110 active:scale-95 transition-transform shadow-md"
+              className="w-12 h-12 rounded-full bg-white text-[#2d241c] flex items-center justify-center hover:bg-[#c85a2d] hover:text-white transition-all shadow-lift-sm"
               aria-label="Salin nomor resi"
             >
-              <ClipboardCheck className="w-4 h-4 md:w-5 md:h-5" />
+              <ClipboardCheck className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -445,49 +441,51 @@ export default function TrackOrderContent({
   }, [order]);
 
   return (
-    <div className="bg-[#f5f1ed] min-h-screen text-slate-900 font-sans selection:bg-[#c85a2d] selection:text-white">
-      <section className="relative pt-4 md:pt-6 pb-8 md:pb-12 px-4 md:px-8 max-w-7xl mx-auto">
-        <div className="relative min-h-[45svh] md:min-h-[50svh] flex flex-col items-center justify-center py-10 md:py-16 px-4 md:px-16 rounded-[28px] md:rounded-[64px] bg-white overflow-hidden shadow-sm ring-1 ring-[#e8dcc8]/50">
-          <div className="absolute top-[-10%] right-[-10%] w-[40%] md:w-[50%] aspect-square rounded-full bg-gradient-to-br from-[#c85a2d]/5 to-[#7a9d7f]/3 pointer-events-none" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[30%] md:w-[40%] aspect-square rounded-full bg-gradient-to-tr from-[#7a9d7f]/5 to-[#c85a2d]/3 pointer-events-none" />
+    <div className="min-h-screen text-[#2d241c] font-sans selection:bg-[#c85a2d] selection:text-white bg-white">
+      <section className="relative pt-8 md:pt-12 pb-12 md:pb-20 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="relative min-h-[50svh] flex flex-col items-center justify-center py-16 md:py-24 px-8 md:px-20 rounded-[80px] bg-[#f9f9f9] overflow-hidden border border-[#e8dcc8]/40">
+          <div className="absolute top-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-gradient-to-br from-[#c85a2d]/5 to-transparent blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-gradient-to-tr from-[#7a9d7f]/5 to-transparent blur-[120px] pointer-events-none" />
 
-          <div className="relative z-10 w-full max-w-xl md:max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 md:gap-3 px-3 md:px-4 py-1.5 md:py-2 rounded-full bg-[#fdf8f6] ring-1 ring-[#c85a2d]/20 mb-6 md:mb-8">
-              <span className="flex h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-[#c85a2d]" />
-              <span className="text-[10px] md:text-[12px] font-black uppercase tracking-[0.15em] md:tracking-[0.2em] text-[#c85a2d]">
-                Status Pesanan Anda
+          <div className="relative z-10 w-full max-w-4xl text-center">
+            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white border border-[#e8dcc8]/60 mb-10 shadow-sm">
+              <span className="flex h-2 w-2 rounded-full bg-[#c85a2d] animate-pulse" />
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
+                D`Teman Order Tracking
               </span>
             </div>
 
-            <h1 className="font-display text-[36px] md:text-[72px] leading-[0.95] tracking-[-0.03em] md:tracking-[-0.04em] font-black text-slate-900 mb-4 md:mb-8">
-              Lacak Pesanan
+            <h1 className="font-display text-5xl md:text-[92px] leading-[0.9] tracking-[-0.04em] font-black text-[#2d241c] mb-8">
+              Jejak Pesanan
             </h1>
 
-            <p className="text-[14px] md:text-[18px] text-slate-500 mb-8 md:mb-12 max-w-sm md:max-w-xl mx-auto font-medium leading-relaxed">
-              Masukkan kode pesanan Anda untuk melihat status pengiriman secara
-              real-time.
+            <p className="text-[16px] md:text-[20px] text-[#6b5b4b] mb-12 md:mb-16 max-w-2xl mx-auto font-medium leading-relaxed">
+              Pantau perjalanan produk handmade Anda secara real-time. Masukkan
+              kode pesanan untuk melihat detail status terbaru.
             </p>
 
-            <div className="relative max-w-md md:max-w-xl mx-auto">
-              <form onSubmit={handleSubmit} className="relative group">
+            <div className="relative max-w-2xl mx-auto">
+              <form onSubmit={handleSubmit} className="relative">
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
-                  placeholder="Masukkan Kode Pesanan"
-                  className="w-full h-[64px] md:h-[80px] rounded-[24px] md:rounded-[32px] bg-white px-6 md:px-10 pr-20 md:pr-24 text-base md:text-xl font-display font-black text-slate-900 ring-2 ring-slate-100 focus:ring-[#c85a2d] focus:outline-none shadow-sm transition-all placeholder:text-slate-300"
+                  placeholder="Contoh: ORD-2024..."
+                  className="w-full h-20 md:h-24 rounded-[32px] bg-white px-10 pr-32 md:pr-40 text-lg md:text-2xl font-display font-black text-[#2d241c] border border-[#e8dcc8] focus:border-[#c85a2d] focus:outline-none shadow-lift-sm transition-all placeholder:text-[#9a8772]"
                 />
                 <button
                   type="submit"
                   disabled={loading || !code.trim()}
-                  className="absolute right-2 md:right-3 top-2 md:top-3 h-[48px] md:h-[56px] px-6 md:px-8 rounded-[20px] md:rounded-[24px] bg-[#c85a2d] text-white font-black flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
+                  className="absolute right-3 md:right-4 top-3 md:top-4 h-14 md:h-16 px-10 md:px-12 rounded-[24px] bg-[#2d241c] text-white font-black flex items-center justify-center gap-3 hover:bg-[#c85a2d] active:scale-95 transition-all disabled:opacity-30"
                 >
                   {loading ? (
-                    <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
+                    <Loader2 className="w-6 h-6 animate-spin" />
                   ) : (
                     <>
-                      <span className="hidden md:inline">Lacak</span>
-                      <Search className="w-5 h-5 md:w-6 md:h-6" />
+                      <span className="hidden sm:inline text-sm uppercase tracking-widest">
+                        Lacak
+                      </span>
+                      <Search className="w-5 h-5" />
                     </>
                   )}
                 </button>
@@ -495,7 +493,7 @@ export default function TrackOrderContent({
             </div>
 
             {error && (
-              <div className="mt-6 md:mt-8 p-3 md:p-4 rounded-xl md:rounded-2xl bg-red-50 text-red-600 ring-1 ring-red-100 font-bold text-xs md:text-sm inline-flex items-center gap-2">
+              <div className="mt-8 p-5 rounded-2xl bg-red-50 text-red-600 border border-red-100 font-bold text-sm inline-flex items-center gap-3 animate-floatIn">
                 <span>{error}</span>
               </div>
             )}
@@ -504,22 +502,22 @@ export default function TrackOrderContent({
       </section>
 
       {order && (
-        <section className="pb-20 md:pb-32 px-4 md:px-8 max-w-7xl mx-auto animate-floatIn">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8 items-start">
-            <div className="lg:col-span-8 space-y-6 md:space-y-8">
-              <div className="rounded-[32px] md:rounded-[48px] bg-white p-6 md:p-12 shadow-sm ring-1 ring-slate-100 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 md:w-64 md:h-64 bg-[#7a9d7f]/5 blur-xl md:blur-2xl -mr-20 md:-mr-32 -mt-20 md:-mt-32 pointer-events-none" />
+        <section className="pb-24 md:pb-32 px-6 md:px-12 max-w-[1400px] mx-auto animate-floatIn">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start">
+            <div className="lg:col-span-8 space-y-8 md:space-y-12">
+              <div className="rounded-[48px] bg-white p-10 md:p-14 border border-[#e8dcc8]/60 relative overflow-hidden shadow-sm">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#7a9d7f]/5 blur-3xl -mr-32 -mt-32 pointer-events-none" />
 
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 mb-10 md:mb-16">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 md:mb-16">
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-1 md:mb-2">
+                    <h2 className="text-3xl md:text-4xl font-black tracking-tight text-[#2d241c] mb-3">
                       Status Pesanan
                     </h2>
-                    <div className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#7a9d7f]" />
-                      <span className="text-xs md:text-sm font-bold text-slate-400">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-[#7a9d7f] animate-pulse" />
+                      <p className="text-[13px] font-bold text-[#6b5b4b] uppercase tracking-widest">
                         Terakhir diperbarui {updatedAtFormatted}
-                      </span>
+                      </p>
                     </div>
                   </div>
                   <OrderStatusBadge status={order.status} />
@@ -556,17 +554,18 @@ export default function TrackOrderContent({
       )}
 
       {!order && !loading && (
-        <section className="pb-20 md:pb-32 px-4 md:px-8 max-w-5xl mx-auto flex flex-col items-center text-center">
-          <div className="w-12 md:w-16 h-[2px] bg-[#e8dcc8] mb-8 md:mb-12" />
-          <p className="text-slate-400 font-medium max-w-xs md:max-w-sm leading-relaxed mb-6 md:mb-8 text-sm md:text-base">
-            Belum memiliki pesanan? Temukan koleksi boneka rajut terbaru kami
-            hari ini.
+        <section className="pb-32 px-6 md:px-12 max-w-4xl mx-auto flex flex-col items-center text-center">
+          <div className="w-16 h-px bg-[#e8dcc8] mb-12" />
+          <p className="text-[#6b5b4b] font-medium max-w-md leading-relaxed mb-10 text-[16px] md:text-[18px]">
+            Sudah punya dTeman tapi belum dilacak? Masukkan kode pesanan Anda di
+            atas untuk melihat status terbaru.
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-3 px-6 md:px-8 py-3 md:py-4 rounded-full border-2 border-slate-200 text-slate-900 font-bold hover:bg-white hover:border-[#c85a2d] hover:text-[#c85a2d] transition-all text-sm md:text-base"
+            className="group inline-flex items-center gap-4 px-10 py-5 rounded-full bg-[#2d241c] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#c85a2d] transition-all shadow-lift-sm"
           >
-            Mulai Belanja Sekarang
+            <span>Mulai Belanja</span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </section>
       )}

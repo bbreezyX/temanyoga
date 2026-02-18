@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProductDetailLoading() {
   return (
-    <main className="bg-[#f5f1ed] min-h-screen">
+    <main className="bg-white min-h-screen">
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pb-16">
         <section className="pt-6 md:pt-8">
           <div className="flex items-center gap-2 md:gap-3">
@@ -15,10 +15,13 @@ export default function ProductDetailLoading() {
         </section>
         <section className="pt-6 md:pt-10 grid gap-8 md:gap-12 lg:grid-cols-2 lg:gap-20">
           <div className="space-y-4 md:space-y-6 lg:sticky lg:top-24 self-start">
-            <Skeleton className="aspect-square rounded-[32px] md:rounded-[40px]" />
+            <Skeleton className="aspect-square rounded-[32px] md:rounded-[40px] bg-[#f5f1ed]" />
             <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 shrink-0 rounded-2xl md:rounded-3xl" />
+                <Skeleton
+                  key={i}
+                  className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 shrink-0 rounded-2xl md:rounded-3xl"
+                />
               ))}
             </div>
           </div>

@@ -15,7 +15,11 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-async function getProducts(page: number, limit: number, sort: string = "latest") {
+async function getProducts(
+  page: number,
+  limit: number,
+  sort: string = "latest",
+) {
   const orderBy: Prisma.ProductOrderByWithRelationInput = {};
   switch (sort) {
     case "price-asc":
@@ -64,60 +68,70 @@ export default async function ProductsPage({
   const data = await getProducts(page, 12, sort);
 
   return (
-    <div className="bg-[#f5f1ed] min-h-screen text-slate-900 font-sans selection:bg-[#c85a2d] selection:text-white pb-24">
-      <div className="pt-32 px-6 md:px-8 max-w-7xl mx-auto text-center space-y-6">
-        <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-white shadow-sm ring-1 ring-slate-200">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#c85a2d]"></div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+    <div className="bg-white min-h-screen text-[#2d241c] font-sans selection:bg-[#c85a2d] selection:text-white pb-32">
+      <div className="pt-24 px-8 md:px-12 max-w-[1600px] mx-auto text-center space-y-6">
+        <div className="inline-flex items-center gap-3 px-5 py-1.5 rounded-full bg-white border border-[#e8dcc8]/60 shadow-sm">
+          <div className="w-2 h-2 rounded-full bg-[#c85a2d] animate-pulse"></div>
+          <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
             Curated Artisanal Crafts
           </span>
         </div>
-        <h1 className="font-display text-[56px] md:text-[84px] font-black leading-[0.9] tracking-tighter">
-          Koleksi <span className="text-[#c85a2d] italic serif font-medium">Teman</span> Yoga
+        <h1 className="font-display text-[48px] md:text-[110px] font-black leading-[0.85] tracking-[-0.04em] text-[#2d241c]">
+          Koleksi{" "}
+          <span className="text-[#c85a2d] italic serif font-medium">
+            dTeman
+          </span>{" "}
+          Yoga
         </h1>
-        <p className="max-w-[42ch] mx-auto text-slate-500 font-medium leading-relaxed">
-          Temukan boneka rajut yang paling pas sebagai teman latihan harian Anda. 
-          Dibuat perlahan dengan ketulusan dan energi positif.
+        <p className="max-w-2xl mx-auto text-[16px] md:text-[18px] text-[#6b5b4b] font-medium leading-relaxed">
+          Temukan boneka rajut yang paling pas sebagai teman latihan harian
+          Anda. Dibuat perlahan dengan ketulusan dan energi positif.
         </p>
       </div>
 
-      <div className="mt-24 px-6 md:px-8 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between gap-4 mb-12 md:mb-16">
-          <div className="flex flex-col">
-            <h2 className="text-2xl md:text-3xl font-black tracking-tight">
+      <div className="mt-20 md:mt-32 px-8 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 mb-16 md:mb-20">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[#2d241c]">
               Eksplorasi Kurasi Kami
             </h2>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="w-2 h-2 rounded-full bg-[#7a9d7f]"></div>
-              <span className="text-sm font-bold text-slate-400">
-                Menampilkan {data.products.length} dari {data.pagination.total} dTeman
+            <div className="flex items-center gap-3">
+              <div className="w-2.5 h-2.5 rounded-full bg-[#7a9d7f]"></div>
+              <span className="text-sm md:text-base font-bold text-[#6b5b4b] uppercase tracking-widest">
+                Menampilkan {data.products.length} dari {data.pagination.total}{" "}
+                dTeman
               </span>
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="flex w-full md:w-auto overflow-x-auto pb-4 md:pb-0 gap-4 no-scrollbar snap-x">
             <Link
               href={`/products?sort=${sort === "latest" ? "oldest" : "latest"}&page=1`}
               className={cn(
-                "h-12 px-6 rounded-full text-sm font-bold transition-all flex items-center gap-2",
+                "h-14 px-8 rounded-full text-[13px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap snap-start shrink-0",
                 sort === "latest" || sort === "oldest"
-                  ? "bg-slate-900 text-white shadow-lg"
-                  : "bg-white ring-1 ring-slate-200 hover:ring-[#c85a2d]/30"
+                  ? "bg-[#2d241c] text-white shadow-lift-sm"
+                  : "bg-white border border-[#e8dcc8]/60 hover:border-[#c85a2d]/40",
               )}
             >
               {sort === "oldest" ? "Koleksi Klasik" : "Koleksi Terbaru"}
             </Link>
-            
+
             <Link
               href={`/products?sort=${sort === "price-asc" ? "price-desc" : "price-asc"}&page=1`}
               className={cn(
-                "h-12 px-6 rounded-full text-sm font-bold transition-all flex items-center gap-2",
+                "h-14 px-8 rounded-full text-[13px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap snap-start shrink-0",
                 sort.startsWith("price")
-                  ? "bg-slate-900 text-white shadow-lg"
-                  : "bg-white ring-1 ring-slate-200 hover:ring-[#c85a2d]/30"
+                  ? "bg-[#2d241c] text-white shadow-lift-sm"
+                  : "bg-white border border-[#e8dcc8]/60 hover:border-[#c85a2d]/40",
               )}
             >
-              Harga {sort === "price-asc" ? "Low-High" : sort === "price-desc" ? "High-Low" : ""}
+              Harga{" "}
+              {sort === "price-asc"
+                ? "Low to High"
+                : sort === "price-desc"
+                  ? "High to Low"
+                  : ""}
             </Link>
           </div>
         </div>
@@ -127,8 +141,8 @@ export default async function ProductsPage({
         {/* 
           PAGINATION
         */}
-        <div className="mt-24 flex justify-center">
-          <div className="relative p-2 rounded-full bg-white shadow-soft ring-1 ring-slate-100">
+        <div className="mt-32 flex justify-center">
+          <div className="relative p-3 rounded-full bg-white border border-[#e8dcc8]/60 shadow-lift-sm">
             <PaginationControls
               pagination={data.pagination}
               basePath="/products"

@@ -15,7 +15,7 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 
 const SheetContent = dynamic(
   () => import("@/components/ui/sheet").then((mod) => mod.SheetContent),
-  { ssr: false }
+  { ssr: false },
 );
 
 const NAV_LINKS = [
@@ -34,58 +34,60 @@ export function Header() {
   const handleCartClick = () => {
     if (cartCount === 0) {
       toast.custom(
-        <div className="group relative flex w-full items-center gap-3 rounded-2xl border border-primary/15 bg-popover px-4 py-3 shadow-lift overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-sage/3 pointer-events-none" />
+        <div className="group relative flex w-full items-center gap-4 rounded-[24px] border border-border/80 bg-white px-5 py-4 shadow-lift-sm overflow-hidden min-w-[320px]">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
           <div className="toast-progress-bar" />
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <ShoppingCart className="h-4 w-4" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-primary/5 text-primary border border-primary/10">
+            <ShoppingCart className="h-5 w-5" />
           </div>
           <div className="flex-1 min-w-0 flex flex-col justify-center">
-            <h4 className="font-display text-[14px] sm:text-[15px] font-bold text-foreground leading-snug">
+            <h4 className="font-display text-[15px] font-black text-[#2d241c] leading-snug tracking-tight">
               Keranjang Kosong
             </h4>
-            <p className="text-[13px] sm:text-[13.5px] font-medium text-muted-foreground mt-0.5 leading-snug">
+            <p className="text-[13px] font-medium text-[#6b5b4b] mt-1 leading-snug">
               Yuk, pilih produk favoritmu!
             </p>
           </div>
           <button
             onClick={() => toast.dismiss("empty-cart-notification")}
-            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[#6b5b4b] hover:bg-muted hover:text-[#2d241c] transition-all"
           >
             <X className="h-4 w-4" />
           </button>
         </div>,
-        { duration: 4000 }
+        { id: "empty-cart-notification", duration: 4000 },
       );
       return;
     }
 
     toast.custom(
-      <div className="group relative flex w-full items-center gap-3 rounded-2xl border border-sage/20 bg-popover px-4 py-3 shadow-lift overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-sage/8 via-transparent to-primary/3 pointer-events-none" />
+      <div className="group relative flex w-full items-center gap-4 rounded-[24px] border border-sage/30 bg-white px-5 py-4 shadow-lift-sm overflow-hidden min-w-[320px]">
+        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-transparent to-transparent pointer-events-none" />
         <div className="toast-progress-bar toast-progress-bar--success" />
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-sage/15 text-sage">
-          <ShoppingCart className="h-4 w-4" />
+        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-sage/10 text-sage border border-sage/20">
+          <ShoppingCart className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0 flex flex-col justify-center">
-          <h4 className="font-display text-[14px] sm:text-[15px] font-bold text-foreground leading-snug">
+          <h4 className="font-display text-[15px] font-black text-[#2d241c] leading-snug tracking-tight">
             Keranjang Belanja
           </h4>
-          <p className="text-[13px] sm:text-[13.5px] font-medium text-muted-foreground mt-0.5 leading-snug">
+          <p className="text-[13px] font-medium text-[#6b5b4b] mt-1 leading-snug">
             {cartCount} Item •{" "}
-            <span className="text-sage font-bold">{formatCurrency(cartTotal)}</span>
+            <span className="text-sage font-black">
+              {formatCurrency(cartTotal)}
+            </span>
           </p>
         </div>
         <Button
           size="sm"
-          className="rounded-xl h-8 px-3 font-bold bg-sage hover:bg-sage/90 text-white text-[13px] flex-shrink-0"
+          className="rounded-full h-10 px-6 font-black bg-sage hover:bg-[#2d241c] text-white text-[12px] uppercase tracking-widest flex-shrink-0 shadow-sm transition-all"
           asChild
           onClick={() => toast.dismiss("cart-notification")}
         >
           <Link href="/cart">Lihat</Link>
         </Button>
       </div>,
-      { duration: 5000 }
+      { id: "cart-notification", duration: 5000 },
     );
   };
 
@@ -129,8 +131,8 @@ export function Header() {
               <span
                 className={cn(
                   "font-display font-medium tracking-tight text-foreground transition-all duration-500 transform-gpu",
-                  isScrolled 
-                    ? "text-sm sm:text-base opacity-90" 
+                  isScrolled
+                    ? "text-sm sm:text-base opacity-90"
                     : "hidden sm:inline text-xl md:text-2xl",
                 )}
               >
@@ -141,21 +143,23 @@ export function Header() {
 
           <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-1 lg:gap-2">
             {NAV_LINKS.map((link) => {
-              const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+              const isActive =
+                pathname === link.href ||
+                (link.href !== "/" && pathname.startsWith(link.href));
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={cn(
                     "group relative px-4 py-1.5 text-sm font-bold transition-all duration-300 rounded-full outline-none",
-                    isActive 
-                      ? "text-primary bg-primary/5" 
-                      : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                    isActive
+                      ? "text-primary bg-primary/5"
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/5",
                   )}
                 >
                   <span className="relative z-10">{link.label}</span>
                   {isActive && (
-                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
                   )}
                 </Link>
               );
@@ -194,26 +198,28 @@ export function Header() {
                   size="icon"
                   className={cn(
                     "md:hidden rounded-full transition-all duration-300 transition-colors focus-visible:ring-primary",
-                    isScrolled ? "h-9 w-9 bg-primary/5 hover:bg-primary/10" : "h-11 w-11 hover:bg-foreground/5",
+                    isScrolled
+                      ? "h-9 w-9 bg-primary/5 hover:bg-primary/10"
+                      : "h-11 w-11 hover:bg-foreground/5",
                   )}
                 >
                   <div className="relative flex h-5 w-5 items-center justify-center">
                     <span
                       className={cn(
                         "absolute h-0.5 w-5 bg-current transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)]",
-                        mobileOpen ? "rotate-45" : "-translate-y-1.5"
+                        mobileOpen ? "rotate-45" : "-translate-y-1.5",
                       )}
                     />
                     <span
                       className={cn(
                         "absolute h-0.5 w-5 bg-current transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)]",
-                        mobileOpen ? "opacity-0 scale-x-0" : "opacity-100"
+                        mobileOpen ? "opacity-0 scale-x-0" : "opacity-100",
                       )}
                     />
                     <span
                       className={cn(
                         "absolute h-0.5 w-5 bg-current transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)]",
-                        mobileOpen ? "-rotate-45" : "translate-y-1.5"
+                        mobileOpen ? "-rotate-45" : "translate-y-1.5",
                       )}
                     />
                   </div>
@@ -238,7 +244,9 @@ export function Header() {
                   </div>
                   <nav className="flex flex-col gap-10">
                     {NAV_LINKS.map((link, idx) => {
-                      const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                      const isActive =
+                        pathname === link.href ||
+                        (link.href !== "/" && pathname.startsWith(link.href));
                       return (
                         <Link
                           key={link.href}
@@ -246,15 +254,21 @@ export function Header() {
                           onClick={() => setMobileOpen(false)}
                           className={cn(
                             "group flex items-center justify-between font-display text-4xl font-bold tracking-tighter transition-all animate-in slide-in-from-right duration-700 fill-mode-both",
-                            isActive ? "text-primary" : "text-foreground hover:text-primary"
+                            isActive
+                              ? "text-primary"
+                              : "text-foreground hover:text-primary",
                           )}
                           style={{ animationDelay: `${200 + idx * 100}ms` }}
                         >
                           {link.label}
-                          <div className={cn(
-                            "h-2.5 w-2.5 rounded-full bg-primary transition-transform duration-300",
-                            isActive ? "scale-100" : "scale-0 group-hover:scale-100"
-                          )} />
+                          <div
+                            className={cn(
+                              "h-2.5 w-2.5 rounded-full bg-primary transition-transform duration-300",
+                              isActive
+                                ? "scale-100"
+                                : "scale-0 group-hover:scale-100",
+                            )}
+                          />
                         </Link>
                       );
                     })}

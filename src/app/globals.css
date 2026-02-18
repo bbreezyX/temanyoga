@@ -108,8 +108,18 @@
     }
   }
 
+  @keyframes marquee-ltr {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
   --animate-floatIn: floatIn 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-shine: shine 3s ease-in-out infinite;
+  --animate-marquee-ltr: marquee-ltr 20s linear infinite;
   --animate-gradient: gradient-move 15s ease infinite;
   --animate-slow-zoom: slow-zoom 20s ease-in-out infinite alternate;
   --animate-fade-in-up: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -142,7 +152,7 @@
   --radius: 0.75rem;
 
   /* Temanyoga Light Theme */
-  --background: #f5f1ed;
+  --background: #ffffff;
   --foreground: #3f3328;
 
   --card: #ffffff;
@@ -157,7 +167,7 @@
   --secondary: #e8dcc8; /* Warm Sand */
   --secondary-foreground: #3f3328;
 
-  --muted: #f5f1ed;
+  --muted: #f9f9f9;
   --muted-foreground: #6b5b4b;
 
   --accent: #e8dcc8;

@@ -10,13 +10,7 @@ import {
   type ReactNode,
   type FC,
 } from "react";
-import {
-  CircleCheck,
-  X,
-  AlertTriangle,
-  Info,
-  Loader2,
-} from "lucide-react";
+import { CircleCheck, X, AlertTriangle, Info, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type ToastType = "success" | "error" | "warning" | "info" | "loading";
@@ -43,7 +37,10 @@ interface ToastContextValue {
   warning: (title: string, description?: string) => string;
   info: (title: string, description?: string) => string;
   loading: (title: string, description?: string) => string;
-  custom: (content: ReactNode, options?: { duration?: number }) => string;
+  custom: (
+    content: ReactNode,
+    options?: { id?: string; duration?: number },
+  ) => string;
   dismiss: (id: string) => void;
   promise: <T>(
     promise: Promise<T>,
@@ -51,7 +48,7 @@ interface ToastContextValue {
       loading: string;
       success: string | ((data: T) => string);
       error: string | ((error: unknown) => string);
-    }
+    },
   ) => Promise<T>;
 }
 
@@ -105,12 +102,12 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
       return id;
     },
-    [removeToast]
+    [removeToast],
   );
 
   const updateToast = useCallback((id: string, update: Partial<Toast>) => {
     setToasts((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...update } : t))
+      prev.map((t) => (t.id === id ? { ...t, ...update } : t)),
     );
   }, []);
 
@@ -118,51 +115,63 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
     (id: string) => {
       removeToast(id);
     },
-    [removeToast]
+    [removeToast],
   );
 
   const success = useCallback(
     (title: string, description?: string) =>
       addToast({ type: "success", title, description }),
-    [addToast]
+    [addToast],
   );
 
   const error = useCallback(
     (title: string, description?: string) =>
       addToast({ type: "error", title, description }),
-    [addToast]
+    [addToast],
   );
 
   const warning = useCallback(
     (title: string, description?: string) =>
       addToast({ type: "warning", title, description }),
-    [addToast]
+    [addToast],
   );
 
   const info = useCallback(
     (title: string, description?: string) =>
       addToast({ type: "info", title, description }),
-    [addToast]
+    [addToast],
   );
 
   const loading = useCallback(
     (title: string, description?: string) =>
       addToast({ type: "loading", title, description, duration: Infinity }),
-    [addToast]
+    [addToast],
   );
 
   const custom = useCallback(
-    (content: ReactNode, options?: { duration?: number }) => {
-      const id = generateId();
-      setCustomToasts((prev) => new Map(prev).set(id, { content, ...options }));
+    (content: ReactNode, options?: { id?: string; duration?: number }) => {
+      const id = options?.id || generateId();
+
+      // If ID already exists, we skip creating a timer and just update the content
+      setCustomToasts((prev) => {
+        const next = new Map(prev);
+        // If it exists, it effectively "refreshes" the toast
+        next.set(id, { content, ...options });
+        return next;
+      });
+
       if (options?.duration !== Infinity) {
+        // Clear existing timer if any
+        const existingTimer = timersRef.current.get(id);
+        if (existingTimer) clearTimeout(existingTimer);
+
         const duration = options?.duration ?? 4000;
         const timer = setTimeout(() => removeToast(id), duration);
         timersRef.current.set(id, timer);
       }
       return id;
     },
-    [removeToast]
+    [removeToast],
   );
 
   const promise = useCallback(
@@ -172,7 +181,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
         loading: string;
         success: string | ((data: T) => string);
         error: string | ((error: unknown) => string);
-      }
+      },
     ): Promise<T> => {
       const id = loading(options.loading);
       try {
@@ -194,12 +203,13 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
         throw err;
       }
     },
-    [loading, updateToast, removeToast]
+    [loading, updateToast, removeToast],
   );
 
   useEffect(() => {
+    const timers = timersRef.current;
     return () => {
-      timersRef.current.forEach((timer) => clearTimeout(timer));
+      timers.forEach((timer) => clearTimeout(timer));
     };
   }, []);
 
@@ -242,7 +252,7 @@ const ToastContainer: FC<ToastContainerProps> = ({
   onDismiss,
 }) => {
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-auto z-[9999] flex flex-col items-center gap-3 pointer-events-none">
+    <div className="fixed top-24 right-4 sm:right-8 md:right-12 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}
@@ -280,10 +290,7 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
   if (content) {
     return (
       <div
-        className={cn(
-          "pointer-events-auto",
-          isLeaving && "animate-toast-out"
-        )}
+        className={cn("pointer-events-auto", isLeaving && "animate-toast-out")}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -294,28 +301,28 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
 
   const iconMap: Record<ToastType, FC<{ className?: string }>> = {
     success: (props) => (
-      <div className="flex items-center justify-center size-8 rounded-xl bg-sage/20 text-sage">
-        <CircleCheck className="size-4" {...props} />
+      <div className="flex items-center justify-center size-9 rounded-xl bg-sage/10 text-sage border border-sage/20">
+        <CircleCheck className="size-5" {...props} />
       </div>
     ),
     error: (props) => (
-      <div className="flex items-center justify-center size-8 rounded-xl bg-destructive/15 text-destructive">
-        <X className="size-4" {...props} />
+      <div className="flex items-center justify-center size-9 rounded-xl bg-destructive/5 text-destructive border border-destructive/20">
+        <X className="size-5" {...props} />
       </div>
     ),
     warning: (props) => (
-      <div className="flex items-center justify-center size-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
-        <AlertWarning className="size-4" {...props} />
+      <div className="flex items-center justify-center size-9 rounded-xl bg-primary/10 text-primary border border-primary/20">
+        <AlertWarning className="size-5" {...props} />
       </div>
     ),
     info: (props) => (
-      <div className="flex items-center justify-center size-8 rounded-xl bg-primary/15 text-primary">
-        <Info className="size-4" {...props} />
+      <div className="flex items-center justify-center size-9 rounded-xl bg-[#2d241c]/5 text-[#2d241c] border border-[#2d241c]/10">
+        <Info className="size-5" {...props} />
       </div>
     ),
     loading: (props) => (
-      <div className="flex items-center justify-center size-8 rounded-xl bg-primary/10 text-primary">
-        <Loader2 className="size-4 animate-spin" {...props} />
+      <div className="flex items-center justify-center size-9 rounded-xl bg-primary/5 text-primary border border-primary/10">
+        <Loader2 className="size-5 animate-spin" {...props} />
       </div>
     ),
   };
@@ -323,40 +330,45 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
   const Icon = iconMap[toast.type];
 
   const progressColorMap: Record<ToastType, string> = {
-    success: "from-sage via-sage to-emerald-600",
-    error: "from-destructive via-destructive to-red-700",
-    warning: "from-amber-500 via-amber-500 to-amber-600",
-    info: "from-primary via-primary to-sage",
-    loading: "from-primary via-primary to-primary",
+    success: "from-sage to-sage/40",
+    error: "from-destructive to-destructive/40",
+    warning: "from-primary to-primary/40",
+    info: "from-[#2d241c] to-[#2d241c]/40",
+    loading: "from-primary to-primary/40",
   };
 
   return (
     <div
       className={cn(
-        "pointer-events-auto relative flex w-full sm:w-auto sm:min-w-[320px] sm:max-w-md items-center gap-3 rounded-2xl border border-border/50 bg-popover px-4 py-3 shadow-lift overflow-hidden",
+        "pointer-events-auto relative flex w-full sm:w-auto sm:min-w-[340px] sm:max-w-md items-center gap-4 rounded-[24px] border border-border/80 bg-white px-5 py-4 shadow-lift-sm overflow-hidden",
         "animate-toast-in",
-        isLeaving && "animate-toast-out"
+        isLeaving && "animate-toast-out",
       )}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
       <div
         className={cn(
-          "absolute inset-0 pointer-events-none",
-          toast.type === "success" && "bg-gradient-to-br from-sage/5 via-transparent to-sage/2",
-          toast.type === "error" && "bg-gradient-to-br from-destructive/5 via-transparent to-destructive/2",
-          toast.type === "warning" && "bg-gradient-to-br from-amber-500/5 via-transparent to-amber-500/2",
-          toast.type === "info" && "bg-gradient-to-br from-primary/5 via-transparent to-sage/2"
+          "absolute inset-0 pointer-events-none opacity-40",
+          toast.type === "success" &&
+            "bg-gradient-to-br from-sage/5 via-transparent to-transparent",
+          toast.type === "error" &&
+            "bg-gradient-to-br from-destructive/5 via-transparent to-transparent",
+          toast.type === "warning" &&
+            "bg-gradient-to-br from-primary/5 via-transparent to-transparent",
+          toast.type === "info" &&
+            "bg-gradient-to-br from-[#2d241c]/5 via-transparent to-transparent",
         )}
       />
 
       {toast.type !== "loading" && (
         <div
           className={cn(
-            "absolute bottom-0 left-0 h-[3px] bg-gradient-to-r rounded-b-2xl",
-            progressColorMap[toast.type]
+            "absolute bottom-0 left-0 h-[3px] bg-gradient-to-r",
+            progressColorMap[toast.type],
           )}
           style={{
+            transformOrigin: "left",
             animation: !isPaused
               ? `toast-progress ${toast.duration ?? 4000}ms linear forwards`
               : "none",
@@ -368,12 +380,12 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
         <Icon className="" />
       </div>
 
-      <div className="relative flex-1 min-w-0 pr-8 flex flex-col justify-center">
-        <p className="font-display text-[15px] font-bold text-foreground leading-snug">
+      <div className="relative flex-1 min-w-0 pr-6 flex flex-col justify-center">
+        <p className="font-display text-[15px] font-black text-[#2d241c] leading-snug tracking-tight">
           {toast.title}
         </p>
         {toast.description && (
-          <p className="text-[13.5px] font-medium text-muted-foreground mt-0.5 leading-snug">
+          <p className="text-[13px] font-medium text-[#6b5b4b] mt-1 leading-snug">
             {toast.description}
           </p>
         )}
