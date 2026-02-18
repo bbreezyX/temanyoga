@@ -100,7 +100,7 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full pointer-events-none py-3 md:py-6">
+    <header className="sticky top-0 z-50 w-full pointer-events-none py-1 md:py-4">
       <div
         className={cn(
           "container mx-auto px-4 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] transform-gpu",

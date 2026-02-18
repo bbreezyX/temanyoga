@@ -60,7 +60,7 @@ export default async function HomePage() {
         HERO SECTION: Editorial & Open
         No cards. Text interacting with negative space.
       */}
-      <section className="relative min-h-[100dvh] md:min-h-[90vh] flex flex-col pt-32 md:pt-20 pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
+      <section className="relative min-h-[100dvh] md:min-h-[90vh] flex flex-col pt-2 md:pt-14 pb-12 px-6 md:px-12 max-w-[1600px] mx-auto">
         <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-center flex-1">
           <div className="lg:col-span-12 xl:col-span-7 flex flex-col justify-center z-10">
             <div className="inline-flex items-center gap-4 mb-8">
