@@ -1,26 +1,19 @@
-<svg
-  viewBox="0 0 200 200"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <pattern id="knitPattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
       <path d="M5 2C3.5 1 2 2 2 4C2 6 3.5 7 5 8" stroke="#c85a2d" stroke-width="0.5" stroke-opacity="0.2" fill="none" />
       <path d="M5 2C6.5 1 8 2 8 4C8 6 6.5 7 5 8" stroke="#c85a2d" stroke-width="0.5" stroke-opacity="0.2" fill="none" />
     </pattern>
-    
     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="2" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
     </filter>
   </defs>
 
-  {/* Background Soft Glow */}
+  <!-- Background Soft Glow -->
   <circle cx="100" cy="100" r="70" fill="url(#knitPattern)" opacity="0.05" style="color: #c85a2d" />
 
-  {/* Woven Strands - Form Lotus Shape */}
-  
-  {/* Strand 1: Terracotta (Bottom/Base - Legs) */}
+  <!-- Strand 1: Terracotta (Bottom/Base - Legs) -->
   <path
     d="M50 140C50 160 80 175 100 175C120 175 150 160 150 140C150 120 130 110 100 110C70 110 50 120 50 140Z"
     stroke="#c85a2d"
@@ -28,7 +21,7 @@
     stroke-linecap="round"
   />
   
-  {/* Strand 2: Sage Green (Middle/Arms) */}
+  <!-- Strand 2: Sage Green (Middle/Arms) -->
   <path
     d="M40 100C30 80 50 40 100 40C150 40 170 80 160 100"
     stroke="#8a9a5b"
@@ -44,10 +37,10 @@
      opacity="0.4"
   />
 
-  {/* Strand 3: Indigo (Head & Inner Flow) */}
+  <!-- Strand 3: Indigo (Head & Inner Flow) -->
   <circle cx="100" cy="70" r="18" stroke="#4a6fa5" stroke-width="10" />
   
-  {/* Strand 4: Mustard (Energy/Core Connection) */}
+  <!-- Strand 4: Mustard (Energy/Core Connection) -->
   <path
     d="M100 90V130"
     stroke="#d4a373"
@@ -55,7 +48,7 @@
     stroke-linecap="round"
   />
   
-  {/* Weaving Detailing */}
+  <!-- Weaving Detailing -->
   <path
     d="M85 110C95 105 105 105 115 110"
     stroke="#c85a2d"
