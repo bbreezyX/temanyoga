@@ -154,7 +154,7 @@ export default async function HomePage() {
               </span>
             </h1>
 
-<p className="mt-8 text-[16px] md:text-[20px] leading-relaxed text-slate-600 max-w-[40ch] font-medium">
+            <p className="mt-8 text-[16px] md:text-[20px] leading-relaxed text-slate-600 max-w-[40ch] font-medium">
               Perjalanan yoga lebih bermakna bersama dTeman. Koleksi boneka
               rajut eksklusif yang membawa energi positif di setiap asana Anda.
             </p>
@@ -190,7 +190,6 @@ export default async function HomePage() {
               sizes="512px"
             />
           </div>
-
         </div>
       </section>
 
@@ -221,7 +220,7 @@ export default async function HomePage() {
             </div>
             <div className="max-w-md">
               <p className="text-slate-500 font-medium leading-relaxed border-l-2 border-[#7a9d7f] pl-6 py-2">
-                Setiap produk dTeman adalah perwujudan dari ketelitian, waktu, 
+                Setiap produk dTeman adalah perwujudan dari ketelitian, waktu,
                 dan energi positif yang kami tuangkan dalam setiap simpul.
               </p>
             </div>
@@ -238,7 +237,7 @@ export default async function HomePage() {
                 Material Terpilih
               </h3>
               <p className="text-slate-600 leading-relaxed font-medium">
-                Kami mengurasi benang katun susu (milk cotton) premium yang 
+                Kami mengurasi benang katun susu (milk cotton) premium yang
                 lembut, ramah lingkungan, dan tahan lama untuk kenyamanan Anda.
               </p>
             </div>
@@ -253,8 +252,9 @@ export default async function HomePage() {
                 Simpul Dedikasi
               </h3>
               <p className="text-slate-600 leading-relaxed font-medium font-display">
-                Tanpa mesin. Setiap dTeman menghabiskan 8-12 jam pengerjaan manual 
-                oleh pengrajin lokal berbakat kami dengan standar detail tinggi.
+                Tanpa mesin. Setiap dTeman menghabiskan 8-12 jam pengerjaan
+                manual oleh pengrajin lokal berbakat kami dengan standar detail
+                tinggi.
               </p>
             </div>
           </div>
@@ -269,15 +269,16 @@ export default async function HomePage() {
                 Asana Charm
               </h3>
               <p className="text-slate-400 leading-relaxed max-w-md font-medium">
-                Lebih dari sekadar aksesori—ini adalah pendamping yang menciptakan 
-                koneksi emosional di setiap latihan, membantu Anda tetap hadir 
-                dan tenang di setiap asana.
+                Lebih dari sekadar aksesori—ini adalah pendamping yang
+                menciptakan koneksi emosional di setiap latihan, membantu Anda
+                tetap hadir dan tenang di setiap asana.
               </p>
             </div>
             <div className="flex-1 w-full z-10">
               <div className="bg-white/10 rounded-[32px] p-8 ring-1 ring-white/20">
                 <blockquote className="italic text-slate-300 font-medium">
-                  &quot;Simpul yang dibuat dengan cinta akan membawa ketenangan bagi yang membawanya.&quot;
+                  &quot;Simpul yang dibuat dengan cinta akan membawa ketenangan
+                  bagi yang membawanya.&quot;
                 </blockquote>
               </div>
             </div>
@@ -288,10 +289,13 @@ export default async function HomePage() {
       {/* 
         FEATURED PRODUCTS 
       */}
-      <section id="products" className="mb-20 md:mb-32 px-4 md:px-8 max-w-7xl mx-auto">
+      <section
+        id="products"
+        className="mb-20 md:mb-32 px-4 md:px-8 max-w-7xl mx-auto"
+      >
         <div className="py-16 md:py-24 bg-white rounded-[40px] md:rounded-[64px] shadow-soft relative z-20 overflow-hidden ring-1 ring-[#e8dcc8]/50">
           <div className="absolute top-[-10%] right-[-10%] w-[40%] aspect-square rounded-full bg-[#7a9d7f]/5 blur-[60px] pointer-events-none"></div>
-<div className="relative z-10 px-6 md:px-16 max-w-7xl mx-auto mb-16">
+          <div className="relative z-10 px-6 md:px-16 max-w-7xl mx-auto mb-16">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <h2 className="font-display text-[32px] md:text-[56px] font-black leading-[1.1] tracking-tight">
                 Kurasi <span className="text-[#c85a2d]">Terbaru</span>
@@ -311,7 +315,7 @@ export default async function HomePage() {
                 href={`/products/${product.slug}`}
                 className="group flex-shrink-0 w-[300px] md:w-full relative bg-white rounded-[48px] overflow-hidden ring-1 ring-slate-100/80 hover:ring-[#c85a2d]/20 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col h-full transform-gpu"
               >
-<div className="aspect-[4/5] overflow-hidden relative isolate">
+                <div className="aspect-[4/5] overflow-hidden relative isolate">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
 
                   {product.images[0] ? (
@@ -330,7 +334,7 @@ export default async function HomePage() {
                       <Sparkles className="w-10 h-10 text-slate-200" />
                     </div>
                   )}
-                  
+
                   {/* Floating Action Hint */}
                   <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                     <div className="bg-white/90 backdrop-blur-sm text-[#c85a2d] px-6 py-3 rounded-full font-bold text-sm shadow-xl flex items-center gap-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -343,20 +347,22 @@ export default async function HomePage() {
                   <h3 className="font-display font-black text-2xl text-slate-900 mb-4 leading-tight line-clamp-2 min-h-[2.4em] group-hover:text-[#c85a2d] transition-colors">
                     {product.name}
                   </h3>
-                  
+
                   <div className="flex-1"></div>
-                  
+
                   <div className="space-y-6">
                     <div className="h-px w-full bg-slate-100"></div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Harga</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">
+                          Harga
+                        </span>
                         <span className="text-2xl font-display font-black text-[#c85a2d] tracking-tight">
                           {formatCurrency(Number(product.price))}
                         </span>
                       </div>
-                      
+
                       <div className="h-10 w-10 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center group-hover:bg-[#c85a2d] group-hover:text-white transition-all duration-500 shadow-sm">
                         <ArrowRight className="w-5 h-5" />
                       </div>
@@ -373,12 +379,15 @@ export default async function HomePage() {
               <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#e8dcc8] to-[#e8dcc8]/20"></div>
               <div className="flex gap-1.5">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className={`h-1.5 w-1.5 rounded-full ${i === 0 ? 'bg-[#c85a2d]' : 'bg-[#e8dcc8]'}`}></div>
+                  <div
+                    key={i}
+                    className={`h-1.5 w-1.5 rounded-full ${i === 0 ? "bg-[#c85a2d]" : "bg-[#e8dcc8]"}`}
+                  ></div>
                 ))}
               </div>
               <div className="h-px flex-1 bg-gradient-to-l from-transparent via-[#e8dcc8] to-[#e8dcc8]/20"></div>
             </div>
-            
+
             {/* Soft background text behind the divider for extra texture */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 text-[60px] md:text-[80px] font-black text-slate-50/50 uppercase tracking-[0.2em] whitespace-nowrap pointer-events-none select-none italic font-display">
               HANDMADE QUALITY
@@ -387,7 +396,6 @@ export default async function HomePage() {
 
           <div className="pb-24 px-6 md:px-8 relative z-10">
             <div className="max-w-7xl mx-auto pt-16 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-
               {[
                 {
                   icon: Lock,
@@ -434,25 +442,56 @@ export default async function HomePage() {
         <div className="relative mb-20 text-center">
           <div className="inline-flex items-center gap-3 px-3 py-1 rounded-full bg-white ring-1 ring-slate-200 text-slate-500 mb-6">
             <Star className="w-3 h-3 text-[#c85a2d] fill-[#c85a2d]" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Sahabat dTeman</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              Sahabat dTeman
+            </span>
           </div>
           <h2 className="font-display text-[40px] md:text-[64px] font-black leading-[0.9] tracking-tighter">
             Cerita dari <br />
-            <span className="text-[#7a9d7f] italic serif font-medium">Komunitas</span>
+            <span className="text-[#7a9d7f] italic serif font-medium">
+              Komunitas
+            </span>
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          {(reviews.length > 0 ? reviews : [
-            { id: "f1", customerName: "Dita Kusuma", rating: 5, comment: "Bonekanya sangat detail dan benangnya lembut sekali. Jadi penyemangat di tas yoga saya!" },
-            { id: "f2", customerName: "Budi Oetomo", rating: 5, comment: "Pengiriman cepat dan packingnya sangat aman. Sangat mereferensikan untuk dijadikan kado." },
-            { id: "f3", customerName: "Sari Wandini", rating: 5, comment: "Suka banget sama filosofinya. Tiap lihat boneka ini jadi inget buat napas panjang dan tenang." }
-          ]).map((review) => (
-            <div key={review.id} className="bg-white p-10 rounded-[48px] shadow-soft ring-1 ring-slate-100 flex flex-col justify-between group hover:-translate-y-2 transition-all duration-500">
+          {(reviews.length > 0
+            ? reviews
+            : [
+                {
+                  id: "f1",
+                  customerName: "Dita Kusuma",
+                  rating: 5,
+                  comment:
+                    "Bonekanya sangat detail dan benangnya lembut sekali. Jadi penyemangat di tas yoga saya!",
+                },
+                {
+                  id: "f2",
+                  customerName: "Budi Oetomo",
+                  rating: 5,
+                  comment:
+                    "Pengiriman cepat dan packingnya sangat aman. Sangat mereferensikan untuk dijadikan kado.",
+                },
+                {
+                  id: "f3",
+                  customerName: "Sari Wandini",
+                  rating: 5,
+                  comment:
+                    "Suka banget sama filosofinya. Tiap lihat boneka ini jadi inget buat napas panjang dan tenang.",
+                },
+              ]
+          ).map((review) => (
+            <div
+              key={review.id}
+              className="bg-white p-10 rounded-[48px] shadow-soft ring-1 ring-slate-100 flex flex-col justify-between group hover:-translate-y-2 transition-all duration-500"
+            >
               <div>
                 <div className="flex gap-1 mb-6">
                   {[...Array(review.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-[#c85a2d] fill-[#c85a2d]" />
+                    <Star
+                      key={i}
+                      className="w-4 h-4 text-[#c85a2d] fill-[#c85a2d]"
+                    />
                   ))}
                 </div>
                 <div className="relative">
@@ -466,7 +505,9 @@ export default async function HomePage() {
                 <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-400 text-xs">
                   {review.customerName[0]}
                 </div>
-                <span className="font-bold text-slate-900">{review.customerName}</span>
+                <span className="font-bold text-slate-900">
+                  {review.customerName}
+                </span>
               </div>
             </div>
           ))}
@@ -495,10 +536,7 @@ export default async function HomePage() {
                 </div>
                 <div className="space-y-8 text-slate-300 text-lg leading-relaxed font-medium max-w-xl">
                   <p>
-                    Nama merek{" "}
-                    <span className="text-white font-bold">
-                      &quot;D`TEMAN YOGA&quot;
-                    </span>{" "}
+                    <span className="text-white font-bold">D`TEMAN YOGA</span>{" "}
                     berasal dari kata{" "}
                     <span className="italic">&quot;ditemani yoga&quot;</span>
                     —sebuah konsep bahwa yoga adalah sebuah perjalanan yang
@@ -533,7 +571,6 @@ export default async function HomePage() {
                   />
                 </div>
               </div>
-
             </div>
             <div className="mt-32 text-center max-w-4xl mx-auto">
               <p className="font-display text-2xl md:text-3xl font-medium leading-relaxed italic text-slate-100/90">
@@ -544,7 +581,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

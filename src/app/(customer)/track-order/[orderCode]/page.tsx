@@ -4,9 +4,13 @@ import { Suspense, use } from "react";
 import TrackOrderContent from "../track-order-content";
 import { Loader2 } from "lucide-react";
 
-export default function TrackOrderDetailPage({ params }: { params: Promise<{ orderCode: string }> }) {
+export default function TrackOrderDetailPage({
+  params,
+}: {
+  params: Promise<{ orderCode: string }>;
+}) {
   const { orderCode } = use(params);
-  
+
   return (
     <Suspense
       fallback={
@@ -17,7 +21,7 @@ export default function TrackOrderDetailPage({ params }: { params: Promise<{ ord
         </div>
       }
     >
-      <TrackOrderContent initialCode={orderCode} />
+      <TrackOrderContent key={orderCode} initialCode={orderCode} />
     </Suspense>
   );
 }

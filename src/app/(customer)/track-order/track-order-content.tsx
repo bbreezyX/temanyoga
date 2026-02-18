@@ -35,15 +35,23 @@ const STEP_ICONS = {
 } as const;
 
 const STEP_CONFIG = [
-  { status: "PENDING_PAYMENT", label: "Pesanan Dibuat", sub: "Menunggu pembayaran" },
-  { status: "AWAITING_VERIFICATION", label: "Verifikasi", sub: "Bukti sedang dicek" },
+  {
+    status: "PENDING_PAYMENT",
+    label: "Pesanan Dibuat",
+    sub: "Menunggu pembayaran",
+  },
+  {
+    status: "AWAITING_VERIFICATION",
+    label: "Verifikasi",
+    sub: "Bukti sedang dicek",
+  },
   { status: "PAID", label: "Dibayar", sub: "Pembayaran diverifikasi" },
   { status: "PROCESSING", label: "Diproses", sub: "Produk sedang disiapkan" },
   { status: "SHIPPED", label: "Dikirim", sub: "Pesanan dalam perjalanan" },
   { status: "COMPLETED", label: "Selesai", sub: "Pesanan telah diterima" },
 ] as const;
 
-const STEP_STATUS_VALUES: readonly string[] = STEP_CONFIG.map(s => s.status);
+const STEP_STATUS_VALUES: readonly string[] = STEP_CONFIG.map((s) => s.status);
 
 const StepItem = memo(function StepItem({
   step,
@@ -52,14 +60,14 @@ const StepItem = memo(function StepItem({
   isActive,
   isLast,
 }: {
-  step: typeof STEP_CONFIG[number];
+  step: (typeof STEP_CONFIG)[number];
   isCompleted: boolean;
   isPast: boolean;
   isActive: boolean;
   isLast: boolean;
 }) {
   const Icon = STEP_ICONS[step.status as keyof typeof STEP_ICONS];
-  
+
   return (
     <div className="flex md:flex-col items-center md:items-center gap-5 md:gap-4 group relative">
       {!isLast && (
@@ -67,7 +75,7 @@ const StepItem = memo(function StepItem({
           <div
             className={cn(
               "w-full bg-[#c85a2d] origin-top transition-transform duration-300 will-change-transform",
-              isPast ? "scale-y-100" : "scale-y-0"
+              isPast ? "scale-y-100" : "scale-y-0",
             )}
           />
         </div>
@@ -78,7 +86,7 @@ const StepItem = memo(function StepItem({
           isCompleted
             ? "bg-[#c85a2d] text-white rotate-6 shadow-md shadow-[#c85a2d]/15"
             : "bg-slate-50 text-slate-300 ring-1 ring-slate-100",
-          isActive && "ring-4 ring-[#c85a2d]/20 scale-110 md:scale-125"
+          isActive && "ring-4 ring-[#c85a2d]/20 scale-110 md:scale-125",
         )}
       >
         <Icon className="w-6 h-6 md:w-7 md:h-7" />
@@ -87,7 +95,7 @@ const StepItem = memo(function StepItem({
         <span
           className={cn(
             "text-sm md:text-[15px] font-black leading-tight",
-            isCompleted ? "text-slate-900" : "text-slate-300"
+            isCompleted ? "text-slate-900" : "text-slate-300",
           )}
         >
           {step.label}
@@ -95,7 +103,7 @@ const StepItem = memo(function StepItem({
         <span
           className={cn(
             "text-[10px] md:text-[11px] font-bold uppercase tracking-wider mt-1",
-            isActive ? "text-[#c85a2d]" : "text-slate-400 opacity-60"
+            isActive ? "text-[#c85a2d]" : "text-slate-400 opacity-60",
           )}
         >
           {step.sub}
@@ -105,7 +113,11 @@ const StepItem = memo(function StepItem({
   );
 });
 
-const OrderStatusBadge = memo(function OrderStatusBadge({ status }: { status: OrderStatus }) {
+const OrderStatusBadge = memo(function OrderStatusBadge({
+  status,
+}: {
+  status: OrderStatus;
+}) {
   return (
     <div
       className={cn(
@@ -122,10 +134,14 @@ const OrderStatusBadge = memo(function OrderStatusBadge({ status }: { status: Or
   );
 });
 
-const JourneyTrack = memo(function JourneyTrack({ activeStep }: { activeStep: number }) {
-  const progressWidth = useMemo(() => 
-    `${(Math.max(0, activeStep) / (STEP_CONFIG.length - 1)) * 100}%`,
-    [activeStep]
+const JourneyTrack = memo(function JourneyTrack({
+  activeStep,
+}: {
+  activeStep: number;
+}) {
+  const progressWidth = useMemo(
+    () => `${(Math.max(0, activeStep) / (STEP_CONFIG.length - 1)) * 100}%`,
+    [activeStep],
   );
 
   return (
@@ -152,7 +168,11 @@ const JourneyTrack = memo(function JourneyTrack({ activeStep }: { activeStep: nu
   );
 });
 
-const OrderCodeCard = memo(function OrderCodeCard({ orderCode }: { orderCode: string }) {
+const OrderCodeCard = memo(function OrderCodeCard({
+  orderCode,
+}: {
+  orderCode: string;
+}) {
   return (
     <div className="rounded-[32px] md:rounded-[40px] bg-white p-6 md:p-8 shadow-sm ring-1 ring-slate-100 flex flex-col justify-between group hover:shadow-md transition-shadow duration-200">
       <div className="flex items-center justify-between mb-6 md:mb-8">
@@ -160,7 +180,7 @@ const OrderCodeCard = memo(function OrderCodeCard({ orderCode }: { orderCode: st
           <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
         </div>
         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-          Order Identity
+          Informasi Pesanan
         </span>
       </div>
       <div>
@@ -175,25 +195,26 @@ const OrderCodeCard = memo(function OrderCodeCard({ orderCode }: { orderCode: st
   );
 });
 
-const SummaryStats = memo(function SummaryStats({ 
-  createdAt, 
-  totalAmount 
-}: { 
-  createdAt: string; 
+const SummaryStats = memo(function SummaryStats({
+  createdAt,
+  totalAmount,
+}: {
+  createdAt: string;
   totalAmount: number;
 }) {
-  const formattedDate = useMemo(() => 
-    new Date(createdAt).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }),
-    [createdAt]
+  const formattedDate = useMemo(
+    () =>
+      new Date(createdAt).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
+    [createdAt],
   );
 
-  const formattedTotal = useMemo(() => 
-    formatCurrency(totalAmount),
-    [totalAmount]
+  const formattedTotal = useMemo(
+    () => formatCurrency(totalAmount),
+    [totalAmount],
   );
 
   return (
@@ -232,7 +253,8 @@ const DeliveryInfo = memo(function DeliveryInfo() {
             Informasi Pengiriman
           </h4>
           <p className="text-[11px] md:text-xs text-slate-500 leading-relaxed font-medium">
-            Kami berusaha mengirimkan pesanan Anda secepat mungkin. Proses verifikasi biasanya memakan waktu maksimal 1x24 jam.
+            Kami berusaha mengirimkan pesanan Anda secepat mungkin. Proses
+            verifikasi biasanya memakan waktu maksimal 1x24 jam.
           </p>
           <Link
             href="/products"
@@ -246,12 +268,10 @@ const DeliveryInfo = memo(function DeliveryInfo() {
   );
 });
 
-const PaymentAction = memo(function PaymentAction({ 
-  orderCode, 
-  totalAmount 
-}: { 
-  orderCode: string; 
-  totalAmount: number;
+const PaymentAction = memo(function PaymentAction({
+  orderCode,
+}: {
+  orderCode: string;
 }) {
   return (
     <div className="rounded-[28px] md:rounded-[40px] bg-[#fdf8f6] p-6 md:p-10 ring-1 ring-[#c85a2d]/10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
@@ -272,19 +292,21 @@ const PaymentAction = memo(function PaymentAction({
         href={`/checkout/success/${orderCode}`}
         className="group relative inline-flex items-center justify-center gap-3 min-h-[48px] md:min-h-[56px] px-6 md:px-8 rounded-full bg-[#c85a2d] text-white font-black overflow-hidden shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
       >
-        <span className="relative z-10 text-sm md:text-base">Upload Bukti Transaksi</span>
+        <span className="relative z-10 text-sm md:text-base">
+          Upload Bukti Transaksi
+        </span>
         <ArrowRight className="relative z-10 w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
       </Link>
     </div>
   );
 });
 
-const TrackingInfo = memo(function TrackingInfo({ 
-  status, 
-  courier, 
+const TrackingInfo = memo(function TrackingInfo({
+  status,
+  courier,
   trackingNumber,
   onCopy,
-}: { 
+}: {
   status: "SHIPPED" | "COMPLETED";
   courier: string | null;
   trackingNumber: string;
@@ -306,15 +328,16 @@ const TrackingInfo = memo(function TrackingInfo({
               {status === "COMPLETED" ? "Pesanan Tiba!" : "Paket Dikirim"}
             </h3>
             <p className="text-slate-400 font-medium text-xs md:text-sm max-w-xs">
-              {courier || "Ekspedisi"} - Pesanan Anda sedang diproses oleh pihak kurir.
+              {courier || "Ekspedisi"} - Pesanan Anda sedang diproses oleh pihak
+              kurir.
             </p>
           </div>
         </div>
-        <div className="bg-white/10 rounded-2xl md:rounded-[32px] p-4 md:p-6 ring-1 ring-white/10 w-full md:w-auto">
+        <div className="bg-white/10 rounded-2xl md:rounded-[32px] p-4 md:p-6 ring-1 ring-white/10 w-full md:w-auto text-center md:text-left">
           <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-slate-500 mb-1 md:mb-2">
             Nomor Resi
           </p>
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center justify-center md:justify-start gap-3 md:gap-4">
             <code className="text-lg md:text-2xl font-mono font-black tracking-tighter">
               {trackingNumber}
             </code>
@@ -332,43 +355,57 @@ const TrackingInfo = memo(function TrackingInfo({
   );
 });
 
-export default function TrackOrderContent({ initialCode = "" }: { initialCode?: string }) {
+export default function TrackOrderContent({
+  initialCode = "",
+}: {
+  initialCode?: string;
+}) {
   const router = useRouter();
   const toast = useToast();
   const [code, setCode] = useState(initialCode);
   const [order, setOrder] = useState<OrderStatusResponse | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!!initialCode);
   const [error, setError] = useState("");
 
-  const fetchOrder = useCallback(async (orderCode: string) => {
-    if (!orderCode.trim()) return;
-    setLoading(true);
-    setError("");
-    setOrder(null);
-    const res = await apiFetch<OrderStatusResponse>(
-      `/api/orders/${orderCode.trim()}/status`,
-    );
-    setLoading(false);
-    if (!res.success) {
-      setError(
-        res.error || "Pesanan tidak ditemukan. Periksa kembali kode Anda.",
-      );
-      return;
-    }
-    setOrder(res.data);
-  }, []);
-
   useEffect(() => {
-    if (initialCode) {
-      fetchOrder(initialCode);
-    }
-  }, [initialCode, fetchOrder]);
+    if (!initialCode?.trim()) return;
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim()) return;
-    router.push(`/track-order/${code.trim()}`);
-  }, [code, router]);
+    let mounted = true;
+
+    const performFetch = async () => {
+      // access explicit api route
+      const res = await apiFetch<OrderStatusResponse>(
+        `/api/orders/${initialCode.trim()}/status`,
+      );
+
+      if (!mounted) return;
+
+      setLoading(false);
+
+      if (!res.success) {
+        setError(
+          res.error || "Pesanan tidak ditemukan. Periksa kembali kode Anda.",
+        );
+        return;
+      }
+      setOrder(res.data);
+    };
+
+    performFetch();
+
+    return () => {
+      mounted = false;
+    };
+  }, [initialCode]);
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!code.trim()) return;
+      router.push(`/track-order/${code.trim()}`);
+    },
+    [code, router],
+  );
 
   const activeStep = useMemo(() => {
     if (!order) return -1;
@@ -380,10 +417,13 @@ export default function TrackOrderContent({ initialCode = "" }: { initialCode?: 
     return index;
   }, [order]);
 
-  const copyTracking = useCallback((text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success("Nomor resi berhasil disalin!");
-  }, [toast]);
+  const copyTracking = useCallback(
+    (text: string) => {
+      navigator.clipboard.writeText(text);
+      toast.success("Nomor resi berhasil disalin!");
+    },
+    [toast],
+  );
 
   const updatedAtFormatted = useMemo(() => {
     if (!order) return "";
@@ -413,7 +453,8 @@ export default function TrackOrderContent({ initialCode = "" }: { initialCode?: 
             </h1>
 
             <p className="text-[14px] md:text-[18px] text-slate-500 mb-8 md:mb-12 max-w-sm md:max-w-xl mx-auto font-medium leading-relaxed">
-              Masukkan kode pesanan Anda untuk melihat status pengiriman secara real-time.
+              Masukkan kode pesanan Anda untuk melihat status pengiriman secara
+              real-time.
             </p>
 
             <div className="relative max-w-md md:max-w-xl mx-auto">
@@ -477,7 +518,7 @@ export default function TrackOrderContent({ initialCode = "" }: { initialCode?: 
               </div>
 
               {order.status === "PENDING_PAYMENT" && (
-                <PaymentAction orderCode={order.orderCode} totalAmount={order.totalAmount} />
+                <PaymentAction orderCode={order.orderCode} />
               )}
 
               {(order.status === "SHIPPED" || order.status === "COMPLETED") &&
@@ -493,7 +534,10 @@ export default function TrackOrderContent({ initialCode = "" }: { initialCode?: 
 
             <div className="lg:col-span-4 grid grid-cols-1 gap-4 md:gap-6">
               <OrderCodeCard orderCode={order.orderCode} />
-              <SummaryStats createdAt={order.createdAt} totalAmount={order.totalAmount} />
+              <SummaryStats
+                createdAt={order.createdAt}
+                totalAmount={order.totalAmount}
+              />
               <DeliveryInfo />
             </div>
           </div>
@@ -504,7 +548,8 @@ export default function TrackOrderContent({ initialCode = "" }: { initialCode?: 
         <section className="pb-20 md:pb-32 px-4 md:px-8 max-w-5xl mx-auto flex flex-col items-center text-center">
           <div className="w-12 md:w-16 h-[2px] bg-[#e8dcc8] mb-8 md:mb-12" />
           <p className="text-slate-400 font-medium max-w-xs md:max-w-sm leading-relaxed mb-6 md:mb-8 text-sm md:text-base">
-            Belum memiliki pesanan? Temukan koleksi boneka rajut terbaru kami hari ini.
+            Belum memiliki pesanan? Temukan koleksi boneka rajut terbaru kami
+            hari ini.
           </p>
           <Link
             href="/products"
