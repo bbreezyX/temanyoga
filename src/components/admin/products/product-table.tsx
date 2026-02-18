@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Pencil, ImagePlus, EyeOff, Eye, ImageIcon, Trash2 } from "lucide-react";
+import {
+  Pencil,
+  ImagePlus,
+  EyeOff,
+  Eye,
+  ImageIcon,
+  Trash2,
+} from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import {
   Dialog,
@@ -90,7 +97,7 @@ export function ProductTable({
       return;
     }
     toast.success(
-      product.isActive ? "Produk dinonaktifkan" : "Produk diaktifkan"
+      product.isActive ? "Produk dinonaktifkan" : "Produk diaktifkan",
     );
     onRefresh();
   }
@@ -171,8 +178,8 @@ export function ProductTable({
                           <p className="font-display font-bold text-dark-brown truncate max-w-[200px]">
                             {product.name}
                           </p>
-                          <p className="text-[11px] font-bold text-warm-gray uppercase tracking-wider mt-0.5 truncate max-w-[180px]">
-                            {product.slug}
+                          <p className="text-xs text-warm-gray mt-1 truncate max-w-[220px]">
+                            {product.description}
                           </p>
                         </div>
                       </div>
@@ -221,9 +228,7 @@ export function ProductTable({
                         </button>
                         <button
                           onClick={() => toggleActive(product)}
-                          title={
-                            product.isActive ? "Nonaktifkan" : "Aktifkan"
-                          }
+                          title={product.isActive ? "Nonaktifkan" : "Aktifkan"}
                           className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-warm-gray hover:bg-dark-brown hover:text-white transition-all"
                         >
                           {product.isActive ? (
@@ -275,52 +280,52 @@ export function ProductTable({
 
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-2">
-                         <h3 className="font-display font-bold text-dark-brown truncate">
+                        <h3 className="font-display font-bold text-dark-brown truncate">
                           {product.name}
                         </h3>
                         <StatusBadge isActive={product.isActive} />
                       </div>
-                      <p className="text-[10px] font-bold text-warm-gray uppercase tracking-wider mt-1 truncate">
-                        {product.slug}
+                      <p className="text-[11px] text-warm-gray mt-1 truncate">
+                        {product.description}
                       </p>
-                      
+
                       <div className="mt-2 flex items-center gap-2 flex-wrap">
                         <StockBadge stock={product.stock} />
                         <span className="text-xs text-warm-gray font-medium px-2 py-0.5 rounded-full bg-cream">
-                           {product._count.orderItems} Terjual
+                          {product._count.orderItems} Terjual
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-4 pt-4 border-t border-warm-sand/20 flex items-center justify-between">
-                     <span className="font-display font-extrabold text-lg text-dark-brown">
-                        {formatCurrency(product.price)}
-                      </span>
+                    <span className="font-display font-extrabold text-lg text-dark-brown">
+                      {formatCurrency(product.price)}
+                    </span>
 
                     <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => onEdit(product)}
-                          className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setImageDialogProduct(product)}
-                          className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
-                        >
-                          <ImagePlus className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => toggleActive(product)}
-                          className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-warm-gray hover:bg-dark-brown hover:text-white transition-all ring-1 ring-warm-sand/30"
-                        >
-                          {product.isActive ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
+                      <button
+                        onClick={() => onEdit(product)}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setImageDialogProduct(product)}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                      >
+                        <ImagePlus className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => toggleActive(product)}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-warm-gray hover:bg-dark-brown hover:text-white transition-all ring-1 ring-warm-sand/30"
+                      >
+                        {product.isActive ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>

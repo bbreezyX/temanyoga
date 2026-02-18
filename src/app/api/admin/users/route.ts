@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { apiSuccess, unauthorized, badRequest, serverError, notFound } from "@/lib/api-response";
+import {
+  apiSuccess,
+  unauthorized,
+  badRequest,
+  serverError,
+  notFound,
+} from "@/lib/api-response";
 import { auth } from "@/lib/auth";
 import { updateUserSchema, createUserSchema } from "@/lib/validations/user";
 import bcrypt from "bcryptjs";
@@ -97,8 +103,17 @@ export async function PATCH(request: NextRequest) {
       return badRequest(parsed.error.issues[0].message);
     }
 
-    const { email, name, password } = parsed.data;
+    const { email, name, password, role } = parsed.data;
     const targetUserId = body.id || session.user.id;
+
+    // Prevent non-admins from updating other users or changing roles
+    // and prevent changing own role to avoid self-lockout
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+    if (currentUser?.role !== "ADMIN") {
+      return unauthorized();
+    }
 
     const existingUser = await prisma.user.findFirst({
       where: {
@@ -111,10 +126,19 @@ export async function PATCH(request: NextRequest) {
       return badRequest("Email sudah digunakan oleh pengguna lain");
     }
 
-    const updateData: { email: string; name: string; password?: string } = { email, name };
+    const updateData: {
+      email: string;
+      name: string;
+      password?: string;
+      role?: "ADMIN" | "CUSTOMER";
+    } = { email, name };
 
     if (password && password.length >= 6) {
       updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    if (role && targetUserId !== session.user.id) {
+      updateData.role = role as "ADMIN" | "CUSTOMER";
     }
 
     const user = await prisma.user.update({

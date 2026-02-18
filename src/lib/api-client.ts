@@ -18,7 +18,7 @@ async function request<T>(
 }
 
 export async function apiFetch<T>(url: string): Promise<ApiResponse<T>> {
-  return request<T>(url);
+  return request<T>(url, { cache: "no-store" });
 }
 
 export async function apiPost<T>(

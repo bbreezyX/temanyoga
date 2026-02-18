@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,7 +33,7 @@ interface ProductFormProps {
   product?: ProductListItem | null;
   open: boolean;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: () => Promise<void> | void;
 }
 
 export function ProductForm({
@@ -62,6 +63,18 @@ export function ProductForm({
     },
   });
 
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: product?.name ?? "",
+        description: product?.description ?? "",
+        price: product?.price ? String(product.price) : "",
+        stock: product?.stock != null ? String(product.stock) : "",
+        isActive: product?.isActive ?? true,
+      });
+    }
+  }, [open, product, reset]);
+
   const isActive = watch("isActive");
 
   const onSubmit = async (data: ProductFormData) => {
@@ -83,7 +96,7 @@ export function ProductForm({
     }
 
     toast.success(isEdit ? "Produk berhasil diperbarui" : "Produk berhasil dibuat");
-    onSaved();
+    await onSaved();
     onClose();
     reset();
   };

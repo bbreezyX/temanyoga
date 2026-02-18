@@ -142,12 +142,14 @@ export default function AdminOrderDetailPage() {
   if (!order) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-muted-foreground">Order not found</p>
+        <p className="text-muted-foreground font-medium">
+          Pesanan tidak ditemukan
+        </p>
         <button
           onClick={() => router.push("/admin/orders")}
-          className="mt-4 text-terracotta hover:underline"
+          className="mt-4 text-terracotta border border-terracotta/20 rounded-full px-6 py-2 hover:bg-terracotta/5 transition-all text-sm font-bold"
         >
-          Back to Orders
+          Kembali ke Pesanan
         </button>
       </div>
     );
@@ -220,10 +222,10 @@ export default function AdminOrderDetailPage() {
                 </Link>
                 <div className="min-w-0 flex-1">
                   <h1 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown tracking-tight leading-none truncate">
-                    Order #{order.orderCode}
+                    Pesanan #{order.orderCode}
                   </h1>
                   <p className="text-[10px] sm:text-[11px] font-bold text-warm-gray uppercase tracking-widest mt-1 truncate">
-                    Placed on {formatDateTime(order.createdAt)}
+                    Dipesan pada {formatDateTime(order.createdAt)}
                   </p>
                 </div>
               </div>
@@ -346,10 +348,10 @@ export default function AdminOrderDetailPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown flex items-center gap-2">
                     <Package2 className="text-sage h-5 w-5 sm:h-6 sm:w-6" />
-                    Items Summary
+                    Ringkasan Item
                   </h2>
                   <span className="text-sm font-bold text-warm-gray">
-                    {order.items.length} Items
+                    {order.items.length} Item
                   </span>
                 </div>
 
@@ -423,15 +425,16 @@ export default function AdminOrderDetailPage() {
                   <table className="w-full min-w-[600px]">
                     <thead className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray/60 border-b border-warm-sand/30">
                       <tr className="text-left">
-                        <th className="pb-4">Product</th>
-                        <th className="pb-4 text-center">Qty</th>
-                        <th className="pb-4 text-right">Price</th>
+                        <th className="pb-4">Produk</th>
+                        <th className="pb-4 text-center">Jumlah</th>
+                        <th className="pb-4 text-right">Harga</th>
                         <th className="pb-4 text-right">Total</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-warm-sand/20">
                       {order.items.map((item) => {
-                        let accSnapshots: { name: string; price: number }[] = [];
+                        let accSnapshots: { name: string; price: number }[] =
+                          [];
                         if (item.accessoriesSnapshot) {
                           try {
                             accSnapshots = JSON.parse(item.accessoriesSnapshot);
@@ -489,13 +492,18 @@ export default function AdminOrderDetailPage() {
                     <div className="flex justify-between text-sm text-warm-gray">
                       <span className="font-medium">Subtotal Produk</span>
                       <span className="font-bold">
-                        {formatCurrency(order.totalAmount + (order.discountAmount ?? 0) - (order.shippingCost ?? 0))}
+                        {formatCurrency(
+                          order.totalAmount +
+                            (order.discountAmount ?? 0) -
+                            (order.shippingCost ?? 0),
+                        )}
                       </span>
                     </div>
                     {(order.discountAmount ?? 0) > 0 && (
                       <div className="flex justify-between text-sm text-sage">
                         <span className="font-medium">
-                          Diskon{order.couponCode ? ` (${order.couponCode})` : ""}
+                          Diskon
+                          {order.couponCode ? ` (${order.couponCode})` : ""}
                         </span>
                         <span className="font-bold">
                           -{formatCurrency(order.discountAmount)}
@@ -505,17 +513,24 @@ export default function AdminOrderDetailPage() {
                     <div className="flex justify-between text-sm text-warm-gray">
                       <span className="font-medium">
                         Ongkir
-                        {order.shippingZoneSnapshot && (() => {
-                          try {
-                            const snap = JSON.parse(order.shippingZoneSnapshot);
-                            return ` (${snap.name})`;
-                          } catch { return ""; }
-                        })()}
+                        {order.shippingZoneSnapshot &&
+                          (() => {
+                            try {
+                              const snap = JSON.parse(
+                                order.shippingZoneSnapshot,
+                              );
+                              return ` (${snap.name})`;
+                            } catch {
+                              return "";
+                            }
+                          })()}
                       </span>
                       <span className="font-bold">
-                        {(order.shippingCost ?? 0) === 0
-                          ? <span className="text-sage">Gratis</span>
-                          : formatCurrency(order.shippingCost)}
+                        {(order.shippingCost ?? 0) === 0 ? (
+                          <span className="text-sage">Gratis</span>
+                        ) : (
+                          formatCurrency(order.shippingCost)
+                        )}
                       </span>
                     </div>
                     <div className="flex justify-between text-lg pt-2">
@@ -538,20 +553,20 @@ export default function AdminOrderDetailPage() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown flex items-center gap-2">
                     <Truck className="text-sage h-5 w-5 sm:h-6 sm:w-6" />
-                    Delivery Information
+                    Informasi Pengiriman
                   </h2>
                   <button
                     onClick={() => setIsEditingTracking(!isEditingTracking)}
                     className="text-xs font-bold text-terracotta hover:underline"
                   >
-                    {isEditingTracking ? "Cancel Edit" : "Edit Details"}
+                    {isEditingTracking ? "Batal Ubah" : "Ubah Detail"}
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <p className="text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                      Shipping Address
+                      Alamat Pengiriman
                     </p>
                     <div className="bg-cream/40 p-5 rounded-3xl ring-1 ring-warm-sand/30">
                       <p className="font-bold text-dark-brown">
@@ -565,30 +580,30 @@ export default function AdminOrderDetailPage() {
 
                   <div className="space-y-4">
                     <p className="text-[11px] font-black uppercase tracking-widest text-warm-gray">
-                      Logistic Details
+                      Detail Logistik
                     </p>
                     {isEditingTracking ? (
                       <div className="space-y-3 bg-cream/20 p-4 rounded-3xl ring-1 ring-warm-sand/30">
                         <div>
                           <label className="text-xs font-bold text-dark-brown block mb-1">
-                            Courier
+                            Kurir
                           </label>
                           <input
                             value={courier}
                             onChange={(e) => setCourier(e.target.value)}
                             className="w-full rounded-xl border-warm-sand/50 bg-white px-3 py-2 text-sm"
-                            placeholder="e.g. JNE"
+                            placeholder="Contoh: JNE"
                           />
                         </div>
                         <div>
                           <label className="text-xs font-bold text-dark-brown block mb-1">
-                            Tracking Code
+                            Nomor Resi
                           </label>
                           <input
                             value={trackingNumber}
                             onChange={(e) => setTrackingNumber(e.target.value)}
                             className="w-full rounded-xl border-warm-sand/50 bg-white px-3 py-2 text-sm"
-                            placeholder="e.g. JBX123456789"
+                            placeholder="Contoh: JBX123456789"
                           />
                         </div>
                         <button
@@ -596,7 +611,7 @@ export default function AdminOrderDetailPage() {
                           disabled={actionLoading}
                           className="w-full rounded-full bg-dark-brown text-white py-2 text-xs font-bold"
                         >
-                          Save Details
+                          Simpan Detail
                         </button>
                       </div>
                     ) : (
@@ -607,10 +622,10 @@ export default function AdminOrderDetailPage() {
                           </div>
                           <div>
                             <p className="text-xs font-bold text-dark-brown">
-                              {order.courier || "Not set"}
+                              {order.courier || "Belum diatur"}
                             </p>
                             <p className="text-[10px] text-warm-gray">
-                              Courier Service
+                              Layanan Kurir
                             </p>
                           </div>
                         </div>
@@ -620,10 +635,10 @@ export default function AdminOrderDetailPage() {
                           </div>
                           <div className="min-w-0">
                             <p className="text-xs font-bold text-dark-brown truncate">
-                              {order.trackingNumber || "Not available yet"}
+                              {order.trackingNumber || "Belum tersedia"}
                             </p>
                             <p className="text-[10px] text-warm-gray italic">
-                              Tracking Code
+                              Nomor Resi
                             </p>
                           </div>
                         </div>
@@ -640,7 +655,7 @@ export default function AdminOrderDetailPage() {
               <section className="rounded-[32px] sm:rounded-[40px] bg-white p-6 sm:p-8 shadow-soft ring-1 ring-warm-sand/30">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown">
-                    Payment Proof
+                    Bukti Pembayaran
                   </h2>
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] sm:text-[11px] font-bold ring-1 ring-inset ${
@@ -651,7 +666,13 @@ export default function AdminOrderDetailPage() {
                           : "bg-amber-50 text-amber-600 ring-amber-600/20"
                     }`}
                   >
-                    {pendingProof?.status || "No Proof"}
+                    {pendingProof?.status === "APPROVED"
+                      ? "DISETUJUI"
+                      : pendingProof?.status === "REJECTED"
+                        ? "DITOLAK"
+                        : pendingProof?.status === "PENDING"
+                          ? "MENUNGGU"
+                          : "Tanpa Bukti"}
                   </span>
                 </div>
 
@@ -677,7 +698,7 @@ export default function AdminOrderDetailPage() {
                   <div className="rounded-[24px] sm:rounded-[30px] aspect-[3/4] bg-cream/50 flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-warm-sand/30">
                     <Receipt className="text-4xl sm:text-5xl text-warm-sand mb-4" />
                     <p className="text-xs font-bold text-warm-gray leading-relaxed">
-                      No payment proof uploaded yet.
+                      Belum ada bukti pembayaran yang diunggah.
                     </p>
                   </div>
                 )}
@@ -695,7 +716,7 @@ export default function AdminOrderDetailPage() {
                       className="w-full bg-terracotta text-white rounded-full py-3.5 sm:py-4 font-bold shadow-lg hover:shadow-terracotta/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
                     >
                       <CheckCircle className="h-5 w-5" />
-                      Mark as Verified Paid
+                      Tandai sebagai Terverifikasi Lunas
                     </button>
                   )}
                   {pendingProof && pendingProof.status === "PENDING" && (
@@ -710,7 +731,7 @@ export default function AdminOrderDetailPage() {
                       className="w-full bg-red-50 text-red-600 border border-red-100 rounded-full py-3.5 sm:py-4 font-bold shadow-sm hover:bg-red-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
                     >
                       <XCircle className="h-5 w-5" />
-                      Reject Proof
+                      Tolak Bukti
                     </button>
                   )}
                 </div>
@@ -719,7 +740,7 @@ export default function AdminOrderDetailPage() {
               {/* Customer */}
               <section className="rounded-[32px] sm:rounded-[40px] bg-white p-6 sm:p-8 shadow-soft ring-1 ring-warm-sand/30">
                 <h2 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown mb-6">
-                  Customer
+                  Pelanggan
                 </h2>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="h-14 w-14 rounded-full bg-terracotta/10 flex items-center justify-center ring-2 ring-terracotta/20 shrink-0">
@@ -730,7 +751,7 @@ export default function AdminOrderDetailPage() {
                       {order.customerName}
                     </p>
                     <p className="text-xs font-bold text-sage uppercase tracking-wider">
-                      Customer
+                      Pelanggan
                     </p>
                   </div>
                 </div>
@@ -756,7 +777,7 @@ export default function AdminOrderDetailPage() {
                     className="w-full bg-cream text-dark-brown rounded-full py-3.5 font-bold text-sm flex items-center justify-center gap-2 hover:bg-warm-sand transition-colors"
                   >
                     <MessageCircle className="text-lg" />
-                    Chat Customer
+                    Chat Pelanggan
                   </Link>
                 </div>
               </section>
