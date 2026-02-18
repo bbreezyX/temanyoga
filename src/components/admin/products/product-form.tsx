@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/components/ui/toast";
@@ -17,12 +17,18 @@ import { apiPost, apiPatch } from "@/lib/api-client";
 import type { ProductListItem } from "@/types/api";
 
 const productFormSchema = z.object({
-  name: z.string().min(1, "Nama produk wajib diisi").max(200, "Nama maksimal 200 karakter"),
+  name: z
+    .string()
+    .min(1, "Nama produk wajib diisi")
+    .max(200, "Nama maksimal 200 karakter"),
   description: z.string().min(1, "Deskripsi wajib diisi"),
-  price: z.string().min(1, "Harga wajib diisi").refine(
-    (val) => !isNaN(parseInt(val)) && parseInt(val) > 0,
-    "Harga harus berupa angka positif"
-  ),
+  price: z
+    .string()
+    .min(1, "Harga wajib diisi")
+    .refine(
+      (val) => !isNaN(parseInt(val)) && parseInt(val) > 0,
+      "Harga harus berupa angka positif",
+    ),
   stock: z.string().optional(),
   isActive: z.boolean().optional(),
 });
@@ -50,7 +56,7 @@ export function ProductForm({
     handleSubmit,
     reset,
     setValue,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
@@ -75,7 +81,7 @@ export function ProductForm({
     }
   }, [open, product, reset]);
 
-  const isActive = watch("isActive");
+  const isActive = useWatch({ control, name: "isActive" });
 
   const onSubmit = async (data: ProductFormData) => {
     const payload = {
@@ -95,7 +101,9 @@ export function ProductForm({
       return;
     }
 
-    toast.success(isEdit ? "Produk berhasil diperbarui" : "Produk berhasil dibuat");
+    toast.success(
+      isEdit ? "Produk berhasil diperbarui" : "Produk berhasil dibuat",
+    );
     await onSaved();
     onClose();
     reset();
@@ -137,7 +145,9 @@ export function ProductForm({
               placeholder="Contoh: Yoga Mat Premium"
             />
             {errors.name && (
-              <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>
+              <p className="text-xs text-red-500 font-medium">
+                {errors.name.message}
+              </p>
             )}
           </div>
 
@@ -156,7 +166,9 @@ export function ProductForm({
               placeholder="Deskripsikan produk Anda..."
             />
             {errors.description && (
-              <p className="text-xs text-red-500 font-medium">{errors.description.message}</p>
+              <p className="text-xs text-red-500 font-medium">
+                {errors.description.message}
+              </p>
             )}
           </div>
 
@@ -176,7 +188,9 @@ export function ProductForm({
                 placeholder="0"
               />
               {errors.price && (
-                <p className="text-xs text-red-500 font-medium">{errors.price.message}</p>
+                <p className="text-xs text-red-500 font-medium">
+                  {errors.price.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">

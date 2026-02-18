@@ -3,7 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, ShoppingCart, LayoutDashboard, Settings, ChevronLeft, ChevronRight, Ticket, Puzzle, Home, Users } from "lucide-react";
+import {
+  Package,
+  ShoppingCart,
+  LayoutDashboard,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Ticket,
+  Puzzle,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LogoutButton } from "./logout-button";
 import { apiFetch } from "@/lib/api-client";
@@ -24,7 +34,7 @@ const NAV_ITEMS = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const [pendingCount, setPendingCount] = useState<number | null>(null);
-  const { isCollapsed, toggleSidebar, setIsMobileOpen, isMobileOpen } = useSidebar();
+  const { isCollapsed, toggleSidebar, setIsMobileOpen } = useSidebar();
 
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -45,14 +55,16 @@ export function AdminSidebar() {
       className={cn(
         "flex h-full flex-col bg-sidebar text-sidebar-foreground relative z-50 shadow-2xl sidebar-transition border-r border-sidebar-border transition-all duration-300",
         "w-72 lg:w-72",
-        isCollapsed && "lg:!w-20"
+        isCollapsed && "lg:!w-20",
       )}
     >
       {/* Brand Header */}
-      <div className={cn(
-        "flex h-24 items-center gap-3 shrink-0 border-b border-sidebar-border transition-all duration-300",
-        isCollapsed ? "lg:justify-center lg:px-2" : "px-8"
-      )}>
+      <div
+        className={cn(
+          "flex h-24 items-center gap-3 shrink-0 border-b border-sidebar-border transition-all duration-300",
+          isCollapsed ? "lg:justify-center lg:px-2" : "px-8",
+        )}
+      >
         <BrandLogo size={isCollapsed ? 42 : 48} />
         {!isCollapsed && (
           <span className="font-display text-lg font-medium tracking-tight whitespace-nowrap text-sidebar-foreground">
@@ -75,7 +87,9 @@ export function AdminSidebar() {
               title={isCollapsed ? item.label : undefined}
               className={cn(
                 "group flex items-center gap-4 rounded-full transition-all duration-300",
-                isCollapsed ? "lg:justify-center lg:px-0 lg:py-3.5 lg:w-16 lg:mx-auto" : "",
+                isCollapsed
+                  ? "lg:justify-center lg:px-0 lg:py-3.5 lg:w-16 lg:mx-auto"
+                  : "",
                 "px-5 py-3.5",
                 active
                   ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/10 scale-[1.02]"
@@ -90,7 +104,7 @@ export function AdminSidebar() {
                     : "text-sidebar-foreground/50 group-hover:text-sidebar-foreground",
                 )}
               />
-              {(!isCollapsed) && (
+              {!isCollapsed && (
                 <>
                   <span
                     className={cn(
@@ -100,11 +114,13 @@ export function AdminSidebar() {
                   >
                     {item.label}
                   </span>
-                  {item.label === "Pesanan" && pendingCount !== null && pendingCount > 0 && (
-                    <span className="ml-auto rounded-full bg-sidebar-primary/20 px-2.5 py-0.5 text-[10px] font-bold text-sidebar-primary ring-1 ring-sidebar-primary/30">
-                      {pendingCount}
-                    </span>
-                  )}
+                  {item.label === "Pesanan" &&
+                    pendingCount !== null &&
+                    pendingCount > 0 && (
+                      <span className="ml-auto rounded-full bg-sidebar-primary/20 px-2.5 py-0.5 text-[10px] font-bold text-sidebar-primary ring-1 ring-sidebar-primary/30">
+                        {pendingCount}
+                      </span>
+                    )}
                 </>
               )}
             </Link>
@@ -117,7 +133,7 @@ export function AdminSidebar() {
         onClick={toggleSidebar}
         className={cn(
           "absolute top-24 -right-3 h-6 w-6 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground shadow-lg hover:scale-110 transition-all duration-300 z-50 hidden lg:flex",
-          "ring-2 ring-sidebar-background"
+          "ring-2 ring-sidebar-background",
         )}
         title={isCollapsed ? "Perluas sidebar" : "Ciutkan sidebar"}
       >
@@ -129,10 +145,12 @@ export function AdminSidebar() {
       </button>
 
       {/* Footer / Logout */}
-      <div className={cn(
-        "mt-auto p-4 border-t border-sidebar-border bg-sidebar/50 transition-all duration-300",
-        isCollapsed && "lg:p-2"
-      )}>
+      <div
+        className={cn(
+          "mt-auto p-4 border-t border-sidebar-border bg-sidebar/50 transition-all duration-300",
+          isCollapsed && "lg:p-2",
+        )}
+      >
         <LogoutButton isCollapsed={isCollapsed} />
       </div>
     </aside>
