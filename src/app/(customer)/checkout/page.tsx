@@ -20,6 +20,10 @@ import { useCart } from "@/contexts/cart-context";
 import { apiFetch, apiPost } from "@/lib/api-client";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
+import {
+  AddressFields,
+  type AddressData,
+} from "@/components/checkout/address-fields";
 import type {
   CreateOrderResponse,
   ShippingZone,
@@ -39,22 +43,49 @@ const checkoutFormSchema = z.object({
     .string()
     .min(1, "Nomor WhatsApp wajib diisi")
     .max(30, "Nomor maksimal 30 karakter"),
-  address: z
-    .string()
-    .min(1, "Alamat wajib diisi")
-    .max(500, "Alamat maksimal 500 karakter"),
-  city: z
-    .string()
-    .min(1, "Kota wajib diisi")
-    .max(100, "Kota maksimal 100 karakter"),
-  zip: z
-    .string()
-    .min(1, "Kode pos wajib diisi")
-    .max(20, "Kode pos maksimal 20 karakter"),
   notes: z.string().max(1000, "Catatan maksimal 1000 karakter").optional(),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
+
+const addressSchema = z.object({
+  province: z.object(
+    {
+      code: z.string(),
+      name: z.string(),
+    },
+    "Pilih provinsi",
+  ),
+  regency: z.object(
+    {
+      code: z.string(),
+      name: z.string(),
+    },
+    "Pilih kota/kabupaten",
+  ),
+  district: z.object(
+    {
+      code: z.string(),
+      name: z.string(),
+    },
+    "Pilih kecamatan",
+  ),
+  village: z.object(
+    {
+      code: z.string(),
+      name: z.string(),
+    },
+    "Pilih kelurahan",
+  ),
+  streetAddress: z
+    .string()
+    .min(1, "Alamat wajib diisi")
+    .max(500, "Alamat maksimal 500 karakter"),
+  postalCode: z
+    .string()
+    .min(1, "Kode pos wajib diisi")
+    .max(20, "Kode pos maksimal 20 karakter"),
+});
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -70,6 +101,18 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] =
     useState<CouponValidationResult | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
+
+  const [addressData, setAddressData] = useState<AddressData>({
+    province: null,
+    regency: null,
+    district: null,
+    village: null,
+    streetAddress: "",
+    postalCode: "",
+  });
+  const [addressErrors, setAddressErrors] = useState<
+    Record<string, { message: string }>
+  >({});
 
   const selectedZone = zones.find((z) => z.id === selectedZoneId) ?? null;
   const shippingCost = selectedZone?.price ?? 0;
@@ -147,7 +190,28 @@ export default function CheckoutPage() {
         return;
       }
 
-      const shippingAddress = `${data.address}, ${data.city}, ${data.zip}`;
+      const addressValidation = addressSchema.safeParse(addressData);
+      if (!addressValidation.success) {
+        const newErrors: Record<string, { message: string }> = {};
+        for (const issue of addressValidation.error.issues) {
+          const path = issue.path.join(".");
+          newErrors[path] = { message: issue.message };
+        }
+        setAddressErrors(newErrors);
+        toast.error("Mohon lengkapi data alamat.");
+        return;
+      }
+
+      setAddressErrors({});
+
+      const shippingAddress = [
+        addressData.streetAddress,
+        addressData.village?.name,
+        addressData.district?.name,
+        addressData.regency?.name,
+        addressData.province?.name,
+        addressData.postalCode,
+      ].join(", ");
 
       const res = await apiPost<CreateOrderResponse>("/api/orders", {
         customerName: data.customerName.trim(),
@@ -188,6 +252,7 @@ export default function CheckoutPage() {
       router,
       toast,
       orderPlaced,
+      addressData,
     ],
   );
 
@@ -278,7 +343,7 @@ export default function CheckoutPage() {
                       <input
                         id="customerName"
                         {...register("customerName")}
-                        placeholder="Masukan Nama Anda"
+                        placeholder="Contoh: Raisa Andriana"
                         className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
                       />
                       {errors.customerName && (
@@ -300,7 +365,7 @@ export default function CheckoutPage() {
                           id="customerEmail"
                           type="email"
                           {...register("customerEmail")}
-                          placeholder="Masukan Email Anda"
+                          placeholder="raisa@email.com"
                           className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
                         />
                         {errors.customerEmail && (
@@ -332,67 +397,11 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    <div className="grid gap-3">
-                      <label
-                        htmlFor="address"
-                        className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
-                      >
-                        Alamat Lengkap
-                      </label>
-                      <input
-                        id="address"
-                        {...register("address")}
-                        placeholder="Nama jalan, nomor rumah, RT/RW, Kompleks/Cluster"
-                        className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
-                      />
-                      {errors.address && (
-                        <p className="text-xs text-red-500 font-medium px-1">
-                          {errors.address.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-10">
-                      <div className="grid gap-3">
-                        <label
-                          htmlFor="city"
-                          className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
-                        >
-                          Kota / Kabupaten
-                        </label>
-                        <input
-                          id="city"
-                          {...register("city")}
-                          placeholder="Contoh: Bandung"
-                          className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
-                        />
-                        {errors.city && (
-                          <p className="text-xs text-red-500 font-medium px-1">
-                            {errors.city.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="grid gap-3">
-                        <label
-                          htmlFor="zip"
-                          className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
-                        >
-                          Kode Pos
-                        </label>
-                        <input
-                          id="zip"
-                          {...register("zip")}
-                          placeholder="40111"
-                          className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
-                        />
-                        {errors.zip && (
-                          <p className="text-xs text-red-500 font-medium px-1">
-                            {errors.zip.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                    <AddressFields
+                      value={addressData}
+                      onChange={setAddressData}
+                      errors={addressErrors}
+                    />
                   </div>
                 </div>
 
@@ -514,13 +523,13 @@ export default function CheckoutPage() {
                           setCouponError(null);
                         }}
                         placeholder="KODE KUPON"
-                        className="w-full sm:flex-1 h-16 rounded-2xl bg-white border border-[#e8dcc8] px-8 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-black tracking-widest uppercase shadow-sm"
+                        className="w-full sm:flex-1 h-14 rounded-2xl bg-white border border-[#e8dcc8] px-8 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-black tracking-widest uppercase shadow-sm"
                       />
                       <button
                         type="button"
                         onClick={handleApplyCoupon}
                         disabled={couponLoading || !couponCode.trim()}
-                        className="w-full sm:w-auto sm:px-12 h-16 rounded-2xl bg-[#2d241c] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#c85a2d] transition-all disabled:opacity-40 active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
+                        className="w-full sm:w-auto sm:px-12 h-14 rounded-2xl bg-[#2d241c] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#c85a2d] transition-all disabled:opacity-40 active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
                       >
                         {couponLoading ? (
                           <Loader2 className="w-5 h-5 animate-spin" />
@@ -557,7 +566,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting || !selectedZoneId}
-                    className="group w-full min-h-[80px] rounded-full bg-[#c85a2d] text-white font-black text-[20px] shadow-lift hover:bg-[#2d241c] hover:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-4"
+                    className="group w-full h-14 rounded-2xl bg-[#c85a2d] text-white font-black text-[18px] shadow-lift hover:bg-[#2d241c] hover:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-4"
                   >
                     {isSubmitting ? (
                       <Loader2 className="w-8 h-8 animate-spin text-white" />

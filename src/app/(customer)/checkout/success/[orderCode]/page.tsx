@@ -77,6 +77,7 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [emailForVerification, setEmailForVerification] = useState<string>(
     () => {
@@ -147,7 +148,7 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
         </p>
         <Link
           href="/products"
-          className="px-10 py-4 bg-[#2d241c] text-white rounded-full font-black text-sm uppercase tracking-widest hover:bg-[#c85a2d] transition-all"
+          className="px-10 py-5 bg-[#2d241c] text-white rounded-[20px] font-black text-sm uppercase tracking-widest hover:bg-[#c85a2d] transition-all shadow-lift border border-white/10 hover:scale-[1.02] active:scale-[0.98]"
         >
           Kembali Berbelanja
         </Link>
@@ -212,7 +213,8 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
 
   const copyCode = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Disalin ke clipboard");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   // SUCCESS SCREEN (After Upload)
@@ -256,9 +258,17 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
               </div>
               <button
                 onClick={() => copyCode(orderCode)}
-                className="w-12 h-12 rounded-full bg-white border border-[#e8dcc8] flex items-center justify-center text-[#c85a2d] hover:bg-[#c85a2d] hover:text-white transition-all shadow-sm group"
+                className={`w-12 h-12 rounded-full border transition-all shadow-sm group flex items-center justify-center ${
+                  copied
+                    ? "bg-[#7a9d7f] border-[#7a9d7f] text-white"
+                    : "bg-white border-[#e8dcc8] text-[#c85a2d] hover:bg-[#c85a2d] hover:text-white"
+                }`}
               >
-                <Copy className="w-5 h-5 transition-transform group-active:scale-90" />
+                {copied ? (
+                  <BadgeCheck className="w-5 h-5 animate-in zoom-in duration-300" />
+                ) : (
+                  <Copy className="w-5 h-5 transition-transform group-active:scale-90" />
+                )}
               </button>
             </div>
 
@@ -304,17 +314,17 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href={`/track-order/${orderCode}`}
-              className="flex-1 inline-flex items-center justify-center gap-3 h-16 rounded-full bg-[#c85a2d] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#2d241c] transition-all shadow-lift-sm"
+              className="inline-flex items-center justify-center gap-3 h-[64px] px-12 rounded-[22px] bg-[#c85a2d] text-white font-black text-[15px] uppercase tracking-widest transition-all shadow-lift border-t border-white/20 hover:bg-[#2d241c] hover:scale-[1.02] active:scale-[0.98] group w-full sm:w-auto min-w-[240px]"
             >
-              <ScanSearch className="w-5 h-5" />
+              <ScanSearch className="w-5 h-5 transition-transform group-hover:scale-110" />
               <span>Lacak Pesanan</span>
             </Link>
             <Link
               href="/products"
-              className="flex-1 inline-flex items-center justify-center h-16 rounded-full bg-white border border-[#e8dcc8] text-[#2d241c] font-black text-[15px] uppercase tracking-widest hover:bg-[#f9f9f9] transition-all"
+              className="inline-flex items-center justify-center h-[64px] px-12 rounded-[22px] bg-white border-2 border-[#e8dcc8] text-[#2d241c] font-black text-[15px] uppercase tracking-widest hover:border-[#c85a2d] hover:bg-[#f9f9f9] transition-all shadow-soft active:scale-[0.98] w-full sm:w-auto min-w-[240px]"
             >
               Kembali Belanja
             </Link>
@@ -362,9 +372,9 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
                     const el = document.getElementById("upload-section");
                     el?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="group inline-flex items-center gap-3 h-14 px-10 rounded-full bg-[#c85a2d] text-white font-black text-[14px] uppercase tracking-widest hover:bg-[#2d241c] transition-all shadow-lift-sm"
+                  className="group inline-flex items-center gap-3 h-14 px-10 rounded-[20px] bg-gradient-to-br from-[#d97e5a] to-[#c85a2d] text-white font-black text-[14px] uppercase tracking-widest hover:to-[#b64a1d] transition-all shadow-lift border border-white/20 hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <ImageUp className="w-5 h-5" />
+                  <ImageUp className="w-5 h-5 transition-transform group-hover:-translate-y-1" />
                   <span>Unggah Bukti Sekarang</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </button>
@@ -509,7 +519,7 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
                     <button
                       onClick={handleUpload}
                       disabled={!file || loading}
-                      className="group relative overflow-hidden w-full h-16 rounded-full bg-[#c85a2d] text-white font-black text-[15px] uppercase tracking-widest shadow-lift-sm hover:bg-[#2d241c] transition-all disabled:opacity-30 disabled:shadow-none flex items-center justify-center gap-3"
+                      className="group relative overflow-hidden w-full h-16 rounded-[20px] bg-gradient-to-br from-[#d97e5a] to-[#c85a2d] text-white font-black text-[15px] uppercase tracking-widest shadow-lift hover:to-[#b64a1d] transition-all disabled:opacity-30 disabled:shadow-none translate-z-0 flex items-center justify-center gap-3 border border-white/20 hover:scale-[1.01] active:scale-[0.99]"
                     >
                       {loading ? (
                         <>

@@ -328,7 +328,7 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
                     Garansi Retur
                   </h4>
                   <p className="text-[12px] text-[#6b5b4b] leading-relaxed font-medium">
-                    7 hari jaminca kualitas produk dTeman Yoga.
+                    7 hari jaminan kualitas produk dTeman Yoga.
                   </p>
                 </div>
               </div>
