@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
         hostname: "pub-38c629e713a54e8e9ed0a762c8f2666d.r2.dev",
       },
     ],
+    qualities: [75, 90, 95],
   },
   async headers() {
     return [
