@@ -252,7 +252,7 @@ const ToastContainer: FC<ToastContainerProps> = ({
   onDismiss,
 }) => {
   return (
-    <div className="fixed top-24 right-4 sm:right-8 md:right-12 z-[9999] flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-8 sm:bottom-auto sm:top-6 left-0 right-0 sm:left-auto sm:right-6 md:right-10 z-[10000] flex flex-col-reverse sm:flex-col items-center sm:items-end gap-3 pointer-events-none px-4 sm:px-0">
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}
@@ -290,7 +290,10 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
   if (content) {
     return (
       <div
-        className={cn("pointer-events-auto", isLeaving && "animate-toast-out")}
+        className={cn(
+          "pointer-events-auto animate-toast-in",
+          isLeaving && "animate-toast-out",
+        )}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -312,7 +315,7 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
     ),
     warning: (props) => (
       <div className="flex items-center justify-center size-9 rounded-xl bg-primary/10 text-primary border border-primary/20">
-        <AlertWarning className="size-5" {...props} />
+        <AlertTriangle className="size-5" {...props} />
       </div>
     ),
     info: (props) => (
@@ -340,7 +343,7 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
   return (
     <div
       className={cn(
-        "pointer-events-auto relative flex w-full sm:w-auto sm:min-w-[340px] sm:max-w-md items-center gap-4 rounded-[24px] border border-border/80 bg-white px-5 py-4 shadow-lift-sm overflow-hidden",
+        "pointer-events-auto relative flex w-full sm:w-[420px] items-center gap-4 rounded-[28px] border border-border/80 bg-white/95 backdrop-blur-xl px-6 py-5 shadow-lift overflow-hidden",
         "animate-toast-in",
         isLeaving && "animate-toast-out",
       )}
@@ -377,15 +380,15 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
       )}
 
       <div className="relative flex-shrink-0 self-center">
-        <Icon className="" />
+        <Icon className="size-5" />
       </div>
 
       <div className="relative flex-1 min-w-0 pr-6 flex flex-col justify-center">
-        <p className="font-display text-[15px] font-black text-[#2d241c] leading-snug tracking-tight">
+        <p className="font-display text-[16px] font-black text-[#2d241c] leading-snug tracking-tight">
           {toast.title}
         </p>
         {toast.description && (
-          <p className="text-[13px] font-medium text-[#6b5b4b] mt-1 leading-snug">
+          <p className="text-[14px] font-medium text-[#6b5b4b] mt-1 leading-snug">
             {toast.description}
           </p>
         )}
@@ -404,12 +407,10 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
 
       <button
         onClick={handleClose}
-        className="absolute top-1/2 -translate-y-1/2 right-3 flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+        className="absolute top-1/2 -translate-y-1/2 right-4 flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted/50 hover:text-foreground transition-all active:scale-90"
       >
-        <X className="size-3.5" />
+        <X className="size-4" />
       </button>
     </div>
   );
 };
-
-const AlertWarning = AlertTriangle;
