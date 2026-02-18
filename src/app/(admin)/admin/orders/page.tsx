@@ -43,13 +43,14 @@ export default function AdminOrdersPage() {
   }, [fetchOrders]);
 
   return (
-    <div className="space-y-6 p-4 md:p-10 animate-fade-in-up">
+    <div className="space-y-6 animate-fade-in-up">
       <div className="animate-fade-in-up">
         <h1 className="font-display text-2xl md:text-4xl font-extrabold text-dark-brown tracking-tight">
           Manajemen Pesanan
         </h1>
         <p className="mt-2 text-warm-gray font-medium">
-          Lacak dan penuhi pesanan pelanggan, verifikasi pembayaran, dan kelola pengiriman.
+          Lacak dan penuhi pesanan pelanggan, verifikasi pembayaran, dan kelola
+          pengiriman.
         </p>
       </div>
 
@@ -102,12 +103,12 @@ export default function AdminOrdersPage() {
             <OrderTable orders={orders} />
             {/* Pagination Footer - Visual Only for now */}
             <div className="bg-cream/30 p-4 md:p-6 border-t border-warm-sand/30 flex flex-col md:flex-row items-center justify-between gap-4 px-4 md:px-8 text-sm font-bold text-warm-gray">
-<span>Menampilkan {orders.length} pesanan</span>
-               <div className="flex items-center gap-2">
-                 <button className="h-10 w-10 flex items-center justify-center rounded-full bg-white ring-1 ring-warm-sand/50 text-dark-brown hover:bg-terracotta hover:text-white transition-all disabled:opacity-50">
-                   <ChevronLeft className="h-5 w-5" />
-                 </button>
-                 <span className="px-6">Halaman 1</span>
+              <span>Menampilkan {orders.length} pesanan</span>
+              <div className="flex items-center gap-2">
+                <button className="h-10 w-10 flex items-center justify-center rounded-full bg-white ring-1 ring-warm-sand/50 text-dark-brown hover:bg-terracotta hover:text-white transition-all disabled:opacity-50">
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <span className="px-6">Halaman 1</span>
                 <button className="h-10 w-10 flex items-center justify-center rounded-full bg-white ring-1 ring-warm-sand/50 text-dark-brown hover:bg-terracotta hover:text-white transition-all disabled:opacity-50">
                   <ChevronRight className="h-5 w-5" />
                 </button>
