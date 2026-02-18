@@ -278,7 +278,7 @@ export default function CheckoutPage() {
                       <input
                         id="customerName"
                         {...register("customerName")}
-                        placeholder="Nadya Putri"
+                        placeholder="Masukan Nama Anda"
                         className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
                       />
                       {errors.customerName && (
@@ -300,7 +300,7 @@ export default function CheckoutPage() {
                           id="customerEmail"
                           type="email"
                           {...register("customerEmail")}
-                          placeholder="nadya@email.com"
+                          placeholder="Masukan Email Anda"
                           className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
                         />
                         {errors.customerEmail && (
