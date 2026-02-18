@@ -78,17 +78,21 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
   const displayPrice = Number(product.price) + accessoriesTotal;
 
   const handleAddToCart = () => {
-    addItem({
-      productId: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: Number(product.price),
-      image: product.images[0]?.url ?? null,
-      quantity,
-      stock: product.stock,
-      accessories: selectedAccessories,
-    });
     toast.success("Produk berhasil ditambahkan ke keranjang");
+
+    // Defer cart update to next frame to ensure toast appears instantly
+    requestAnimationFrame(() => {
+      addItem({
+        productId: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: Number(product.price),
+        image: product.images[0]?.url ?? null,
+        quantity,
+        stock: product.stock,
+        accessories: selectedAccessories,
+      });
+    });
   };
 
   return (

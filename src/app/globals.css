@@ -233,7 +233,7 @@
 }
 
 .animate-toast-in {
-  animation: toast-in 0.5s cubic-bezier(0.19, 1, 0.22, 1) both;
+  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-toast-out {
