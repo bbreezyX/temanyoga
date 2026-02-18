@@ -13,7 +13,6 @@ import {
   ClipboardCheck,
   CheckCircle2,
   Clock,
-  Shirt,
   ShieldCheck,
   CreditCard,
   MapPin,
@@ -29,7 +28,7 @@ const STEP_ICONS = {
   PENDING_PAYMENT: Clock,
   AWAITING_VERIFICATION: ShieldCheck,
   PAID: CreditCard,
-  PROCESSING: Shirt,
+  PROCESSING: Package,
   SHIPPED: Truck,
   COMPLETED: CheckCircle2,
 } as const;
