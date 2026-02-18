@@ -3,13 +3,12 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { ShoppingCart, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/cart-context";
-import { cn, formatCurrency } from "@/lib/utils";
-import { useToast } from "@/components/ui/toast";
+import { cn } from "@/lib/utils";
 import { SheetTrigger, SheetTitle, Sheet } from "@/components/ui/sheet";
 import { BrandLogo } from "@/components/layout/brand-logo";
 
@@ -25,70 +24,14 @@ const NAV_LINKS = [
 ];
 
 export function Header() {
-  const { cartCount, cartTotal } = useCart();
+  const { cartCount } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
-  const toast = useToast();
+  const router = useRouter();
 
   const handleCartClick = () => {
-    if (cartCount === 0) {
-      toast.custom(
-        <div className="group relative flex w-full max-w-[calc(100vw-2rem)] sm:w-[420px] items-center gap-4 rounded-[28px] border border-border/80 bg-white/95 backdrop-blur-xl px-6 py-5 shadow-lift overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-          <div className="toast-progress-bar" />
-          <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/5 text-primary border border-primary/10">
-            <ShoppingCart className="h-5 w-5" />
-          </div>
-          <div className="flex-1 min-w-0 flex flex-col justify-center">
-            <h4 className="font-display text-[16px] font-black text-[#2d241c] leading-snug tracking-tight">
-              Keranjang Kosong
-            </h4>
-            <p className="text-[14px] font-medium text-[#6b5b4b] mt-1 leading-snug">
-              Yuk, pilih produk favoritmu!
-            </p>
-          </div>
-          <button
-            onClick={() => toast.dismiss("empty-cart-notification")}
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl text-[#6b5b4b] hover:bg-muted/50 hover:text-[#2d241c] transition-all"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>,
-        { id: "empty-cart-notification", duration: 4000 },
-      );
-      return;
-    }
-
-    toast.custom(
-      <div className="group relative flex w-full max-w-[calc(100vw-2rem)] sm:w-[420px] items-center gap-4 rounded-[28px] border border-sage/30 bg-white/95 backdrop-blur-xl px-6 py-5 shadow-lift overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-sage/10 via-transparent to-transparent pointer-events-none" />
-        <div className="toast-progress-bar toast-progress-bar--success" />
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-sage/10 text-sage border border-sage/20">
-          <ShoppingCart className="h-5 w-5" />
-        </div>
-        <div className="flex-1 min-w-0 flex flex-col justify-center">
-          <h4 className="font-display text-[16px] font-black text-[#2d241c] leading-snug tracking-tight">
-            Keranjang Belanja
-          </h4>
-          <p className="text-[14px] font-medium text-[#6b5b4b] mt-1 leading-snug">
-            {cartCount} Item •{" "}
-            <span className="text-sage font-black">
-              {formatCurrency(cartTotal)}
-            </span>
-          </p>
-        </div>
-        <Button
-          size="sm"
-          className="rounded-full h-11 px-6 font-black bg-sage hover:bg-[#2d241c] text-white text-[12px] uppercase tracking-widest flex-shrink-0 shadow-sm transition-all"
-          asChild
-          onClick={() => toast.dismiss("cart-notification")}
-        >
-          <Link href="/cart">Lihat</Link>
-        </Button>
-      </div>,
-      { id: "cart-notification", duration: 5000 },
-    );
+    router.push("/cart");
   };
 
   useEffect(() => {

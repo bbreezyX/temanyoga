@@ -208,7 +208,6 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
 
     setIsSuccess(true);
     window.scrollTo(0, 0);
-    toast.success("Bukti pembayaran berhasil diunggah!");
   };
 
   const copyCode = (text: string) => {

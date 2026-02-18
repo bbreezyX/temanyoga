@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   Clock,
 } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
@@ -56,7 +55,6 @@ function AccessoriesSkeleton() {
 
 export function ProductDetail({ product }: { product: ProductDetailType }) {
   const { addItem } = useCart();
-  const toast = useToast();
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedAccessories, setSelectedAccessories] = useState<
@@ -78,8 +76,6 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
   const displayPrice = Number(product.price) + accessoriesTotal;
 
   const handleAddToCart = () => {
-    toast.success("Produk berhasil ditambahkan ke keranjang");
-
     // Defer cart update to next frame to ensure toast appears instantly
     requestAnimationFrame(() => {
       addItem({

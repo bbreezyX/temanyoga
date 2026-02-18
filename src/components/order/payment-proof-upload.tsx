@@ -39,7 +39,7 @@ export function PaymentProofUpload({
     setLoading(true);
     const res = await apiUpload<PaymentProofResponse>(
       `/api/orders/${orderCode}/payment-proof`,
-      file
+      file,
     );
     setLoading(false);
 
@@ -48,7 +48,6 @@ export function PaymentProofUpload({
       return;
     }
 
-    toast.success("Bukti pembayaran berhasil diunggah!");
     if (fileRef.current) fileRef.current.value = "";
     onUploaded();
   }

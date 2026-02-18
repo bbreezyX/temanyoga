@@ -363,7 +363,7 @@ export default function TrackOrderContent({
   const [error, setError] = useState("");
 
   const fetchOrder = useCallback(
-    async (targetCode: string, showNotification = false) => {
+    async (targetCode: string) => {
       setLoading(true);
       setError("");
 
@@ -382,19 +382,19 @@ export default function TrackOrderContent({
         if (!order) setOrder(null); // Ensure order is null if we didn't have one and failed
       } else {
         setOrder(res.data);
-        if (showNotification) {
-          toast.success("Status pesanan diperbarui");
+        if (res.data.status !== order?.status) {
+          // Status updated, content will refresh automatically
         }
       }
     },
-    [toast, order],
+    [order],
   );
 
   useEffect(() => {
     if (initialCode?.trim()) {
       // Clear previous order data when code changes (navigation) to avoid mismatched data display
       setOrder(null);
-      fetchOrder(initialCode.trim(), false);
+      fetchOrder(initialCode.trim());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialCode]);
@@ -406,7 +406,7 @@ export default function TrackOrderContent({
       if (!trimmedCode) return;
 
       if (trimmedCode === initialCode) {
-        fetchOrder(trimmedCode, true);
+        fetchOrder(trimmedCode);
       } else {
         router.push(`/track-order/${trimmedCode}`);
       }

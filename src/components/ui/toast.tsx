@@ -11,6 +11,7 @@ import {
   type FC,
 } from "react";
 import { CircleCheck, X, AlertTriangle, Info, Loader2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 type ToastType = "success" | "error" | "warning" | "info" | "loading";
@@ -213,6 +214,9 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
     };
   }, []);
 
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+
   return (
     <ToastContext.Provider
       value={{
@@ -235,6 +239,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
         toasts={toasts}
         customToasts={customToasts}
         onDismiss={dismiss}
+        isAdmin={isAdmin}
       />
     </ToastContext.Provider>
   );
@@ -244,20 +249,30 @@ interface ToastContainerProps {
   toasts: Toast[];
   customToasts: Map<string, { content: ReactNode; duration?: number }>;
   onDismiss: (id: string) => void;
+  isAdmin?: boolean;
 }
 
 const ToastContainer: FC<ToastContainerProps> = ({
   toasts,
   customToasts,
   onDismiss,
+  isAdmin,
 }) => {
   return (
-    <div className="fixed bottom-8 sm:bottom-auto sm:top-6 left-0 right-0 sm:left-auto sm:right-6 md:right-10 z-[10000] flex flex-col-reverse sm:flex-col items-center sm:items-end gap-3 pointer-events-none px-4 sm:px-0">
+    <div
+      className={cn(
+        "fixed z-[10000] flex flex-col gap-3 pointer-events-none px-4 sm:px-0",
+        isAdmin
+          ? "bottom-6 sm:right-6 md:right-10 items-end flex-col"
+          : "bottom-10 left-1/2 -translate-x-1/2 items-center flex-col-reverse w-full max-w-[500px]",
+      )}
+    >
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}
           toast={toast}
           onDismiss={() => onDismiss(toast.id)}
+          isAdmin={isAdmin}
         />
       ))}
       {Array.from(customToasts.entries()).map(([id, { content }]) => (
@@ -266,6 +281,7 @@ const ToastContainer: FC<ToastContainerProps> = ({
           toast={{ id, type: "info", title: "" }}
           content={content}
           onDismiss={() => onDismiss(id)}
+          isAdmin={isAdmin}
         />
       ))}
     </div>
@@ -276,9 +292,15 @@ interface ToastItemProps {
   toast: Toast;
   content?: ReactNode;
   onDismiss: () => void;
+  isAdmin?: boolean;
 }
 
-const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
+const ToastItem: FC<ToastItemProps> = ({
+  toast,
+  content,
+  onDismiss,
+  isAdmin,
+}) => {
   const [isLeaving, setIsLeaving] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
@@ -343,7 +365,10 @@ const ToastItem: FC<ToastItemProps> = ({ toast, content, onDismiss }) => {
   return (
     <div
       className={cn(
-        "pointer-events-auto relative flex w-full sm:w-[420px] items-center gap-4 rounded-[28px] border border-border/80 bg-white/95 backdrop-blur-xl px-6 py-5 shadow-lift overflow-hidden",
+        "pointer-events-auto relative flex w-full sm:w-[420px] items-center gap-4 border border-border/80 bg-white/95 backdrop-blur-xl shadow-lift overflow-hidden",
+        isAdmin
+          ? "rounded-2xl px-5 py-4"
+          : "rounded-[var(--rounded-container)] px-6 py-5 border-primary/20",
         "animate-toast-in",
         isLeaving && "animate-toast-out",
       )}

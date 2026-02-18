@@ -132,7 +132,6 @@ export default function CheckoutPage() {
 
     setAppliedCoupon(res.data);
     setCouponCode(res.data.code);
-    toast.success("Kupon berhasil diterapkan!");
   }
 
   function handleRemoveCoupon() {
