@@ -366,18 +366,14 @@ export default function TrackOrderContent({
   const [loading, setLoading] = useState(!!initialCode);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (!initialCode?.trim()) return;
+  const fetchOrder = useCallback(
+    async (targetCode: string, showNotification = false) => {
+      setLoading(true);
+      setError("");
 
-    let mounted = true;
-
-    const performFetch = async () => {
-      // access explicit api route
       const res = await apiFetch<OrderStatusResponse>(
-        `/api/orders/${initialCode.trim()}/status`,
+        `/api/orders/${targetCode}/status`,
       );
-
-      if (!mounted) return;
 
       setLoading(false);
 
@@ -385,25 +381,41 @@ export default function TrackOrderContent({
         setError(
           res.error || "Pesanan tidak ditemukan. Periksa kembali kode Anda.",
         );
-        return;
+        // If specific error, we might want to clear order, but keeping it for now in case of transient error
+        // though normally if not found, we should clear it.
+        if (!order) setOrder(null); // Ensure order is null if we didn't have one and failed
+      } else {
+        setOrder(res.data);
+        if (showNotification) {
+          toast.success("Status pesanan diperbarui");
+        }
       }
-      setOrder(res.data);
-    };
+    },
+    [toast, order],
+  );
 
-    performFetch();
-
-    return () => {
-      mounted = false;
-    };
+  useEffect(() => {
+    if (initialCode?.trim()) {
+      // Clear previous order data when code changes (navigation) to avoid mismatched data display
+      setOrder(null);
+      fetchOrder(initialCode.trim(), false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialCode]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (!code.trim()) return;
-      router.push(`/track-order/${code.trim()}`);
+      const trimmedCode = code.trim();
+      if (!trimmedCode) return;
+
+      if (trimmedCode === initialCode) {
+        fetchOrder(trimmedCode, true);
+      } else {
+        router.push(`/track-order/${trimmedCode}`);
+      }
     },
-    [code, router],
+    [code, initialCode, router, fetchOrder],
   );
 
   const activeStep = useMemo(() => {
