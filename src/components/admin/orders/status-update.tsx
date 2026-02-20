@@ -34,10 +34,12 @@ export function StatusUpdate({
   orderId,
   currentStatus,
   onUpdated,
+  onOptimisticUpdate,
 }: {
   orderId: string;
   currentStatus: OrderStatus;
   onUpdated: () => void;
+  onOptimisticUpdate: (newStatus: OrderStatus) => void;
 }) {
   const toast = useToast();
   const [newStatus, setNewStatus] = useState("");
@@ -49,6 +51,8 @@ export function StatusUpdate({
 
   async function handleUpdate() {
     if (!newStatus) return;
+    const statusValue = newStatus as OrderStatus;
+    onOptimisticUpdate(statusValue);
     setLoading(true);
     const res = await apiPatch(`/api/admin/orders/${orderId}/status`, {
       status: newStatus,

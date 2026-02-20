@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { PlusCircle, Loader2, Search } from "lucide-react";
 import { ProductTable } from "@/components/admin/products/product-table";
 import { ProductForm } from "@/components/admin/products/product-form";
@@ -18,19 +18,42 @@ export default function AdminProductsPage() {
     null
   );
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const fetchProducts = useCallback(async () => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+    }
+    abortRef.current = new AbortController();
+
     setLoading(true);
+    const params = new URLSearchParams();
+    params.set("limit", "50");
+    if (debouncedSearch) {
+      params.set("search", debouncedSearch);
+    }
+    if (statusFilter !== "all") {
+      params.set("isActive", statusFilter === "active" ? "true" : "false");
+    }
+
     const res = await apiFetch<AdminProductListResponse>(
-      "/api/admin/products?limit=100"
+      `/api/admin/products?${params.toString()}`
     );
     if (res.success) {
       setProducts(res.data.products);
     }
     setLoading(false);
-  }, []);
+  }, [debouncedSearch, statusFilter]);
 
   useEffect(() => {
     const timeout = setTimeout(fetchProducts, 0);
@@ -39,9 +62,6 @@ export default function AdminProductsPage() {
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      const matchSearch =
-        !search || p.name.toLowerCase().includes(search.toLowerCase());
-
       const matchStock =
         stockFilter === "all" ||
         (stockFilter === "in-stock" &&
@@ -52,14 +72,9 @@ export default function AdminProductsPage() {
           p.stock <= 10) ||
         (stockFilter === "out-of-stock" && p.stock !== null && p.stock === 0);
 
-      const matchStatus =
-        statusFilter === "all" ||
-        (statusFilter === "active" && p.isActive) ||
-        (statusFilter === "inactive" && !p.isActive);
-
-      return matchSearch && matchStock && matchStatus;
+      return matchStock;
     });
-  }, [products, search, stockFilter, statusFilter]);
+  }, [products, stockFilter]);
 
   function handleEdit(product: AdminProductListItem) {
     setEditProduct(product);

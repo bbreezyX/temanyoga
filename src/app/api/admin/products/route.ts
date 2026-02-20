@@ -11,9 +11,22 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, Number(searchParams.get("page")) || 1);
     const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 20));
     const skip = (page - 1) * limit;
+    const search = searchParams.get("search")?.trim() || "";
+    const isActive = searchParams.get("isActive");
+
+    const where = {
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { description: { contains: search, mode: "insensitive" as const } },
+        ],
+      }),
+      ...(isActive !== null && { isActive: isActive === "true" }),
+    };
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
+        where,
         include: {
           images: { orderBy: { order: "asc" }, take: 1 },
           _count: { select: { orderItems: true } },
@@ -22,7 +35,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       }),
-      prisma.product.count(),
+      prisma.product.count({ where }),
     ]);
 
     return apiSuccess({

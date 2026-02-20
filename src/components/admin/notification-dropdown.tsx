@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NotificationType } from "@prisma/client";
 
+const INITIAL_RECONNECT_DELAY = 1000;
+const MAX_RECONNECT_DELAY = 30000;
+
 interface Notification {
   id: string;
   type: NotificationType;
@@ -33,11 +36,17 @@ export function NotificationDropdown() {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const reconnectDelayRef = useRef(INITIAL_RECONNECT_DELAY);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const connectSSERef = useRef<() => void>(() => {});
 
   const connectSSE = useCallback(() => {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
     }
 
     const eventSource = new EventSource("/api/admin/notifications/stream");
@@ -50,9 +59,11 @@ export function NotificationDropdown() {
         if (parsed.type === "init") {
           setNotifications(parsed.data.notifications);
           setUnreadCount(parsed.data.unreadCount);
+          reconnectDelayRef.current = INITIAL_RECONNECT_DELAY;
         } else if (parsed.type === "notification") {
           setNotifications((prev) => [parsed.data, ...prev.slice(0, 9)]);
           setUnreadCount((prev) => prev + 1);
+          reconnectDelayRef.current = INITIAL_RECONNECT_DELAY;
         } else if (parsed.type === "unreadCount") {
           setUnreadCount(parsed.data);
         }
@@ -63,7 +74,9 @@ export function NotificationDropdown() {
 
     eventSource.onerror = () => {
       eventSource.close();
-      setTimeout(connectSSERef.current, 5000);
+      const delay = reconnectDelayRef.current;
+      reconnectDelayRef.current = Math.min(delay * 2, MAX_RECONNECT_DELAY);
+      reconnectTimeoutRef.current = setTimeout(connectSSERef.current, delay);
     };
   }, []);
 
@@ -76,6 +89,9 @@ export function NotificationDropdown() {
     return () => {
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
       }
     };
   }, [connectSSE]);
