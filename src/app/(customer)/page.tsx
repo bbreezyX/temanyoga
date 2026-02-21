@@ -324,7 +324,7 @@ export default async function HomePage() {
                    </div>
                 </div>
                 <div className="w-full md:w-5/12 pt-12 md:pt-0">
-                   <span className="text-[#7a9d7f] font-mono text-xs uppercase tracking-widest mb-4 block">01 — Material_Source</span>
+                   <span className="text-[#7a9d7f] font-mono text-xs uppercase tracking-widest mb-4 block">01 — Material Source</span>
                    <h3 className="font-display text-4xl md:text-6xl font-black mb-6 leading-[0.9]">
                      Natural & <br/><span className="italic font-serif font-light">Ethical</span>
                    </h3>
@@ -364,7 +364,7 @@ export default async function HomePage() {
                    </div>
                 </div>
                 <div className="w-full md:w-5/12 text-right">
-                   <span className="text-[#c85a2d] font-mono text-xs uppercase tracking-widest mb-4 block">02 — Craft_Method</span>
+                   <span className="text-[#c85a2d] font-mono text-xs uppercase tracking-widest mb-4 block">02 — Craft Method</span>
                    <h3 className="font-display text-4xl md:text-6xl font-black mb-6 leading-[0.9]">
                      Slow <br/><span className="italic font-serif font-light">Handcraft</span>
                    </h3>
@@ -398,8 +398,6 @@ export default async function HomePage() {
          Replaces hard cut with organic shape transition.
       */}
       <section className="relative py-32 md:py-48 bg-[#2d241c] text-[#f5f1ed] overflow-hidden">
-
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
 
         <div className="px-6 md:px-12 max-w-[1600px] mx-auto relative z-20">
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-32 items-center">
@@ -436,7 +434,10 @@ export default async function HomePage() {
                  {/* Decorative glow behind image */}
                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#c85a2d]/20 blur-[100px] rounded-full pointer-events-none"></div>
                  
-                 <div className="relative w-full h-full overflow-hidden rounded-t-[250px] rounded-b-[40px] border border-[#f5f1ed]/10 shadow-2xl">
+                 <div className="relative w-full h-full overflow-hidden rounded-t-[250px] rounded-b-[40px] border border-[#f5f1ed]/10 shadow-2xl isolate">
+                    {/* Local Texture for Image Section */}
+                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 mix-blend-overlay pointer-events-none z-10"></div>
+                    
                     <Image
                       src="/images/knittedyoga.png"
                       alt="Yoga Philosophy"
@@ -462,46 +463,81 @@ export default async function HomePage() {
 
       {/* 
         PREMIUM FOOTER CTA 
-        Enhanced with depth and connected flow.
+        Enhanced with depth, textural narrative, and organic flow.
       */}
-      <section className="py-32 md:py-48 bg-[#251e18] text-white text-center px-6 relative overflow-hidden -mt-1">
-        {/* Background gradient meshing with previous section */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#2d241c] to-transparent z-10 pointer-events-none"></div>
+      <section className="py-40 md:py-64 bg-[#2d241c] text-white text-center px-6 relative overflow-hidden selection:bg-[#c85a2d] selection:text-white">
         
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] bg-[#c85a2d]/5 blur-[150px] rounded-full pointer-events-none" />
-
-        <div className="relative z-20 max-w-5xl mx-auto flex flex-col items-center">
-          <div className="mb-12 animate-pulse">
-            <Sparkles className="w-8 h-8 text-[#c85a2d]" />
+        <div className="relative z-30 max-w-6xl mx-auto flex flex-col items-center">
+          
+          {/* Top Label - Monospace Pattern */}
+          <div className="flex flex-col items-center gap-4 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <span className="text-[#c85a2d] font-mono text-[10px] uppercase tracking-[0.5em] font-bold">
+              Final Chapter • Begin Your Journey
+            </span>
+            <div className="w-8 h-px bg-[#c85a2d]/40"></div>
           </div>
           
-          <h2 className="font-display text-[12vw] md:text-[140px] font-black leading-[0.8] tracking-tighter mb-12 text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60">
-            TEMUKAN
-            <br />
-            <span className="text-[#c85a2d] font-serif italic font-medium tracking-normal text-[0.4em] md:text-[0.35em] block my-4 md:my-0">
-               Teman Sejati
+          <h2 className="relative font-display text-[14vw] md:text-[160px] lg:text-[200px] font-black leading-[0.75] tracking-tight mb-16 text-white drop-shadow-2xl">
+            <span className="block opacity-90">TEMUKAN</span>
+            
+            <div className="relative my-6 md:my-4 flex items-center justify-center">
+               {/* Underline Decoration */}
+               <svg className="absolute -bottom-2 w-full max-w-[400px] h-4 text-[#c85a2d] opacity-60" viewBox="0 0 200 9" fill="none">
+                  <path d="M2 7C30 4 80 1 198 2" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+               </svg>
+               <span className="text-[#c85a2d] font-serif italic font-light tracking-tight text-[0.45em] md:text-[0.4em] relative z-10 block animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
+                  Teman Sejati
+               </span>
+            </div>
+            
+            <span className="block text-transparent stroke-text" style={{ WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>
+              BARU
             </span>
-            BARU
+
+            {/* Floating Decorative Icon */}
+            <div className="absolute -top-12 -right-12 md:-right-24 hidden md:block animate-bounce-slow">
+               <Sparkles className="w-12 h-12 text-[#c85a2d]/40" />
+            </div>
           </h2>
+
+          <p className="text-white/60 text-lg md:text-xl font-medium max-w-xl mb-20 leading-relaxed text-balance">
+            Setiap karakter memiliki cerita. Pilih teman yang beresonansi dengan perjalanan Anda hari ini.
+          </p>
           
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 mt-8">
+          <div className="flex flex-col sm:flex-row items-center gap-8 md:gap-12 w-full justify-center px-4">
             <Link
               href="/products"
-              className="group relative h-16 md:h-20 px-12 md:px-16 rounded-full bg-[#c85a2d] text-white font-black text-lg hover:bg-[#fff] hover:text-[#2d241c] transition-all shadow-[0_20px_40px_-10px_rgba(200,90,45,0.4)] hover:shadow-[0_20px_40px_-10px_rgba(255,255,255,0.2)] flex items-center gap-4 uppercase tracking-[0.15em] overflow-hidden"
+              className="group relative h-20 md:h-24 px-12 md:px-20 rounded-[40px] bg-[#c85a2d] text-white font-black text-xl hover:bg-white hover:text-[#2d241c] transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(200,90,45,0.5)] hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.3)] flex items-center gap-6 uppercase tracking-[0.2em] overflow-hidden group/btn"
             >
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out"></div>
-              <span className="relative z-10">Mulai Belanja</span>
-              <MoveRight className="w-6 h-6 relative z-10 group-hover:translate-x-2 transition-transform" />
+              <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-700 ease-in-out"></div>
+              <span className="relative z-10 group-hover:scale-110 transition-transform">Eksplorasi Sekarang</span>
+              <div className="relative z-10 w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#2d241c] group-hover:border-[#2d241c] transition-colors">
+                <MoveRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-500" />
+              </div>
             </Link>
             
-            <Link 
-              href="/track-order"
-              className="text-white/60 hover:text-white font-bold uppercase tracking-widest text-sm border-b border-transparent hover:border-white pb-1 transition-all"
-            >
-              Lacak Pesanan
-            </Link>
+            <div className="flex flex-col items-center sm:items-start gap-2">
+               <Link 
+                  href="/track-order"
+                  className="group inline-flex items-center gap-3 text-white/50 hover:text-white font-bold uppercase tracking-[0.2em] text-sm transition-all py-2"
+               >
+                  <span>Lacak Pesanan</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#c85a2d] scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+               </Link>
+               <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+            </div>
+          </div>
+
+          {/* Bottom Footnote - Editorial Detail */}
+          <div className="mt-32 pt-12 border-t border-white/5 w-full flex flex-col md:flex-row items-center justify-between gap-6 opacity-40">
+             <span className="text-[10px] uppercase tracking-[0.3em] font-bold">Artisanal Crochet • Established 2026</span>
+             <div className="flex gap-8">
+                <span className="text-[10px] uppercase tracking-[0.3em] font-bold">Limited Batches</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] font-bold">Handmade Only</span>
+             </div>
           </div>
         </div>
+
       </section>
     </div>
   );
