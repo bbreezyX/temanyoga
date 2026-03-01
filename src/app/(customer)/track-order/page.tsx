@@ -1,36 +1,15 @@
-"use client";
+import type { Metadata } from "next";
+import { TrackOrderWrapper } from "./track-order-wrapper";
 
-import { Suspense, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import TrackOrderContent from "./track-order-content";
-import { Loader2 } from "lucide-react";
-
-function TrackOrderPageWrapper() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const codeFromQuery = searchParams.get("code") ?? "";
-
-  useEffect(() => {
-    if (codeFromQuery) {
-      router.replace(`/track-order/${codeFromQuery}`);
-    }
-  }, [codeFromQuery, router]);
-
-  return <TrackOrderContent />;
-}
+export const metadata: Metadata = {
+  title: "Lacak Pesanan | D'TEMAN YOGA",
+  description:
+    "Lacak status pesanan boneka rajut yoga Anda dengan mudah. Masukkan kode pesanan untuk melihat pembaruan terbaru.",
+  alternates: {
+    canonical: "https://ditemaniyoga.com/track-order",
+  },
+};
 
 export default function TrackOrderPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl md:rounded-3xl bg-white shadow-sm ring-1 ring-[#e8dcc8] flex items-center justify-center">
-            <Loader2 className="w-7 h-7 md:w-8 md:h-8 animate-spin text-[#c85a2d]" />
-          </div>
-        </div>
-      }
-    >
-      <TrackOrderPageWrapper />
-    </Suspense>
-  );
+  return <TrackOrderWrapper />;
 }
