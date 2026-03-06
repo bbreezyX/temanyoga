@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Archivo } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -17,8 +18,6 @@ const archivo = Archivo({
   display: "swap",
   preload: true,
 });
-
-const SITE_URL = "https://ditemaniyoga.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

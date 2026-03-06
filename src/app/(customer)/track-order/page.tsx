@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-url";
 import { TrackOrderWrapper } from "./track-order-wrapper";
 
 export const metadata: Metadata = {
@@ -6,7 +7,13 @@ export const metadata: Metadata = {
   description:
     "Lacak status pesanan boneka rajut yoga Anda dengan mudah. Masukkan kode pesanan untuk melihat pembaruan terbaru.",
   alternates: {
-    canonical: "https://ditemaniyoga.com/track-order",
+    canonical: `${SITE_URL}/track-order`,
+  },
+  openGraph: {
+    url: `${SITE_URL}/track-order`,
+    title: "Lacak Pesanan | D'TEMAN YOGA",
+    description:
+      "Lacak status pesanan boneka rajut yoga Anda dengan mudah. Masukkan kode pesanan untuk melihat pembaruan terbaru.",
   },
 };
 

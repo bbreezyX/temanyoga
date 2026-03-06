@@ -6,11 +6,21 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import type { ProductListItem } from "@/types/api";
 import { cn } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
   title: "Koleksi dTeman",
   description:
     "Jelajahi koleksi boneka rajut yoga dari D`TEMAN YOGA. Teman setia untuk setiap asana Anda.",
+  alternates: {
+    canonical: `${SITE_URL}/products`,
+  },
+  openGraph: {
+    url: `${SITE_URL}/products`,
+    title: "Koleksi dTeman",
+    description:
+      "Jelajahi koleksi boneka rajut yoga dari D`TEMAN YOGA. Teman setia untuk setiap asana Anda.",
+  },
 };
 
 export const revalidate = 60;

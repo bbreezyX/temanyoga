@@ -5,8 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Sparkles, ArrowRight, ArrowUpRight, MoveRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
-
-const SITE_URL = "https://ditemaniyoga.com";
+import { SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
   title: "Boneka Rajut Yoga Premium",

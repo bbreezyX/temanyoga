@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-url";
 import { UlasClient } from "./ulas-client";
 
 export const metadata: Metadata = {
@@ -6,7 +7,13 @@ export const metadata: Metadata = {
   description:
     "Beri ulasan untuk boneka rajut yoga pesanan Anda. Masukkan kode order dan bagikan pengalaman Anda.",
   alternates: {
-    canonical: "https://ditemaniyoga.com/ulas",
+    canonical: `${SITE_URL}/ulas`,
+  },
+  openGraph: {
+    url: `${SITE_URL}/ulas`,
+    title: "Beri Ulasan | D'TEMAN YOGA",
+    description:
+      "Beri ulasan untuk boneka rajut yoga pesanan Anda. Masukkan kode order dan bagikan pengalaman Anda.",
   },
 };
 

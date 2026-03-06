@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductDetail } from "@/components/product/product-detail";
 import { prisma } from "@/lib/prisma";
+import { SITE_URL } from "@/lib/site-url";
 import type { ProductDetail as ProductDetailType } from "@/types/api";
-
-const SITE_URL = "https://ditemaniyoga.com";
 
 interface Props {
   params: Promise<{ slug: string }>;
