@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ProductGrid } from "@/components/product/product-grid";
 import { PaginationControls } from "@/components/product/pagination-controls";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import type { ProductListItem } from "@/types/api";
 import { cn } from "@/lib/utils";
 import { SITE_URL } from "@/lib/site-url";

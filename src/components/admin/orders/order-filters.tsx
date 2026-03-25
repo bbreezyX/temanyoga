@@ -1,6 +1,6 @@
 "use client";
 
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma";
 import { Search, CalendarRange, Filter } from "lucide-react";
 import {
   Select,

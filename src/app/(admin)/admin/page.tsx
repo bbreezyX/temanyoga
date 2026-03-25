@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 import { DashboardContent } from "@/components/admin/dashboard-content";
 import type { AdminDashboardStats } from "@/types/api";
 

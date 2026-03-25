@@ -9,6 +9,8 @@ import {
   Eye,
   ImageIcon,
   Trash2,
+  Camera,
+  ShoppingBag,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -28,6 +30,7 @@ interface ProductTableProps {
   totalCount: number;
   onEdit: (product: AdminProductListItem) => void;
   onRefresh: () => void;
+  viewMode?: "grid" | "list";
 }
 
 function StockBadge({ stock }: { stock: number | null }) {
@@ -83,6 +86,7 @@ export function ProductTable({
   totalCount,
   onEdit,
   onRefresh,
+  viewMode = "grid",
 }: ProductTableProps) {
   const toast = useToast();
   const [imageDialogProduct, setImageDialogProduct] =
@@ -112,7 +116,6 @@ export function ProductTable({
     }
     toast.success("Gambar berhasil dihapus");
     onRefresh();
-    // Also update current dialog product if it's open
     if (imageDialogProduct) {
       setImageDialogProduct({
         ...imageDialogProduct,
@@ -121,277 +124,419 @@ export function ProductTable({
     }
   }
 
+  const EmptyState = () => (
+    <div className="flex flex-col items-center gap-4 py-20 text-warm-gray">
+      <div className="h-20 w-20 rounded-3xl bg-cream flex items-center justify-center">
+        <ImageIcon className="h-10 w-10 text-warm-sand" />
+      </div>
+      <div className="text-center">
+        <p className="font-bold text-dark-brown">Belum ada produk</p>
+        <p className="text-sm mt-1">Tambah produk pertamamu dengan tombol di atas.</p>
+      </div>
+    </div>
+  );
+
   return (
     <>
-      <div className="rounded-[32px] bg-card shadow-soft ring-1 ring-warm-sand/30 overflow-hidden">
-        {/* Desktop Table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-cream/50 border-b border-warm-sand/50">
-              <tr className="text-[11px] font-black uppercase tracking-[0.1em] text-warm-gray">
-                <th className="py-5 pl-6 lg:pl-8">Produk</th>
-                <th className="py-5">Harga</th>
-                <th className="py-5">Stok</th>
-                <th className="py-5">Status</th>
-                <th className="py-5 text-center">Terjual</th>
-                <th className="py-5 pr-6 lg:pr-8 text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-warm-sand/20">
-              {products.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="text-center py-16 text-warm-gray font-medium"
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="h-16 w-16 rounded-2xl bg-cream flex items-center justify-center">
-                        <ImageIcon className="h-8 w-8 text-warm-sand" />
-                      </div>
-                      <p>Belum ada produk yang ditemukan.</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                products.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="group hover:bg-cream/30 transition-colors"
-                  >
-                    {/* Product Info */}
-                    <td className="py-4 pl-6 lg:pl-8">
-                      <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 lg:h-16 lg:w-16 shrink-0 rounded-2xl bg-warm-sand/50 flex items-center justify-center overflow-hidden ring-1 ring-warm-sand/50 relative">
-                          {product.images[0] ? (
-                            <Image
-                              src={getImageUrl(product.images[0].url)}
-                              alt={product.name}
-                              fill
-                              className="object-cover"
-                              sizes="64px"
-                            />
-                          ) : (
-                            <ImageIcon className="h-6 w-6 text-warm-gray/40" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-display font-bold text-dark-brown truncate max-w-[200px]">
-                            {product.name}
-                          </p>
-                          <p className="text-xs text-warm-gray mt-1 truncate max-w-[220px]">
-                            {product.description}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Price */}
-                    <td className="py-4">
-                      <span className="font-bold text-dark-brown">
-                        {formatCurrency(product.price)}
-                      </span>
-                    </td>
-
-                    {/* Stock */}
-                    <td className="py-4">
-                      <StockBadge stock={product.stock} />
-                    </td>
-
-                    {/* Status */}
-                    <td className="py-4">
-                      <StatusBadge isActive={product.isActive} />
-                    </td>
-
-                    {/* Sold Count */}
-                    <td className="py-4 text-center">
-                      <span className="font-bold text-dark-brown tabular-nums">
-                        {product._count.orderItems}
-                      </span>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-4 pr-6 lg:pr-8 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => onEdit(product)}
-                          title="Edit produk"
-                          className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setImageDialogProduct(product)}
-                          title="Upload gambar"
-                          className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all"
-                        >
-                          <ImagePlus className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => toggleActive(product)}
-                          title={product.isActive ? "Nonaktifkan" : "Aktifkan"}
-                          className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-warm-gray hover:bg-dark-brown hover:text-white transition-all"
-                        >
-                          {product.isActive ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Card View */}
-        <div className="md:hidden">
+      {/* ── GRID VIEW ─────────────────────────────────────────── */}
+      {viewMode === "grid" && (
+        <div>
           {products.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-16 text-warm-gray font-medium">
-              <div className="h-16 w-16 rounded-2xl bg-cream flex items-center justify-center">
-                <ImageIcon className="h-8 w-8 text-warm-sand" />
-              </div>
-              <p>Belum ada produk yang ditemukan.</p>
-            </div>
+            <EmptyState />
           ) : (
-            <div className="space-y-4 p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {products.map((product) => (
                 <div
                   key={product.id}
-                  className="rounded-2xl bg-white p-4 ring-1 ring-warm-sand/30 shadow-sm"
+                  className={`group rounded-3xl bg-card ring-1 overflow-hidden shadow-soft hover:shadow-md transition-all duration-200 flex flex-col ${
+                    product.isActive
+                      ? "ring-warm-sand/30"
+                      : "ring-warm-sand/30 opacity-70"
+                  }`}
                 >
-                  <div className="flex gap-4">
-                    {/* Product Image */}
-                    <div className="h-20 w-20 shrink-0 rounded-xl bg-warm-sand/50 flex items-center justify-center overflow-hidden ring-1 ring-warm-sand/50 relative">
-                      {product.images[0] ? (
-                        <Image
-                          src={getImageUrl(product.images[0].url)}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                          sizes="80px"
-                        />
-                      ) : (
-                        <ImageIcon className="h-8 w-8 text-warm-gray/40" />
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start gap-2">
-                        <h3 className="font-display font-bold text-dark-brown truncate">
-                          {product.name}
-                        </h3>
-                        <StatusBadge isActive={product.isActive} />
+                  {/* Image */}
+                  <div className="relative aspect-square bg-cream overflow-hidden">
+                    {product.images[0] ? (
+                      <Image
+                        src={getImageUrl(product.images[0].url)}
+                        alt={product.name}
+                        fill
+                        className="object-cover group-hover:scale-[1.04] transition-transform duration-300"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-warm-gray/40">
+                        <ImageIcon className="h-10 w-10" />
+                        <span className="text-[11px] font-medium">Belum ada foto</span>
                       </div>
-                      <p className="text-[11px] text-warm-gray mt-1 truncate">
-                        {product.description}
-                      </p>
+                    )}
+                    {/* Status badge overlay */}
+                    <div className="absolute top-2.5 left-2.5">
+                      <StatusBadge isActive={product.isActive} />
+                    </div>
+                    {/* Photo count badge */}
+                    {product.images.length > 0 && (
+                      <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/50 backdrop-blur-sm text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+                        <Camera className="h-3 w-3" />
+                        {product.images.length}
+                      </div>
+                    )}
+                  </div>
 
-                      <div className="mt-2 flex items-center gap-2 flex-wrap">
+                  {/* Content */}
+                  <div className="p-3 flex-1 flex flex-col gap-2">
+                    <div>
+                      <h3 className="font-display font-bold text-dark-brown text-sm leading-tight line-clamp-2">
+                        {product.name}
+                      </h3>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="font-display font-extrabold text-dark-brown text-base">
+                        {formatCurrency(product.price)}
+                      </span>
+                      <div className="flex flex-wrap gap-1.5 items-center">
                         <StockBadge stock={product.stock} />
-                        <span className="text-xs text-warm-gray font-medium px-2 py-0.5 rounded-full bg-cream">
-                          {product._count.orderItems} Terjual
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-warm-gray bg-cream px-2 py-0.5 rounded-full">
+                          <ShoppingBag className="h-2.5 w-2.5" />
+                          {product._count.orderItems} terjual
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-warm-sand/20 flex items-center justify-between">
-                    <span className="font-display font-extrabold text-lg text-dark-brown">
-                      {formatCurrency(product.price)}
-                    </span>
-
-                    <div className="flex items-center gap-2">
+                  {/* Action Buttons */}
+                  <div className="px-3 pb-3 flex flex-col gap-2 border-t border-warm-sand/20 pt-3">
+                    <div className="flex gap-1.5">
                       <button
                         onClick={() => onEdit(product)}
-                        className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-cream px-2 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5 shrink-0" />
+                        Edit
                       </button>
                       <button
                         onClick={() => setImageDialogProduct(product)}
-                        className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-cream px-2 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                       >
-                        <ImagePlus className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => toggleActive(product)}
-                        className="h-9 w-9 flex items-center justify-center rounded-full bg-cream text-warm-gray hover:bg-dark-brown hover:text-white transition-all ring-1 ring-warm-sand/30"
-                      >
-                        {product.isActive ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
+                        <ImagePlus className="h-3.5 w-3.5 shrink-0" />
+                        Foto
+                        {product.images.length > 0 && (
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-terracotta/20 text-terracotta text-[10px] font-black">
+                            {product.images.length}
+                          </span>
                         )}
                       </button>
                     </div>
+                    <button
+                      onClick={() => toggleActive(product)}
+                      className={`w-full flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-bold transition-all ring-1 ${
+                        product.isActive
+                          ? "bg-sage/10 text-sage ring-sage/20 hover:bg-red-50 hover:text-red-500 hover:ring-red-200"
+                          : "bg-cream text-warm-gray ring-warm-sand/30 hover:bg-sage/10 hover:text-sage hover:ring-sage/20"
+                      }`}
+                    >
+                      {product.isActive ? (
+                        <>
+                          <EyeOff className="h-3.5 w-3.5" />
+                          Nonaktifkan
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3.5 w-3.5" />
+                          Aktifkan
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        {products.length > 0 && (
-          <div className="bg-cream/30 px-6 lg:px-8 py-4 border-t border-warm-sand/30 flex items-center justify-between text-sm font-bold text-warm-gray">
-            <span>
+          {products.length > 0 && (
+            <p className="text-xs font-bold text-warm-gray mt-4 text-center">
               Menampilkan {products.length} dari {totalCount} produk
-            </span>
-          </div>
-        )}
-      </div>
+            </p>
+          )}
+        </div>
+      )}
 
-      {/* Image Upload Dialog */}
+      {/* ── LIST VIEW ─────────────────────────────────────────── */}
+      {viewMode === "list" && (
+        <div className="rounded-[32px] bg-card shadow-soft ring-1 ring-warm-sand/30 overflow-hidden">
+          {products.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-cream/50 border-b border-warm-sand/50">
+                    <tr className="text-[11px] font-black uppercase tracking-[0.1em] text-warm-gray">
+                      <th className="py-5 pl-6 lg:pl-8">Produk</th>
+                      <th className="py-5">Harga</th>
+                      <th className="py-5">Stok</th>
+                      <th className="py-5">Status</th>
+                      <th className="py-5 text-center">Terjual</th>
+                      <th className="py-5 pr-6 lg:pr-8 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-warm-sand/20">
+                    {products.map((product) => (
+                      <tr
+                        key={product.id}
+                        className="group hover:bg-cream/30 transition-colors"
+                      >
+                        <td className="py-4 pl-6 lg:pl-8">
+                          <div className="flex items-center gap-4">
+                            <div className="h-16 w-16 shrink-0 rounded-2xl bg-warm-sand/50 flex items-center justify-center overflow-hidden ring-1 ring-warm-sand/50 relative">
+                              {product.images[0] ? (
+                                <Image
+                                  src={getImageUrl(product.images[0].url)}
+                                  alt={product.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="64px"
+                                />
+                              ) : (
+                                <ImageIcon className="h-6 w-6 text-warm-gray/40" />
+                              )}
+                              {product.images.length > 1 && (
+                                <div className="absolute bottom-0.5 right-0.5 flex items-center justify-center h-4 w-4 rounded-full bg-black/50 text-white text-[9px] font-bold">
+                                  +{product.images.length - 1}
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-display font-bold text-dark-brown truncate max-w-[200px]">
+                                {product.name}
+                              </p>
+                              <p className="text-xs text-warm-gray mt-0.5 truncate max-w-[220px]">
+                                {product.description}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4">
+                          <span className="font-bold text-dark-brown">
+                            {formatCurrency(product.price)}
+                          </span>
+                        </td>
+                        <td className="py-4">
+                          <StockBadge stock={product.stock} />
+                        </td>
+                        <td className="py-4">
+                          <StatusBadge isActive={product.isActive} />
+                        </td>
+                        <td className="py-4 text-center">
+                          <span className="font-bold text-dark-brown tabular-nums">
+                            {product._count.orderItems}
+                          </span>
+                        </td>
+                        <td className="py-4 pr-6 lg:pr-8">
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => onEdit(product)}
+                              className="flex items-center gap-1.5 rounded-full bg-cream px-3.5 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => setImageDialogProduct(product)}
+                              className="flex items-center gap-1.5 rounded-full bg-cream px-3.5 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                            >
+                              <ImagePlus className="h-3.5 w-3.5" />
+                              Foto
+                              {product.images.length > 0 && (
+                                <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-terracotta/20 text-terracotta text-[10px] font-black">
+                                  {product.images.length}
+                                </span>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => toggleActive(product)}
+                              className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-all ring-1 ${
+                                product.isActive
+                                  ? "bg-sage/10 text-sage ring-sage/20 hover:bg-red-50 hover:text-red-500 hover:ring-red-200"
+                                  : "bg-cream text-warm-gray ring-warm-sand/30 hover:bg-sage/10 hover:text-sage hover:ring-sage/20"
+                              }`}
+                            >
+                              {product.isActive ? (
+                                <>
+                                  <EyeOff className="h-3.5 w-3.5" />
+                                  Nonaktifkan
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="h-3.5 w-3.5" />
+                                  Aktifkan
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards (always used on small screens) */}
+              <div className="md:hidden divide-y divide-warm-sand/20">
+                {products.map((product) => (
+                  <div key={product.id} className="p-4">
+                    <div className="flex gap-3">
+                      <div className="h-20 w-20 shrink-0 rounded-2xl bg-warm-sand/50 overflow-hidden ring-1 ring-warm-sand/50 relative flex items-center justify-center">
+                        {product.images[0] ? (
+                          <Image
+                            src={getImageUrl(product.images[0].url)}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                          />
+                        ) : (
+                          <ImageIcon className="h-7 w-7 text-warm-gray/40" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <h3 className="font-display font-bold text-dark-brown truncate">
+                            {product.name}
+                          </h3>
+                          <StatusBadge isActive={product.isActive} />
+                        </div>
+                        <p className="text-[11px] text-warm-gray mt-0.5 truncate">
+                          {product.description}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          <StockBadge stock={product.stock} />
+                          <span className="text-[10px] font-bold text-warm-gray px-2 py-0.5 rounded-full bg-cream">
+                            {product._count.orderItems} Terjual
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-warm-sand/20 flex items-center justify-between gap-2">
+                      <span className="font-display font-extrabold text-dark-brown">
+                        {formatCurrency(product.price)}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => onEdit(product)}
+                          className="flex items-center gap-1 rounded-full bg-cream px-3 py-1.5 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setImageDialogProduct(product)}
+                          className="flex items-center gap-1 rounded-full bg-cream px-3 py-1.5 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
+                        >
+                          <ImagePlus className="h-3.5 w-3.5" />
+                          Foto
+                        </button>
+                        <button
+                          onClick={() => toggleActive(product)}
+                          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-all ring-1 ${
+                            product.isActive
+                              ? "bg-sage/10 text-sage ring-sage/20"
+                              : "bg-cream text-warm-gray ring-warm-sand/30"
+                          }`}
+                        >
+                          {product.isActive ? (
+                            <EyeOff className="h-3.5 w-3.5" />
+                          ) : (
+                            <Eye className="h-3.5 w-3.5" />
+                          )}
+                          {product.isActive ? "Nonaktifkan" : "Aktifkan"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-cream/30 px-6 lg:px-8 py-4 border-t border-warm-sand/30 text-sm font-bold text-warm-gray">
+                Menampilkan {products.length} dari {totalCount} produk
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── IMAGE DIALOG ──────────────────────────────────────── */}
       <Dialog
         open={!!imageDialogProduct}
         onOpenChange={(v) => !v && setImageDialogProduct(null)}
       >
-        <DialogContent className="sm:max-w-md rounded-3xl">
+        <DialogContent className="sm:max-w-lg rounded-3xl">
           <DialogHeader>
             <DialogTitle className="font-display font-bold text-dark-brown">
-              Upload Gambar &mdash; {imageDialogProduct?.name}
+              Kelola Foto — {imageDialogProduct?.name}
             </DialogTitle>
           </DialogHeader>
           {imageDialogProduct && (
-            <div className="space-y-4">
-              {imageDialogProduct.images.length > 0 && (
-                <div className="flex gap-3 flex-wrap">
-                  {imageDialogProduct.images.map((img) => (
-                    <div
-                      key={img.id}
-                      className="group relative h-20 w-20 overflow-hidden rounded-2xl ring-1 ring-warm-sand/50"
-                    >
-                      <Image
-                        src={getImageUrl(img.url)}
-                        alt="Product"
-                        fill
-                        className="object-cover"
-                        sizes="80px"
-                      />
-                      <button
-                        onClick={() => handleDeleteImage(img.id)}
-                        className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-white"
-                        title="Hapus gambar"
+            <div className="space-y-5">
+              {imageDialogProduct.images.length === 0 ? (
+                <div className="flex flex-col items-center gap-2 py-6 text-warm-gray">
+                  <div className="h-14 w-14 rounded-2xl bg-cream flex items-center justify-center">
+                    <Camera className="h-7 w-7 text-warm-sand" />
+                  </div>
+                  <p className="text-sm font-medium">Belum ada foto untuk produk ini.</p>
+                  <p className="text-xs text-warm-gray/70">Upload foto agar pembeli bisa melihat produk.</p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-xs font-bold text-warm-gray mb-3">
+                    Foto saat ini ({imageDialogProduct.images.length})
+                    <span className="ml-1 font-normal">— Arahkan ke foto untuk menghapus</span>
+                  </p>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {imageDialogProduct.images.map((img, idx) => (
+                      <div
+                        key={img.id}
+                        className="group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-warm-sand/50"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  ))}
+                        <Image
+                          src={getImageUrl(img.url)}
+                          alt={`Foto ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="120px"
+                        />
+                        {idx === 0 && (
+                          <div className="absolute top-1.5 left-1.5 bg-terracotta text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                            Utama
+                          </div>
+                        )}
+                        <button
+                          onClick={() => handleDeleteImage(img.id)}
+                          className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity text-white"
+                          aria-label="Hapus foto"
+                        >
+                          <Trash2 className="h-5 w-5" />
+                          <span className="text-[10px] font-bold">Hapus</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-              <ImageUpload
-                productId={imageDialogProduct.id}
-                onUploaded={(newImage) => {
-                  setImageDialogProduct({
-                    ...imageDialogProduct,
-                    images: [...imageDialogProduct.images, newImage],
-                  });
-                  onRefresh();
-                }}
-              />
+              <div className="rounded-2xl bg-cream p-4 space-y-3">
+                <p className="text-xs font-bold text-dark-brown">Tambah Foto Baru</p>
+                <p className="text-[11px] text-warm-gray">Format: JPG, PNG, WebP. Maksimal 5 MB per foto.</p>
+                <ImageUpload
+                  productId={imageDialogProduct.id}
+                  onUploaded={(newImage) => {
+                    setImageDialogProduct({
+                      ...imageDialogProduct,
+                      images: [...imageDialogProduct.images, newImage],
+                    });
+                    onRefresh();
+                  }}
+                />
+              </div>
             </div>
           )}
         </DialogContent>

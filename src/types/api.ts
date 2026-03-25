@@ -2,7 +2,7 @@ import type {
   OrderStatus,
   PaymentProofStatus,
   DiscountType,
-} from "@prisma/client";
+} from "@/generated/prisma/client";
 
 export interface ShippingZone {
   id: string;

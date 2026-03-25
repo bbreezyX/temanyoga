@@ -1,36 +1,29 @@
-import { OrderStatus, PaymentProofStatus } from "@prisma/client";
-
-const currencyFormatter = new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
+import { OrderStatus, PaymentProofStatus } from "@/generated/prisma/client";
 
 export function formatCurrency(amount: number): string {
-  return currencyFormatter.format(amount);
+  // Use manual formatting to avoid SSR/client Intl locale mismatch
+  // (Node.js and browsers may format "id-ID" currency differently)
+  const formatted = Math.round(amount)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `Rp${formatted}`;
 }
 
-const dateFormatter = new Intl.DateTimeFormat("id-ID", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-});
+const ID_MONTHS = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
 
 export function formatDate(date: string | Date): string {
-  return dateFormatter.format(new Date(date));
+  const d = new Date(date);
+  return `${d.getDate()} ${ID_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-const dateTimeFormatter = new Intl.DateTimeFormat("id-ID", {
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
 export function formatDateTime(date: string | Date): string {
-  return dateTimeFormatter.format(new Date(date));
+  const d = new Date(date);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${d.getDate()} ${ID_MONTHS[d.getMonth()]} ${d.getFullYear()}, ${hh}.${mm}`;
 }
 
 const STATUS_LABELS: Record<OrderStatus, string> = {

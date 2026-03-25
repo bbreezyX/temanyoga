@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/toast";
 import { apiFetch, apiPatch } from "@/lib/api-client";
 import { formatDateTime } from "@/lib/format";
 import type { AdminOrderDetail } from "@/types/api";
-import { PaymentProofStatus, OrderStatus } from "@prisma/client";
+import { PaymentProofStatus, OrderStatus } from "@/generated/prisma";
 import { ProofImageDialog } from "@/components/admin/orders/proof-image-dialog";
 import { OrderStepper } from "@/components/admin/orders/order-stepper";
 import { OrderItemsSection } from "@/components/admin/orders/order-items-section";

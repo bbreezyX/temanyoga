@@ -3,7 +3,7 @@
 import { Receipt, CheckCircle, XCircle, Maximize2 } from "lucide-react";
 import Image from "next/image";
 import { getImageUrl } from "@/lib/image-url";
-import { PaymentProofStatus } from "@prisma/client";
+import { PaymentProofStatus } from "@/generated/prisma";
 
 type PaymentProof = {
   id: string;

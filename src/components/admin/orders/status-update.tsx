@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { Loader2 } from "lucide-react";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

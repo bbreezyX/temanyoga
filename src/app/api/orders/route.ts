@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import type { Product } from "@prisma/client";
-import { NotificationType } from "@prisma/client";
+import type { Product } from "@/generated/prisma/client";
+import { NotificationType } from "@/generated/prisma/client";
 import {
   apiSuccess,
   badRequest,

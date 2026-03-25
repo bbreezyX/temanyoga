@@ -6,7 +6,7 @@ import {
   badRequest,
 } from "@/lib/api-response";
 import { validateStatusTransition } from "@/lib/order-status";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 
 export async function GET(
   _request: Request,

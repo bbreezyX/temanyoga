@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Bell, Package, CreditCard, Truck, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { NotificationType } from "@prisma/client";
+import { NotificationType } from "@/generated/prisma";
 
 const INITIAL_RECONNECT_DELAY = 1000;
 const MAX_RECONNECT_DELAY = 30000;

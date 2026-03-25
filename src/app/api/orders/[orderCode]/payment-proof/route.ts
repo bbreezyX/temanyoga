@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { OrderStatus, NotificationType } from "@prisma/client";
+import { OrderStatus, NotificationType } from "@/generated/prisma/client";
 import {
   apiSuccess,
   apiError,

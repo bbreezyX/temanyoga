@@ -47,3 +47,4 @@ AGENTS.md
 .github/instructions/code.instructions.md
 nul
 --output
+.env*.local

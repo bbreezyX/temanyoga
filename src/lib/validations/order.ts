@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 
 /**
  * Custom Zod transform for sanitizing text input
