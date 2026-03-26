@@ -69,15 +69,60 @@ function StockBadge({ stock }: { stock: number | null }) {
 function StatusBadge({ isActive }: { isActive: boolean }) {
   if (isActive) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-sage/10 px-3 py-1 text-[11px] font-bold text-sage ring-1 ring-sage/20">
-        Aktif
-      </span>
+      <div className="flex items-center gap-2 group/status drop-shadow-sm">
+        <div className="relative flex h-2.5 w-2.5">
+          <span 
+            className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" 
+            style={{ backgroundColor: '#10b981' }}
+          ></span>
+          <span 
+            className="relative inline-flex rounded-full h-2.5 w-2.5 shadow-[0_0_12px_rgba(16,185,129,0.8)]" 
+            style={{ backgroundColor: '#10b981' }}
+          ></span>
+        </div>
+        <span 
+          className="text-[10px] font-black uppercase tracking-[0.2em] select-none"
+          style={{ 
+            color: '#065f46',
+            textShadow: '0 1px 1px rgba(255,255,255,0.5)'
+          }}
+        >
+          Publish
+        </span>
+      </div>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-warm-gray/10 px-3 py-1 text-[11px] font-bold text-warm-gray ring-1 ring-warm-gray/20">
-      Nonaktif
-    </span>
+    <div className="flex items-center gap-2 group/status opacity-90">
+      <div className="relative flex h-2.5 w-2.5">
+        <span 
+          className="relative inline-flex rounded-full h-2.5 w-2.5 shadow-[0_0_8px_rgba(107,91,75,0.3)]" 
+          style={{ backgroundColor: '#6b5b4b' }}
+        ></span>
+      </div>
+      <span 
+        className="text-[10px] font-black uppercase tracking-[0.2em] select-none"
+        style={{ color: '#6b5b4b' }}
+      >
+        Draft
+      </span>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center gap-4 py-20 text-warm-gray">
+      <div className="h-20 w-20 rounded-3xl bg-cream flex items-center justify-center">
+        <ImageIcon className="h-10 w-10 text-warm-sand" />
+      </div>
+      <div className="text-center">
+        <p className="font-bold text-dark-brown">Belum ada produk</p>
+        <p className="text-sm mt-1">
+          Tambah produk pertamamu dengan tombol di atas.
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -124,18 +169,6 @@ export function ProductTable({
     }
   }
 
-  const EmptyState = () => (
-    <div className="flex flex-col items-center gap-4 py-20 text-warm-gray">
-      <div className="h-20 w-20 rounded-3xl bg-cream flex items-center justify-center">
-        <ImageIcon className="h-10 w-10 text-warm-sand" />
-      </div>
-      <div className="text-center">
-        <p className="font-bold text-dark-brown">Belum ada produk</p>
-        <p className="text-sm mt-1">Tambah produk pertamamu dengan tombol di atas.</p>
-      </div>
-    </div>
-  );
-
   return (
     <>
       {/* ── GRID VIEW ─────────────────────────────────────────── */}
@@ -170,8 +203,8 @@ export function ProductTable({
                         <span className="text-[11px] font-medium">Belum ada foto</span>
                       </div>
                     )}
-                    {/* Status badge overlay */}
-                    <div className="absolute top-2.5 left-2.5">
+                    {/* Status indicator on image */}
+                    <div className="absolute top-3 left-3 z-10">
                       <StatusBadge isActive={product.isActive} />
                     </div>
                     {/* Photo count badge */}

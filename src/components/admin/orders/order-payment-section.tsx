@@ -26,12 +26,12 @@ export function OrderPaymentSection({
 }: OrderPaymentSectionProps) {
   const statusLabel =
     paymentProof?.status === "APPROVED"
-      ? "DISETUJUI"
+      ? "Disetujui"
       : paymentProof?.status === "REJECTED"
-        ? "DITOLAK"
+        ? "Ditolak"
         : paymentProof?.status === "PENDING"
-          ? "MENUNGGU"
-          : "Tanpa Bukti";
+          ? "Menunggu Review"
+          : "Belum Ada";
 
   const statusClasses =
     paymentProof?.status === "APPROVED"
@@ -47,7 +47,7 @@ export function OrderPaymentSection({
           Bukti Pembayaran
         </h2>
         <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] sm:text-[11px] font-bold ring-1 ring-inset ${statusClasses}`}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] sm:text-[11px] font-bold ring-1 ring-inset whitespace-nowrap ${statusClasses}`}
         >
           {statusLabel}
         </span>
@@ -89,7 +89,7 @@ export function OrderPaymentSection({
               className="w-full bg-terracotta text-white rounded-full py-3.5 sm:py-4 font-bold shadow-lg hover:shadow-terracotta/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
             >
               <CheckCircle className="h-5 w-5" />
-              Tandai sebagai Terverifikasi Lunas
+              Verifikasi Pembayaran
             </button>
             <button
               onClick={() =>
@@ -99,7 +99,7 @@ export function OrderPaymentSection({
               className="w-full bg-red-50 text-red-600 border border-red-100 rounded-full py-3.5 sm:py-4 font-bold shadow-sm hover:bg-red-100 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
             >
               <XCircle className="h-5 w-5" />
-              Tolak Bukti
+              Tolak Pembayaran
             </button>
           </>
         )}

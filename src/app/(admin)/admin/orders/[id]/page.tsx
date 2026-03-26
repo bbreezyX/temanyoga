@@ -179,7 +179,21 @@ useEffect(() => {
   const parsedShippingZone = useMemo(() => {
     if (!order?.shippingZoneSnapshot) return null;
     try {
-      return JSON.parse(order.shippingZoneSnapshot) as { name: string };
+      const parsed = JSON.parse(order.shippingZoneSnapshot) as {
+        mode?: string;
+        name?: string;
+        courier_code?: string;
+        courier_name?: string;
+        price?: number;
+        estimation?: string | null;
+      };
+      // For API mode, use courier_name as the display name
+      if (parsed.mode === "api" && parsed.courier_name) {
+        return {
+          name: `${parsed.courier_name}${parsed.estimation ? ` — ${parsed.estimation}` : ""}`,
+        };
+      }
+      return { name: parsed.name || null };
     } catch {
       return null;
     }

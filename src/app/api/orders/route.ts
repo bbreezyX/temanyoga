@@ -40,16 +40,15 @@ export async function POST(request: Request) {
       return badRequest(parsed.error.issues[0].message);
     }
 
-    const { items, shippingZoneId, couponCode, ...customerData } = parsed.data;
-
-    // Validate shipping zone exists and is active
-    const shippingZone = await prisma.shippingZone.findUnique({
-      where: { id: shippingZoneId },
-    });
-
-    if (!shippingZone || !shippingZone.isActive) {
-      return badRequest("Zona pengiriman tidak valid atau tidak aktif");
-    }
+    const {
+      items,
+      shippingZoneId,
+      destinationVillageCode,
+      selectedCourierCode,
+      selectedCourierName,
+      couponCode,
+      ...customerData
+    } = parsed.data;
 
     // Fetch all products in one query
     const productIds = items.map((item) => item.productId);
@@ -192,14 +191,91 @@ export async function POST(request: Request) {
       }
     }
 
-    const shippingCost = shippingZone.price;
-    const totalAmount = subtotal - discountAmount + shippingCost;
+    // Determine shipping cost based on mode (API courier vs fallback zone)
+    let shippingCost: number;
+    let shippingZoneSnapshot: string;
+    let resolvedShippingZoneId: string | null = shippingZoneId ?? null;
 
-    // Snapshot the zone info for historical reference
-    const shippingZoneSnapshot = JSON.stringify({
-      name: shippingZone.name,
-      price: shippingZone.price,
-    });
+    if (destinationVillageCode && selectedCourierCode) {
+      // MODE API: re-verify price with api.co.id
+      const weight = items.reduce((sum, item) => sum + item.quantity, 0) || 1;
+      const originSetting = await prisma.siteSetting.findUnique({
+        where: { key: "origin_village_code" },
+      });
+
+      if (!originSetting?.value) {
+        return badRequest("Kode kelurahan asal belum dikonfigurasi");
+      }
+
+      const apiKey = process.env.API_CO_ID_KEY;
+      if (!apiKey) {
+        return badRequest("Konfigurasi cek ongkir belum lengkap");
+      }
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const url = new URL("https://use.api.co.id/expedition/shipping-cost");
+        url.searchParams.set("origin_village_code", originSetting.value);
+        url.searchParams.set("destination_village_code", destinationVillageCode.replace(/\./g, ""));
+        url.searchParams.set("weight", String(weight));
+
+        const apiRes = await fetch(url.toString(), {
+          headers: { "x-api-co-id": apiKey },
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        if (!apiRes.ok) {
+          return badRequest("Ongkir tidak dapat diverifikasi");
+        }
+
+        const apiData = await apiRes.json();
+        if (!apiData.is_success || !apiData.data?.couriers) {
+          return badRequest("Ongkir tidak dapat diverifikasi");
+        }
+
+        const courier = apiData.data.couriers.find(
+          (c: { courier_code: string }) => c.courier_code === selectedCourierCode,
+        );
+        if (!courier || courier.price <= 0) {
+          return badRequest("Kurir tidak tersedia untuk rute ini");
+        }
+
+        shippingCost = courier.price;
+        shippingZoneSnapshot = JSON.stringify({
+          mode: "api",
+          courier_code: courier.courier_code,
+          courier_name: courier.courier_name || selectedCourierName || selectedCourierCode,
+          price: courier.price,
+          estimation: courier.estimation,
+        });
+        resolvedShippingZoneId = null;
+      } catch (err) {
+        clearTimeout(timeout);
+        console.error("api.co.id verification failed:", err);
+        return badRequest("Ongkir tidak dapat diverifikasi, silakan coba lagi");
+      }
+    } else if (shippingZoneId) {
+      // MODE FALLBACK: use DB zone
+      const shippingZone = await prisma.shippingZone.findUnique({
+        where: { id: shippingZoneId },
+      });
+      if (!shippingZone || !shippingZone.isActive) {
+        return badRequest("Zona pengiriman tidak valid atau tidak aktif");
+      }
+      shippingCost = shippingZone.price;
+      shippingZoneSnapshot = JSON.stringify({
+        mode: "fallback",
+        name: shippingZone.name,
+        price: shippingZone.price,
+      });
+    } else {
+      return badRequest("Wajib pilih kurir atau zona pengiriman");
+    }
+
+    const totalAmount = subtotal - discountAmount + shippingCost;
 
     // Create order in transaction with stock decrement
     const order = await prisma.$transaction(async (tx) => {
@@ -228,7 +304,7 @@ export async function POST(request: Request) {
           ...customerData,
           totalAmount,
           shippingCost,
-          shippingZoneId,
+          shippingZoneId: resolvedShippingZoneId,
           shippingZoneSnapshot,
           couponId,
           couponCode: validCouponCode,

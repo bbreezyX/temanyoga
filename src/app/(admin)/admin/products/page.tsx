@@ -11,9 +11,17 @@ import {
   PackageCheck,
   PackageX,
   AlertTriangle,
+  ChevronDown,
 } from "lucide-react";
 import { ProductTable } from "@/components/admin/products/product-table";
 import { ProductForm } from "@/components/admin/products/product-form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { apiFetch } from "@/lib/api-client";
 import type {
   AdminProductListItem,
@@ -31,7 +39,6 @@ export default function AdminProductsPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -125,78 +132,6 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
-      {/* Quick Stats */}
-      {!loading && (
-        <div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in-up"
-          style={{ animationDelay: "60ms" }}
-        >
-          <button
-            onClick={() => { setStockFilter("all"); setStatusFilter("all"); }}
-            className={`group rounded-2xl p-4 ring-1 transition-all text-left ${
-              stockFilter === "all" && statusFilter === "all"
-                ? "bg-terracotta text-white ring-terracotta/30 shadow-md shadow-terracotta/20"
-                : "bg-card ring-warm-sand/30 hover:ring-terracotta/30"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Package className="h-4 w-4 shrink-0" />
-              <span className="text-xs font-bold uppercase tracking-wide opacity-80">Total</span>
-            </div>
-            <p className="font-display font-extrabold text-2xl tabular-nums">{stats.total}</p>
-            <p className="text-xs font-medium opacity-70 mt-0.5">produk</p>
-          </button>
-
-          <button
-            onClick={() => { setStockFilter("all"); setStatusFilter("active"); }}
-            className={`group rounded-2xl p-4 ring-1 transition-all text-left ${
-              statusFilter === "active"
-                ? "bg-sage text-white ring-sage/30 shadow-md shadow-sage/20"
-                : "bg-card ring-warm-sand/30 hover:ring-sage/30"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <PackageCheck className="h-4 w-4 shrink-0" />
-              <span className="text-xs font-bold uppercase tracking-wide opacity-80">Aktif</span>
-            </div>
-            <p className="font-display font-extrabold text-2xl tabular-nums">{stats.active}</p>
-            <p className="text-xs font-medium opacity-70 mt-0.5">ditampilkan di toko</p>
-          </button>
-
-          <button
-            onClick={() => { setStockFilter("low-stock"); setStatusFilter("all"); }}
-            className={`group rounded-2xl p-4 ring-1 transition-all text-left ${
-              stockFilter === "low-stock"
-                ? "bg-amber-500 text-white ring-amber-400/30 shadow-md shadow-amber-500/20"
-                : "bg-card ring-warm-sand/30 hover:ring-amber-400/30"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <AlertTriangle className="h-4 w-4 shrink-0" />
-              <span className="text-xs font-bold uppercase tracking-wide opacity-80">Stok Rendah</span>
-            </div>
-            <p className="font-display font-extrabold text-2xl tabular-nums">{stats.lowStock}</p>
-            <p className="text-xs font-medium opacity-70 mt-0.5">perlu diisi ulang</p>
-          </button>
-
-          <button
-            onClick={() => { setStockFilter("out-of-stock"); setStatusFilter("all"); }}
-            className={`group rounded-2xl p-4 ring-1 transition-all text-left ${
-              stockFilter === "out-of-stock"
-                ? "bg-red-500 text-white ring-red-400/30 shadow-md shadow-red-500/20"
-                : "bg-card ring-warm-sand/30 hover:ring-red-300/50"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <PackageX className="h-4 w-4 shrink-0" />
-              <span className="text-xs font-bold uppercase tracking-wide opacity-80">Habis</span>
-            </div>
-            <p className="font-display font-extrabold text-2xl tabular-nums">{stats.outOfStock}</p>
-            <p className="text-xs font-medium opacity-70 mt-0.5">stok kosong</p>
-          </button>
-        </div>
-      )}
-
       {/* Search, Filters & View Toggle */}
       <div
         className="flex flex-col gap-6 animate-fade-in-up"
@@ -216,54 +151,43 @@ export default function AdminProductsPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            {/* Filters */}
-            <select
-              value={stockFilter}
-              onChange={(e) => setStockFilter(e.target.value)}
-              className="rounded-full bg-cream px-5 py-3 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 cursor-pointer transition-all"
-            >
-              <option value="all">Semua Stok</option>
-              <option value="in-stock">Tersedia</option>
-              <option value="low-stock">Stok Rendah</option>
-              <option value="out-of-stock">Habis</option>
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-full bg-cream px-5 py-3 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 cursor-pointer transition-all"
-            >
-              <option value="all">Semua Status</option>
-              <option value="active">Aktif</option>
-              <option value="inactive">Nonaktif</option>
-            </select>
+            {/* Custom Filters */}
+            <Select value={stockFilter} onValueChange={setStockFilter}>
+              <SelectTrigger className="w-full sm:w-[160px] h-11 rounded-2xl bg-cream px-5 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/50 hover:ring-terracotta/40 focus:ring-2 focus:ring-terracotta/40 transition-all border-none shadow-none [&>span]:flex [&>span]:items-center [&>span]:gap-2">
+                <SelectValue placeholder="Status Stok" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-warm-sand/20 bg-white/95 backdrop-blur-md shadow-xl p-1 overflow-hidden">
+                <SelectItem value="all" className="rounded-xl font-medium focus:bg-cream focus:text-terracotta py-2.5 transition-colors">
+                  Semua Stok
+                </SelectItem>
+                <SelectItem value="in-stock" className="rounded-xl font-medium focus:bg-cream focus:text-terracotta py-2.5 transition-colors">
+                  Tersedia
+                </SelectItem>
+                <SelectItem value="low-stock" className="rounded-xl font-medium focus:bg-cream focus:text-terracotta py-2.5 transition-colors">
+                  Stok Rendah
+                </SelectItem>
+                <SelectItem value="out-of-stock" className="rounded-xl font-medium focus:bg-cream focus:text-terracotta py-2.5 transition-colors">
+                  Habis
+                </SelectItem>
+              </SelectContent>
+            </Select>
 
-            {/* View Toggle */}
-            <div className="flex items-center rounded-full bg-cream ring-1 ring-warm-sand/50 p-1 gap-1 self-stretch sm:self-auto">
-              <button
-                onClick={() => setViewMode("grid")}
-                title="Tampilan foto (grid)"
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all ${
-                  viewMode === "grid"
-                    ? "bg-terracotta text-white shadow-sm"
-                    : "text-warm-gray hover:text-dark-brown"
-                }`}
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Foto</span>
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                title="Tampilan daftar"
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition-all ${
-                  viewMode === "list"
-                    ? "bg-terracotta text-white shadow-sm"
-                    : "text-warm-gray hover:text-dark-brown"
-                }`}
-              >
-                <List className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Daftar</span>
-              </button>
-            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[150px] h-11 rounded-2xl bg-cream px-5 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/50 hover:ring-terracotta/40 focus:ring-2 focus:ring-terracotta/40 transition-all border-none shadow-none [&>span]:flex [&>span]:items-center [&>span]:gap-2">
+                <SelectValue placeholder="Status Produk" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-warm-sand/20 bg-white/95 backdrop-blur-md shadow-xl p-1 overflow-hidden">
+                <SelectItem value="all" className="rounded-xl font-medium focus:bg-cream focus:text-terracotta py-2.5 transition-colors">
+                  Semua Status
+                </SelectItem>
+                <SelectItem value="active" className="rounded-xl font-medium focus:bg-cream focus:text-terracotta py-2.5 transition-colors">
+                  Aktif
+                </SelectItem>
+                <SelectItem value="inactive" className="rounded-xl font-medium focus:bg-cream focus:text-terracotta py-2.5 transition-colors">
+                  Nonaktif
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -281,7 +205,7 @@ export default function AdminProductsPage() {
             totalCount={products.length}
             onEdit={handleEdit}
             onRefresh={fetchProducts}
-            viewMode={viewMode}
+            viewMode="grid"
           />
         )}
       </div>

@@ -119,10 +119,12 @@ const OrderStatusBadge = memo(function OrderStatusBadge({
 }: {
   status: OrderStatus;
 }) {
+  const displayStatus = status.replace(/_/g, " ");
+
   return (
     <div
       className={cn(
-        "px-6 py-3 rounded-full text-xs font-black uppercase tracking-[0.2em] border",
+        "px-6 py-2.5 rounded-full text-[13px] font-black uppercase tracking-widest border",
         status === "COMPLETED"
           ? "bg-[#7a9d7f]/10 text-[#7a9d7f] border-[#7a9d7f]/20"
           : status === "CANCELLED"
@@ -130,7 +132,7 @@ const OrderStatusBadge = memo(function OrderStatusBadge({
             : "bg-[#c85a2d]/10 text-[#c85a2d] border-[#c85a2d]/20",
       )}
     >
-      {status.replace(/_/g, " ")}
+      {displayStatus}
     </div>
   );
 });
@@ -180,12 +182,12 @@ const OrderCodeCard = memo(function OrderCodeCard({
         <div className="w-12 h-12 rounded-2xl bg-[#c85a2d] text-white flex items-center justify-center rotate-3 group-hover:rotate-6 transition-transform shadow-lift-sm">
           <Sparkles className="w-6 h-6" />
         </div>
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#9a8772]">
+        <span className="text-[11px] font-bold text-[#9a8772]">
           Informasi Pesanan
         </span>
       </div>
       <div>
-        <h3 className="text-[11px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em] mb-2">
+        <h3 className="text-[11px] font-bold text-[#6b5b4b] mb-1">
           Kode Pesanan
         </h3>
         <p className="text-3xl font-mono font-black tracking-tight text-[#2d241c] group-hover:text-[#c85a2d] transition-colors">
@@ -217,14 +219,14 @@ const SummaryStats = memo(function SummaryStats({
     <div className="grid grid-cols-2 gap-4">
       <div className="rounded-[32px] md:rounded-[40px] bg-[#f9f9f9] p-6 border border-[#e8dcc8]/60">
         <Calendar className="w-6 h-6 text-[#7a9d7f] mb-4" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b5b4b] mb-1">
+        <p className="text-[11px] font-bold text-[#6b5b4b] mb-0.5">
           Tanggal
         </p>
         <p className="text-sm font-black text-[#2d241c]">{formattedDate}</p>
       </div>
       <div className="rounded-[32px] md:rounded-[40px] bg-[#f9f9f9] p-6 border border-[#e8dcc8]/60">
         <Package className="w-6 h-6 text-[#c85a2d] mb-4" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#6b5b4b] mb-1">
+        <p className="text-[11px] font-bold text-[#6b5b4b] mb-0.5">
           Total
         </p>
         <p className="text-sm font-black text-[#c85a2d]">
@@ -243,7 +245,7 @@ const DeliveryInfo = memo(function DeliveryInfo() {
           <MapPin className="w-5 h-5 text-[#9a8772]" />
         </div>
         <div className="space-y-4">
-          <h4 className="text-[16px] font-black tracking-tight text-[#2d241c] uppercase tracking-wider">
+          <h4 className="text-[16px] font-black tracking-tight text-[#2d241c]">
             Informasi Produksi
           </h4>
           <p className="text-[13px] text-[#6b5b4b] leading-relaxed font-medium">
@@ -253,7 +255,7 @@ const DeliveryInfo = memo(function DeliveryInfo() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-[12px] font-black text-[#c85a2d] hover:gap-3 transition-all uppercase tracking-widest"
+            className="inline-flex items-center gap-2 text-[12px] font-black text-[#c85a2d] hover:gap-3 transition-all"
           >
             Kembali Berbelanja <ArrowRight className="w-3 h-3" />
           </Link>
@@ -314,8 +316,8 @@ const TrackingInfo = memo(function TrackingInfo({
             <Package className="w-10 h-10 text-[#c85a2d]" />
           </div>
           <div className="text-center md:text-left">
-            <p className="text-[#c85a2d] font-black uppercase tracking-[0.2em] text-[11px] mb-3">
-              Informasi Pengirirman
+            <p className="text-[#c85a2d] font-bold text-[12px] mb-2">
+              Informasi Pengiriman
             </p>
             <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-3">
               {status === "COMPLETED" ? "Pesanan Tiba!" : "Paket Dikirim"}
@@ -329,7 +331,7 @@ const TrackingInfo = memo(function TrackingInfo({
           </div>
         </div>
         <div className="bg-white/5 rounded-[32px] p-8 border border-white/10 backdrop-blur-md w-full lg:w-auto text-center md:text-left">
-          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-white/40 mb-3">
+          <p className="text-[12px] font-bold text-white/40 mb-2">
             Nomor Resi
           </p>
           <div className="flex items-center justify-center md:justify-start gap-5">
@@ -450,7 +452,7 @@ export default function TrackOrderContent({
           <div className="relative z-10 w-full max-w-4xl text-center">
             <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white border border-[#e8dcc8]/60 mb-10 shadow-sm">
               <span className="flex h-2 w-2 rounded-full bg-[#c85a2d] animate-pulse" />
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
+              <span className="text-[11px] font-bold text-[#c85a2d]">
                 D`Teman Order Tracking
               </span>
             </div>
@@ -515,7 +517,7 @@ export default function TrackOrderContent({
                     </h2>
                     <div className="flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-[#7a9d7f] animate-pulse" />
-                      <p className="text-[13px] font-bold text-[#6b5b4b] uppercase tracking-widest">
+                      <p className="text-[13px] font-bold text-[#6b5b4b]">
                         Terakhir diperbarui {updatedAtFormatted}
                       </p>
                     </div>

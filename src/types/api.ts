@@ -287,3 +287,16 @@ export interface CreateUserInput {
   password: string;
   role: "ADMIN" | "CUSTOMER";
 }
+
+export interface CourierOption {
+  courier_code: string;
+  courier_name: string;
+  price: number;
+  estimation: string | null;
+}
+
+export interface ShippingCostResponse {
+  mode: "api" | "fallback";
+  couriers?: CourierOption[];
+  zones?: ShippingZone[];
+}

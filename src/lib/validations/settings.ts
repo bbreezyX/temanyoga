@@ -15,6 +15,7 @@ export const updateSettingsSchema = z.object({
   bank_name: z.string().max(100).optional(),
   bank_account_number: z.string().max(100).optional(),
   bank_account_name: z.string().max(100).optional(),
+  origin_village_code: z.string().max(10).optional(),
 });
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
@@ -28,6 +29,7 @@ export const SETTING_KEYS = [
   "bank_name",
   "bank_account_number",
   "bank_account_name",
+  "origin_village_code",
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useToast } from "@/components/ui/toast";
 import { Loader2, ImagePlus, X, Star } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -257,275 +258,260 @@ export function ProductForm({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md rounded-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="font-display text-xl font-bold text-dark-brown">
-            {isEdit ? "Edit Produk" : "Tambah Produk Baru"}
-          </DialogTitle>
-          <p className="text-sm text-warm-gray font-medium mt-1">
-            {isEdit
-              ? "Perbarui informasi dan foto produk."
-              : "Isi detail produk dan pilih foto sekaligus."}
-          </p>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden rounded-[32px] border-none shadow-lift bg-white focus:outline-none">
+        <div className="px-6 pt-6 pb-2">
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl font-black tracking-tight text-dark-brown">
+              {isEdit ? "Edit Produk" : "Tambah Produk Baru"}
+            </DialogTitle>
+            <p className="text-xs text-warm-gray font-semibold mt-1.5 opacity-80">
+              {isEdit
+                ? "Perbarui informasi dan foto koleksi boneka Anda."
+                : "Isi detail produk dan pilih foto produk sekaligus."}
+            </p>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-2">
-          {/* Name */}
-          <div className="space-y-2">
-            <label
-              htmlFor="name"
-              className="text-[12px] font-black uppercase tracking-[0.08em] text-warm-gray"
-            >
-              Nama Produk *
-            </label>
-            <input
-              id="name"
-              {...register("name")}
-              className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/50"
-              placeholder="Contoh: Boneka Yoga Premium"
-            />
-            {errors.name && (
-              <p className="text-xs text-red-500 font-medium">
-                {errors.name.message}
-              </p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <label
-              htmlFor="description"
-              className="text-[12px] font-black uppercase tracking-[0.08em] text-warm-gray"
-            >
-              Deskripsi *
-            </label>
-            <textarea
-              id="description"
-              {...register("description")}
-              rows={3}
-              className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all resize-none placeholder:text-warm-gray/50"
-              placeholder="Deskripsikan produk Anda..."
-            />
-            {errors.description && (
-              <p className="text-xs text-red-500 font-medium">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-
-          {/* Price & Stock */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+        <ScrollArea className="max-h-[70vh]">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 px-6 py-2 pb-8">
+            {/* Name */}
+            <div className="space-y-2.5">
               <label
-                htmlFor="price"
-                className="text-[12px] font-black uppercase tracking-[0.08em] text-warm-gray"
+                htmlFor="name"
+                className="text-[10px] font-black uppercase tracking-[0.2em] text-warm-gray/70 ml-1"
               >
-                Harga (IDR) *
+                Nama Produk *
               </label>
               <input
-                id="price"
-                type="number"
-                {...register("price")}
-                className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/50"
-                placeholder="0"
+                id="name"
+                {...register("name")}
+                className="w-full h-12 rounded-2xl bg-cream/60 px-5 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/30 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/30"
+                placeholder="Contoh: Boneka Yoga Premium"
               />
-              {errors.price && (
-                <p className="text-xs text-red-500 font-medium">
-                  {errors.price.message}
+              {errors.name && (
+                <p className="text-[11px] text-red-500 font-bold ml-1">
+                  {errors.name.message}
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+
+            {/* Description */}
+            <div className="space-y-2.5">
               <label
-                htmlFor="stock"
-                className="text-[12px] font-black uppercase tracking-[0.08em] text-warm-gray"
+                htmlFor="description"
+                className="text-[10px] font-black uppercase tracking-[0.2em] text-warm-gray/70 ml-1"
               >
-                Stok
+                Deskripsi Cerita *
               </label>
-              <input
-                id="stock"
-                type="number"
-                {...register("stock")}
-                className="w-full rounded-xl bg-cream px-4 py-3 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/50"
-                placeholder="Kosongkan = unlimited"
+              <textarea
+                id="description"
+                {...register("description")}
+                rows={4}
+                className="w-full rounded-2xl bg-cream/60 px-5 py-4 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/30 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all resize-none placeholder:text-warm-gray/30"
+                placeholder="Ceritakan detail produk ini..."
               />
-            </div>
-          </div>
-
-          {/* Status toggle (edit only) */}
-          {isEdit && (
-            <div className="flex items-center justify-between rounded-xl bg-cream px-4 py-3 ring-1 ring-warm-sand/50">
-              <div>
-                <p className="text-sm font-bold text-dark-brown">Status Produk</p>
-                <p className="text-[11px] text-warm-gray">
-                  Produk aktif akan tampil di toko
+              {errors.description && (
+                <p className="text-[11px] text-red-500 font-bold ml-1">
+                  {errors.description.message}
                 </p>
-              </div>
-              <Switch
-                checked={isActive}
-                onCheckedChange={(checked) => setValue("isActive", checked)}
-              />
+              )}
             </div>
-          )}
 
-          {/* ── Photo section ─────────────────────────────────── */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-[12px] font-black uppercase tracking-[0.08em] text-warm-gray">
-                Foto Produk
-                {totalImages > 0 && (
-                  <span className="ml-2 normal-case font-bold text-terracotta">
-                    {totalImages} foto
-                  </span>
+            {/* Price & Stock */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2.5">
+                <label
+                  htmlFor="price"
+                  className="text-[10px] font-black uppercase tracking-[0.2em] text-warm-gray/70 ml-1"
+                >
+                  Harga (IDR) *
+                </label>
+                <input
+                  id="price"
+                  type="number"
+                  {...register("price")}
+                  className="w-full h-12 rounded-2xl bg-cream/60 px-5 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/30 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/30"
+                  placeholder="0"
+                />
+                {errors.price && (
+                  <p className="text-[11px] text-red-500 font-bold ml-1">
+                    {errors.price.message}
+                  </p>
                 )}
-              </label>
-              {isEdit && (
-                <p className="text-[11px] text-warm-gray">
-                  Foto pertama jadi cover
-                </p>
+              </div>
+              <div className="space-y-2.5">
+                <label
+                  htmlFor="stock"
+                  className="text-[10px] font-black uppercase tracking-[0.2em] text-warm-gray/70 ml-1"
+                >
+                  Stok Unit
+                </label>
+                <input
+                  id="stock"
+                  type="number"
+                  {...register("stock")}
+                  className="w-full h-12 rounded-2xl bg-cream/60 px-5 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/30 outline-none focus:ring-2 focus:ring-terracotta/40 transition-all placeholder:text-warm-gray/30"
+                  placeholder="Unlimited"
+                />
+              </div>
+            </div>
+
+            {/* Status toggle (edit only) */}
+            {isEdit && (
+              <div className="flex items-center justify-between rounded-2xl bg-cream/40 px-5 py-4 ring-1 ring-warm-sand/20">
+                <div>
+                  <p className="text-[13px] font-black text-dark-brown">Visibility</p>
+                  <p className="text-[11px] text-warm-gray font-bold">
+                    Tampil di etalase toko
+                  </p>
+                </div>
+                <Switch
+                  checked={isActive}
+                  onCheckedChange={(checked) => setValue("isActive", checked)}
+                />
+              </div>
+            )}
+
+            {/* ── Photo section ─────────────────────────────────── */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between ml-1">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-warm-gray/70">
+                  Galeri Foto
+                  {totalImages > 0 && (
+                    <span className="ml-2 normal-case font-black text-terracotta">
+                      ({totalImages})
+                    </span>
+                  )}
+                </label>
+              </div>
+
+              {/* Drop zone */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+                className={`relative flex cursor-pointer flex-col items-center justify-center gap-2.5 rounded-3xl border-2 border-dashed px-5 py-8 text-center transition-all duration-300 ${
+                  isDragging
+                    ? "border-terracotta bg-terracotta/5 scale-[0.99] shadow-inner"
+                    : "border-warm-sand/40 bg-cream/40 hover:border-terracotta/30 hover:bg-cream/60"
+                }`}
+              >
+                <div className="p-3 rounded-2xl bg-white shadow-soft group-hover:scale-110 transition-transform">
+                  <ImagePlus className="h-6 w-6 text-terracotta" />
+                </div>
+                <div>
+                  <p className="text-[13px] font-black text-dark-brown">
+                    {isDragging ? "Lepaskan sekarang" : "Upload foto produk"}
+                  </p>
+                  <p className="text-[10px] font-bold text-warm-gray/60 mt-0.5">
+                    Maks. 5MB per file · Rekomendasi 1:1
+                  </p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => e.target.files && addFiles(e.target.files)}
+                />
+              </div>
+
+              {/* Existing images (edit mode) */}
+              {isEdit && existingImages.length > 0 && (
+                <div className="grid grid-cols-4 gap-2.5">
+                  {existingImages.map((img, i) => (
+                    <div key={img.id} className="group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-warm-sand/20">
+                      <Image
+                        src={getImageUrl(img.url)}
+                        alt={`Foto ${i + 1}`}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        sizes="120px"
+                      />
+                      {i === 0 && (
+                        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-1 rounded-full bg-terracotta px-2 py-0.5 text-[9px] font-black text-white shadow-lg">
+                          <Star className="h-2 w-2 fill-white" />
+                          COVER
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeExisting(img.id)}
+                        disabled={deletingImageId === img.id}
+                        className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50"
+                      >
+                        {deletingImageId === img.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-white" />
+                        ) : (
+                          <div className="bg-red-500 p-1.5 rounded-full hover:scale-110 transition-transform">
+                            <X className="h-3 w-3 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Pending files (create mode) */}
+              {!isEdit && pendingFiles.length > 0 && (
+                <div className="grid grid-cols-4 gap-2.5">
+                  {pendingFiles.map((pf, i) => (
+                    <div key={pf.id} className="group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-warm-sand/20">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={pf.preview}
+                        alt={pf.file.name}
+                        className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      {i === 0 && (
+                        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-1 rounded-full bg-terracotta px-2 py-0.5 text-[9px] font-black text-white shadow-lg">
+                          <Star className="h-2 w-2 fill-white" />
+                          COVER
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removePending(pf.id)}
+                        className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <div className="bg-red-500 p-1.5 rounded-full hover:scale-110 transition-transform">
+                          <X className="h-3 w-3 text-white" />
+                        </div>
+                      </button>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
+            <button type="submit" className="hidden" id="submit-btn" />
+          </form>
+        </ScrollArea>
 
-            {/* Drop zone */}
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              className={`relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-6 text-center transition-all ${
-                isDragging
-                  ? "border-terracotta bg-terracotta/5 scale-[1.01]"
-                  : "border-warm-sand/60 bg-cream/50 hover:border-terracotta/50 hover:bg-cream"
-              }`}
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-warm-sand/30">
-                <ImagePlus className="h-5 w-5 text-terracotta" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-dark-brown">
-                  {isDragging ? "Lepaskan file di sini" : "Klik atau seret foto"}
-                </p>
-                <p className="text-xs text-warm-gray mt-0.5">
-                  JPEG, PNG, WebP · Maks. 5MB · Bisa pilih banyak sekaligus
-                </p>
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                multiple
-                className="hidden"
-                onChange={(e) => e.target.files && addFiles(e.target.files)}
-              />
-            </div>
-
-            {/* Existing images (edit mode) */}
-            {isEdit && existingImages.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
-                {existingImages.map((img, i) => (
-                  <div key={img.id} className="group relative aspect-square">
-                    <Image
-                      src={getImageUrl(img.url)}
-                      alt={`Foto ${i + 1}`}
-                      fill
-                      className="rounded-xl object-cover"
-                      sizes="120px"
-                    />
-                    {i === 0 && (
-                      <div className="absolute top-1 left-1 flex items-center gap-0.5 rounded-full bg-terracotta/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        <Star className="h-2.5 w-2.5 fill-white" />
-                        Cover
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removeExisting(img.id)}
-                      disabled={deletingImageId === img.id}
-                      className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 disabled:opacity-50"
-                    >
-                      {deletingImageId === img.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <X className="h-3 w-3" />
-                      )}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Pending files (create mode) */}
-            {!isEdit && pendingFiles.length > 0 && (
-              <div className="grid grid-cols-4 gap-2">
-                {pendingFiles.map((pf, i) => (
-                  <div key={pf.id} className="group relative aspect-square">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={pf.preview}
-                      alt={pf.file.name}
-                      className="h-full w-full rounded-xl object-cover"
-                    />
-                    {i === 0 && (
-                      <div className="absolute top-1 left-1 flex items-center gap-0.5 rounded-full bg-terracotta/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        <Star className="h-2.5 w-2.5 fill-white" />
-                        Cover
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removePending(pf.id)}
-                      className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                    <div className="absolute bottom-1 left-1 right-1">
-                      <p className="truncate rounded bg-black/50 px-1 py-0.5 text-[9px] text-white">
-                        {pf.file.name}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Upload progress hint for edit mode */}
-            {isEdit && (
-              <p className="text-[11px] text-warm-gray">
-                Foto diunggah langsung saat kamu pilih. Foto pertama otomatis jadi cover.
-              </p>
-            )}
-            {!isEdit && pendingFiles.length > 0 && (
-              <p className="text-[11px] text-warm-gray">
-                {pendingFiles.length} foto akan diunggah saat produk disimpan.
-              </p>
-            )}
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => handleOpenChange(false)}
-              className="rounded-full px-6 py-3 text-sm font-bold text-warm-gray hover:bg-cream transition-all"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex items-center gap-2 rounded-full bg-terracotta px-7 py-3 text-sm text-white font-bold shadow-lg shadow-terracotta/20 hover:shadow-xl hover:shadow-terracotta/30 hover:scale-[1.03] transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
-            >
-              {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isSubmitting
-                ? isEdit
-                  ? "Menyimpan..."
-                  : "Membuat produk..."
-                : isEdit
-                  ? "Simpan Perubahan"
-                  : "Buat Produk"}
-            </button>
-          </div>
-        </form>
+        {/* Actions Bar */}
+        <div className="px-6 py-5 border-t border-warm-sand/10 bg-cream/20 flex gap-3 justify-end items-center">
+          <button
+            type="button"
+            onClick={() => handleOpenChange(false)}
+            className="h-12 px-6 text-xs font-black uppercase tracking-[0.1em] text-warm-gray hover:text-dark-brown hover:bg-cream transition-all rounded-full"
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const btn = document.getElementById('submit-btn');
+              if (btn) btn.click();
+            }}
+            disabled={isSubmitting}
+            className="h-12 px-8 rounded-full bg-terracotta text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-terracotta/20 hover:shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none flex items-center gap-3"
+          >
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isSubmitting ? "Processing..." : isEdit ? "Simpan Perubahan" : "Terbitkan Produk"}
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );

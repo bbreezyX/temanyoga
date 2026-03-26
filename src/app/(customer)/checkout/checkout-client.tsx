@@ -26,8 +26,8 @@ import {
 } from "@/components/checkout/address-fields";
 import type {
   CreateOrderResponse,
-  ShippingZone,
   CouponValidationResult,
+  ShippingCostResponse,
 } from "@/types/api";
 
 const checkoutFormSchema = z.object({
@@ -92,9 +92,10 @@ export function CheckoutClient() {
   const { items, cartTotal, clearCart, getItemKey } = useCart();
   const toast = useToast();
 
-  const [zones, setZones] = useState<ShippingZone[]>([]);
-  const [zonesLoading, setZonesLoading] = useState(true);
-  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [shippingResult, setShippingResult] = useState<ShippingCostResponse | null>(null);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [shippingError, setShippingError] = useState<string | null>(null);
+  const [selectedCourierCode, setSelectedCourierCode] = useState<string | null>(null);
 
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
@@ -114,8 +115,8 @@ export function CheckoutClient() {
     Record<string, { message: string }>
   >({});
 
-  const selectedZone = zones.find((z) => z.id === selectedZoneId) ?? null;
-  const shippingCost = selectedZone?.price ?? 0;
+  const shippingCost = shippingResult?.couriers?.find((c) => c.courier_code === selectedCourierCode)?.price ?? 0;
+  const hasShippingSelection = !!selectedCourierCode;
 
   const discountAmount = appliedCoupon
     ? appliedCoupon.discountType === "PERCENTAGE"
@@ -145,15 +146,29 @@ export function CheckoutClient() {
   }, [items.length, router]);
 
   useEffect(() => {
-    async function loadZones() {
-      const res = await apiFetch<ShippingZone[]>("/api/shipping-zones");
-      if (res.success) {
-        setZones(res.data);
-      }
-      setZonesLoading(false);
+    if (!addressData.village?.code) {
+      setShippingResult(null);
+      setSelectedCourierCode(null);
+      return;
     }
-    loadZones();
-  }, []);
+
+    const weight = items.reduce((sum, i) => sum + i.quantity, 0) || 1;
+    setShippingLoading(true);
+    setShippingError(null);
+
+    apiFetch<ShippingCostResponse>(
+      `/api/shipping-cost?destination_village_code=${addressData.village.code}&weight=${weight}`,
+    )
+      .then((res) => {
+        if (res.success) {
+          setShippingResult(res.data);
+          setSelectedCourierCode(null);
+        } else {
+          setShippingError("Gagal memuat ongkos kirim. Coba lagi.");
+        }
+      })
+      .finally(() => setShippingLoading(false));
+  }, [addressData.village?.code, items]);
 
   async function handleApplyCoupon() {
     const code = couponCode.trim();
@@ -185,8 +200,8 @@ export function CheckoutClient() {
 
   const onSubmit = useCallback(
     async (data: CheckoutFormData) => {
-      if (!selectedZoneId) {
-        toast.error("Mohon pilih zona pengiriman.");
+      if (!hasShippingSelection) {
+        toast.error("Mohon pilih kurir atau zona pengiriman.");
         return;
       }
 
@@ -213,12 +228,12 @@ export function CheckoutClient() {
         addressData.postalCode,
       ].join(", ");
 
-      const res = await apiPost<CreateOrderResponse>("/api/orders", {
+      // Build order payload based on shipping mode
+      const orderPayload: Record<string, unknown> = {
         customerName: data.customerName.trim(),
         customerEmail: data.customerEmail.trim().toLowerCase(),
         customerPhone: data.customerPhone.trim(),
         shippingAddress,
-        shippingZoneId: selectedZoneId,
         notes: data.notes?.trim() || undefined,
         couponCode: appliedCoupon?.code || undefined,
         items: items.map((i) => ({
@@ -226,7 +241,18 @@ export function CheckoutClient() {
           quantity: i.quantity,
           accessoryIds: (i.accessories || []).map((a) => a.id),
         })),
-      });
+      };
+
+      if (selectedCourierCode && shippingResult?.couriers) {
+        const courier = shippingResult.couriers.find(
+          (c) => c.courier_code === selectedCourierCode,
+        );
+        orderPayload.destinationVillageCode = addressData.village?.code;
+        orderPayload.selectedCourierCode = selectedCourierCode;
+        orderPayload.selectedCourierName = courier?.courier_name || selectedCourierCode;
+      }
+
+      const res = await apiPost<CreateOrderResponse>("/api/orders", orderPayload);
 
       if (!res.success) {
         toast.error(res.error || "Gagal membuat pesanan");
@@ -245,7 +271,9 @@ export function CheckoutClient() {
       router.push(`/checkout/success/${res.data.orderCode}`);
     },
     [
-      selectedZoneId,
+      hasShippingSelection,
+      shippingResult,
+      selectedCourierCode,
       appliedCoupon,
       items,
       clearCart,
@@ -405,31 +433,39 @@ export function CheckoutClient() {
                   </div>
                 </div>
 
-                {/* Step 2: Shipping Zone */}
+                {/* Step 2: Ongkos Kirim */}
                 <div className="space-y-10">
                   <div className="flex items-center gap-4">
                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#c85a2d] text-white text-xs font-black">
                       2
                     </span>
                     <h2 className="font-display font-black tracking-tight text-2xl text-[#2d241c]">
-                      Zona Pengiriman
+                      Ongkos Kirim
                     </h2>
                   </div>
 
-                  {zonesLoading ? (
+                  {!addressData.village?.code ? (
+                    <p className="text-[14px] text-[#6b5b4b] py-4">
+                      Pilih kelurahan terlebih dahulu untuk melihat pilihan ongkir.
+                    </p>
+                  ) : shippingLoading ? (
                     <div className="flex items-center py-4 gap-3">
                       <Loader2 className="w-5 h-5 animate-spin text-[#c85a2d]" />
                       <span className="text-[14px] text-[#6b5b4b]">
-                        Memuat zona...
+                        Menghitung ongkir...
                       </span>
                     </div>
-                  ) : (
+                  ) : shippingError ? (
+                    <p className="text-[14px] text-red-500 font-medium py-4">
+                      {shippingError}
+                    </p>
+                  ) : shippingResult?.couriers && shippingResult.couriers.length > 0 ? (
                     <div className="grid gap-4">
-                      {zones.map((zone) => {
-                        const isSelected = selectedZoneId === zone.id;
+                      {shippingResult.couriers.map((courier) => {
+                        const isSelected = selectedCourierCode === courier.courier_code;
                         return (
                           <label
-                            key={zone.id}
+                            key={courier.courier_code}
                             className={`group flex items-center gap-5 rounded-3xl p-6 cursor-pointer transition-all border ${
                               isSelected
                                 ? "bg-[#fdf8f6] border-[#c85a2d]/40 ring-1 ring-[#c85a2d]/10"
@@ -438,10 +474,10 @@ export function CheckoutClient() {
                           >
                             <input
                               type="radio"
-                              name="shippingZone"
-                              value={zone.id}
+                              name="shippingOption"
+                              value={courier.courier_code}
                               checked={isSelected}
-                              onChange={() => setSelectedZoneId(zone.id)}
+                              onChange={() => setSelectedCourierCode(courier.courier_code)}
                               className="sr-only"
                             />
                             <div
@@ -457,24 +493,22 @@ export function CheckoutClient() {
                             </div>
                             <div className="flex-1">
                               <p className="font-bold text-[16px] text-[#2d241c]">
-                                {zone.name}
+                                {courier.courier_name}
                               </p>
-                              {zone.description && (
+                              {courier.estimation && (
                                 <p className="text-[13px] text-[#6b5b4b] mt-1">
-                                  {zone.description}
+                                  Estimasi: {courier.estimation}
                                 </p>
                               )}
                             </div>
                             <span className="font-black text-[18px] text-[#c85a2d]">
-                              {zone.price === 0
-                                ? "Gratis"
-                                : formatCurrency(zone.price)}
+                              {formatCurrency(courier.price)}
                             </span>
                           </label>
                         );
                       })}
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* Step 3: Coupon */}
@@ -565,7 +599,7 @@ export function CheckoutClient() {
 
                   <button
                     type="submit"
-                    disabled={isSubmitting || !selectedZoneId}
+                    disabled={isSubmitting || !hasShippingSelection}
                     className="group w-full h-14 rounded-2xl bg-[#c85a2d] text-white font-black text-[18px] shadow-lift hover:bg-[#2d241c] hover:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-4"
                   >
                     {isSubmitting ? (
@@ -657,11 +691,14 @@ export function CheckoutClient() {
                   )}
                   <div className="flex justify-between items-center text-[15px] opacity-60">
                     <span>
-                      Ongkir{selectedZone ? ` (${selectedZone.name})` : ""}
+                      Ongkir
+                      {selectedCourierCode && shippingResult?.couriers
+                        ? ` (${shippingResult.couriers.find((c) => c.courier_code === selectedCourierCode)?.courier_name || ""})`
+                        : ""}
                     </span>
                     <span>
-                      {selectedZone
-                        ? selectedZone.price === 0
+                      {hasShippingSelection
+                        ? shippingCost === 0
                           ? "Gratis"
                           : formatCurrency(shippingCost)
                         : "—"}
@@ -671,7 +708,7 @@ export function CheckoutClient() {
                     <span className="font-bold text-[18px]">Total Bayar</span>
                     <div className="text-right">
                       <span className="block text-3xl font-black tracking-tight text-white">
-                        {selectedZone
+                        {hasShippingSelection
                           ? formatCurrency(totalAmount)
                           : formatCurrency(cartTotal - discountAmount)}
                       </span>

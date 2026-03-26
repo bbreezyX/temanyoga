@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { PlusCircle, Loader2, MapPin, MessageCircle, Mail, CreditCard } from "lucide-react";
 import { ShippingZoneList } from "@/components/admin/settings/shipping-zone-list";
 import { ShippingZoneForm } from "@/components/admin/settings/shipping-zone-form";
+import { OriginVillageCodeSetting } from "@/components/admin/settings/origin-village-code-setting";
 import { PaymentSettings } from "@/components/admin/settings/payment-settings";
 import { WhatsAppSettings } from "@/components/admin/settings/whatsapp-settings";
 import { EmailSettings } from "@/components/admin/settings/email-settings";
@@ -146,6 +147,19 @@ export default function AdminSettingsPage() {
                   onRefresh={fetchZones}
                 />
               )}
+            </section>
+
+            {/* Origin Village Code for Cek Ongkir */}
+            <section className="rounded-[32px] bg-white p-6 sm:p-8 shadow-soft ring-1 ring-warm-sand/30 mt-6">
+              <div className="mb-8">
+                <h2 className="font-display text-xl font-extrabold text-dark-brown">
+                  Cek Ongkir Otomatis
+                </h2>
+                <p className="text-xs text-warm-gray mt-1">
+                  Konfigurasi alamat asal untuk menghitung ongkos kirim otomatis via API.
+                </p>
+              </div>
+              <OriginVillageCodeSetting />
             </section>
           </div>
         )}

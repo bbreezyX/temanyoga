@@ -39,7 +39,10 @@ export const createOrderSchema = z.object({
   customerEmail: sanitizedEmail,
   customerPhone: sanitizedPhone,
   shippingAddress: sanitizedText(2000, 1, "Address is required"),
-  shippingZoneId: z.string().min(1, "Shipping zone is required"),
+  shippingZoneId: z.string().min(1).optional(),
+  destinationVillageCode: z.string().max(20).optional(),
+  selectedCourierCode: z.string().max(50).optional(),
+  selectedCourierName: z.string().max(100).optional(),
   notes: z.string().max(1000).transform((val) => val.trim()).optional(),
   couponCode: z
     .string()
@@ -47,7 +50,10 @@ export const createOrderSchema = z.object({
     .transform((val) => (val ? val.toUpperCase().trim() : undefined))
     .optional(),
   items: z.array(orderItemSchema).min(1, "At least one item is required"),
-});
+}).refine(
+  (data) => data.shippingZoneId || (data.destinationVillageCode && data.selectedCourierCode),
+  { message: "Wajib pilih kurir atau zona pengiriman" },
+);
 
 export const updateOrderStatusSchema = z.object({
   status: z.enum(OrderStatus),
