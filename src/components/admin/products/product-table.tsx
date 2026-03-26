@@ -11,6 +11,7 @@ import {
   Trash2,
   Camera,
   ShoppingBag,
+  AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -27,7 +28,6 @@ import type { AdminProductListItem } from "@/types/api";
 
 interface ProductTableProps {
   products: AdminProductListItem[];
-  totalCount: number;
   onEdit: (product: AdminProductListItem) => void;
   onRefresh: () => void;
   viewMode?: "grid" | "list";
@@ -128,13 +128,15 @@ function EmptyState() {
 
 export function ProductTable({
   products,
-  totalCount,
   onEdit,
   onRefresh,
   viewMode = "grid",
 }: ProductTableProps) {
   const toast = useToast();
   const [imageDialogProduct, setImageDialogProduct] =
+    useState<AdminProductListItem | null>(null);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [deleteDialogProduct, setDeleteDialogProduct] =
     useState<AdminProductListItem | null>(null);
 
   async function toggleActive(product: AdminProductListItem) {
@@ -169,6 +171,44 @@ export function ProductTable({
     }
   }
 
+  async function handleDeleteProduct(product: AdminProductListItem) {
+    setDeletingProductId(product.id);
+    const res = await apiDelete<{ message: string }>(`/api/admin/products/${product.id}`);
+    setDeletingProductId(null);
+
+    if (!res.success) {
+      toast.error(res.error);
+      return;
+    }
+
+    if (imageDialogProduct?.id === product.id) {
+      setImageDialogProduct(null);
+    }
+
+    if (deleteDialogProduct?.id === product.id) {
+      setDeleteDialogProduct(null);
+    }
+
+    toast.success("Produk berhasil dihapus");
+    onRefresh();
+  }
+
+  function openDeleteDialog(product: AdminProductListItem) {
+    if (product._count.orderItems > 0) {
+      return;
+    }
+
+    setDeleteDialogProduct(product);
+  }
+
+  function getDeleteHelperText(product: AdminProductListItem) {
+    if (product._count.orderItems > 0) {
+      return "Tidak bisa dihapus karena produk ini sudah punya riwayat penjualan.";
+    }
+
+    return "Hapus permanen hanya untuk produk yang belum pernah terjual.";
+  }
+
   return (
     <>
       {/* ── GRID VIEW ─────────────────────────────────────────── */}
@@ -179,6 +219,9 @@ export function ProductTable({
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {products.map((product) => (
+                (() => {
+                  const isDeleting = deletingProductId === product.id;
+                  return (
                 <div
                   key={product.id}
                   className={`group rounded-3xl bg-card ring-1 overflow-hidden shadow-soft hover:shadow-md transition-all duration-200 flex flex-col ${
@@ -239,9 +282,16 @@ export function ProductTable({
 
                   {/* Action Buttons */}
                   <div className="px-3 pb-3 flex flex-col gap-2 border-t border-warm-sand/20 pt-3">
+                    {product._count.orderItems > 0 && (
+                      <div className="flex items-start gap-2 rounded-2xl bg-amber-50 px-3 py-2 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200/80">
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <span>{getDeleteHelperText(product)}</span>
+                      </div>
+                    )}
                     <div className="flex gap-1.5">
                       <button
                         onClick={() => onEdit(product)}
+                        disabled={isDeleting}
                         className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-cream px-2 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                       >
                         <Pencil className="h-3.5 w-3.5 shrink-0" />
@@ -249,6 +299,7 @@ export function ProductTable({
                       </button>
                       <button
                         onClick={() => setImageDialogProduct(product)}
+                        disabled={isDeleting}
                         className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-cream px-2 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                       >
                         <ImagePlus className="h-3.5 w-3.5 shrink-0" />
@@ -262,6 +313,7 @@ export function ProductTable({
                     </div>
                     <button
                       onClick={() => toggleActive(product)}
+                      disabled={isDeleting}
                       className={`w-full flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-xs font-bold transition-all ring-1 ${
                         product.isActive
                           ? "bg-sage/10 text-sage ring-sage/20 hover:bg-red-50 hover:text-red-500 hover:ring-red-200"
@@ -280,15 +332,21 @@ export function ProductTable({
                         </>
                       )}
                     </button>
+                    <button
+                      onClick={() => openDeleteDialog(product)}
+                      disabled={isDeleting || product._count.orderItems > 0}
+                      title={getDeleteHelperText(product)}
+                      className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-red-50 px-2 py-2 text-xs font-bold text-red-600 transition-all ring-1 ring-red-200 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      {isDeleting ? "Menghapus..." : "Hapus Permanen"}
+                    </button>
                   </div>
                 </div>
+                  );
+                })()
               ))}
             </div>
-          )}
-          {products.length > 0 && (
-            <p className="text-xs font-bold text-warm-gray mt-4 text-center">
-              Menampilkan {products.length} dari {totalCount} produk
-            </p>
           )}
         </div>
       )}
@@ -315,6 +373,9 @@ export function ProductTable({
                   </thead>
                   <tbody className="divide-y divide-warm-sand/20">
                     {products.map((product) => (
+                      (() => {
+                        const isDeleting = deletingProductId === product.id;
+                        return (
                       <tr
                         key={product.id}
                         className="group hover:bg-cream/30 transition-colors"
@@ -366,9 +427,16 @@ export function ProductTable({
                           </span>
                         </td>
                         <td className="py-4 pr-6 lg:pr-8">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex flex-col items-end gap-2">
+                            {product._count.orderItems > 0 && (
+                              <div className="max-w-[240px] text-right text-[11px] font-semibold leading-relaxed text-amber-700">
+                                {getDeleteHelperText(product)}
+                              </div>
+                            )}
+                            <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => onEdit(product)}
+                              disabled={isDeleting}
                               className="flex items-center gap-1.5 rounded-full bg-cream px-3.5 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                             >
                               <Pencil className="h-3.5 w-3.5" />
@@ -376,6 +444,7 @@ export function ProductTable({
                             </button>
                             <button
                               onClick={() => setImageDialogProduct(product)}
+                              disabled={isDeleting}
                               className="flex items-center gap-1.5 rounded-full bg-cream px-3.5 py-2 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                             >
                               <ImagePlus className="h-3.5 w-3.5" />
@@ -388,6 +457,7 @@ export function ProductTable({
                             </button>
                             <button
                               onClick={() => toggleActive(product)}
+                              disabled={isDeleting}
                               className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-all ring-1 ${
                                 product.isActive
                                   ? "bg-sage/10 text-sage ring-sage/20 hover:bg-red-50 hover:text-red-500 hover:ring-red-200"
@@ -406,9 +476,21 @@ export function ProductTable({
                                 </>
                               )}
                             </button>
+                            <button
+                              onClick={() => openDeleteDialog(product)}
+                              disabled={isDeleting || product._count.orderItems > 0}
+                              title={getDeleteHelperText(product)}
+                              className="flex items-center gap-1.5 rounded-full bg-red-50 px-3.5 py-2 text-xs font-bold text-red-600 transition-all ring-1 ring-red-200 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              {isDeleting ? "Menghapus..." : "Hapus"}
+                            </button>
+                            </div>
                           </div>
                         </td>
                       </tr>
+                        );
+                      })()
                     ))}
                   </tbody>
                 </table>
@@ -417,6 +499,9 @@ export function ProductTable({
               {/* Mobile Cards (always used on small screens) */}
               <div className="md:hidden divide-y divide-warm-sand/20">
                 {products.map((product) => (
+                  (() => {
+                    const isDeleting = deletingProductId === product.id;
+                    return (
                   <div key={product.id} className="p-4">
                     <div className="flex gap-3">
                       <div className="h-20 w-20 shrink-0 rounded-2xl bg-warm-sand/50 overflow-hidden ring-1 ring-warm-sand/50 relative flex items-center justify-center">
@@ -454,9 +539,16 @@ export function ProductTable({
                       <span className="font-display font-extrabold text-dark-brown">
                         {formatCurrency(product.price)}
                       </span>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-col items-end gap-2">
+                        {product._count.orderItems > 0 && (
+                          <p className="max-w-[220px] text-right text-[11px] font-semibold leading-relaxed text-amber-700">
+                            {getDeleteHelperText(product)}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => onEdit(product)}
+                          disabled={isDeleting}
                           className="flex items-center gap-1 rounded-full bg-cream px-3 py-1.5 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -464,6 +556,7 @@ export function ProductTable({
                         </button>
                         <button
                           onClick={() => setImageDialogProduct(product)}
+                          disabled={isDeleting}
                           className="flex items-center gap-1 rounded-full bg-cream px-3 py-1.5 text-xs font-bold text-dark-brown hover:bg-terracotta hover:text-white transition-all ring-1 ring-warm-sand/30"
                         >
                           <ImagePlus className="h-3.5 w-3.5" />
@@ -471,6 +564,7 @@ export function ProductTable({
                         </button>
                         <button
                           onClick={() => toggleActive(product)}
+                          disabled={isDeleting}
                           className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-all ring-1 ${
                             product.isActive
                               ? "bg-sage/10 text-sage ring-sage/20"
@@ -484,14 +578,22 @@ export function ProductTable({
                           )}
                           {product.isActive ? "Nonaktifkan" : "Aktifkan"}
                         </button>
+                        <button
+                          onClick={() => openDeleteDialog(product)}
+                          disabled={isDeleting || product._count.orderItems > 0}
+                          title={getDeleteHelperText(product)}
+                          className="flex items-center gap-1 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition-all ring-1 ring-red-200 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          {isDeleting ? "Menghapus..." : "Hapus"}
+                        </button>
+                        </div>
                       </div>
                     </div>
                   </div>
+                    );
+                  })()
                 ))}
-              </div>
-
-              <div className="bg-cream/30 px-6 lg:px-8 py-4 border-t border-warm-sand/30 text-sm font-bold text-warm-gray">
-                Menampilkan {products.length} dari {totalCount} produk
               </div>
             </>
           )}
@@ -558,7 +660,7 @@ export function ProductTable({
               )}
               <div className="rounded-2xl bg-cream p-4 space-y-3">
                 <p className="text-xs font-bold text-dark-brown">Tambah Foto Baru</p>
-                <p className="text-[11px] text-warm-gray">Format: JPG, PNG, WebP. Maksimal 5 MB per foto.</p>
+                <p className="text-[11px] text-warm-gray">Format: JPG, PNG, WebP, HEIC. File HEIC akan dikonversi otomatis. Maksimal 5 MB per foto.</p>
                 <ImageUpload
                   productId={imageDialogProduct.id}
                   onUploaded={(newImage) => {
@@ -569,6 +671,76 @@ export function ProductTable({
                     onRefresh();
                   }}
                 />
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={!!deleteDialogProduct}
+        onOpenChange={(open) => {
+          if (!open && !deletingProductId) {
+            setDeleteDialogProduct(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md rounded-3xl border-none bg-white p-0 overflow-hidden">
+          <div className="bg-red-50 px-6 py-5 border-b border-red-100">
+            <div className="flex items-start gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-red-500 shadow-sm ring-1 ring-red-100">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div className="space-y-1">
+                <DialogHeader>
+                  <DialogTitle className="font-display text-lg font-black text-dark-brown">
+                    Hapus Produk Permanen
+                  </DialogTitle>
+                </DialogHeader>
+                <p className="text-sm font-medium text-warm-gray">
+                  Produk akan dihapus dari katalog bersama seluruh fotonya.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {deleteDialogProduct && (
+            <div className="space-y-5 px-6 py-6">
+              <div className="rounded-2xl bg-cream/70 p-4 ring-1 ring-warm-sand/30">
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-warm-gray/70">
+                  Produk yang dipilih
+                </p>
+                <p className="mt-2 font-display text-lg font-bold text-dark-brown">
+                  {deleteDialogProduct.name}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-warm-gray">
+                  {formatCurrency(deleteDialogProduct.price)}
+                </p>
+              </div>
+
+              <div className="space-y-2 text-sm font-medium text-warm-gray">
+                <p>Tindakan ini tidak bisa dibatalkan.</p>
+                <p>Gunakan hapus permanen hanya untuk produk yang belum pernah terjual.</p>
+              </div>
+
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => setDeleteDialogProduct(null)}
+                  disabled={deletingProductId === deleteDialogProduct.id}
+                  className="inline-flex items-center justify-center rounded-2xl bg-cream px-4 py-3 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/30 transition-all hover:bg-warm-sand/20 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteProduct(deleteDialogProduct)}
+                  disabled={deletingProductId === deleteDialogProduct.id}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {deletingProductId === deleteDialogProduct.id ? "Menghapus produk..." : "Ya, Hapus Permanen"}
+                </button>
               </div>
             </div>
           )}

@@ -3,7 +3,7 @@ import { apiSuccess, badRequest, notFound, serverError } from "@/lib/api-respons
 import { uploadToR2 } from "@/lib/r2";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
 
 export async function POST(
   request: Request,
@@ -19,8 +19,14 @@ export async function POST(
     const file = formData.get("file") as File | null;
 
     if (!file) return badRequest("File is required");
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return badRequest("Only JPEG, PNG, and WebP images are allowed");
+    
+    // Check type by mime or extension
+    const isAllowedType = ALLOWED_TYPES.includes(file.type) || 
+                          file.name.toLowerCase().endsWith('.heic') || 
+                          file.name.toLowerCase().endsWith('.heif');
+                          
+    if (!isAllowedType) {
+      return badRequest("Only JPEG, PNG, WebP, and HEIC images are allowed");
     }
     if (file.size > MAX_FILE_SIZE) {
       return badRequest("File size must be less than 5MB");

@@ -13,16 +13,38 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     const search = searchParams.get("search")?.trim() || "";
     const isActive = searchParams.get("isActive");
+    const stockFilter = searchParams.get("stock")?.trim() || "all";
 
-    const where = {
-      ...(search && {
+    const filters = [];
+
+    if (search) {
+      filters.push({
         OR: [
           { name: { contains: search, mode: "insensitive" as const } },
           { description: { contains: search, mode: "insensitive" as const } },
         ],
-      }),
-      ...(isActive !== null && { isActive: isActive === "true" }),
-    };
+      });
+    }
+
+    if (isActive !== null) {
+      filters.push({ isActive: isActive === "true" });
+    }
+
+    if (stockFilter === "in-stock") {
+      filters.push({
+        OR: [{ stock: null }, { stock: { gt: 10 } }],
+      });
+    }
+
+    if (stockFilter === "low-stock") {
+      filters.push({ stock: { gt: 0, lte: 10 } });
+    }
+
+    if (stockFilter === "out-of-stock") {
+      filters.push({ stock: 0 });
+    }
+
+    const where = filters.length > 0 ? { AND: filters } : {};
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({

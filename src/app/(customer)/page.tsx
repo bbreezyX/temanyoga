@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { Sparkles, ArrowRight, ArrowUpRight, MoveRight } from "lucide-react";
+import { Sparkles, ArrowRight, ArrowUpRight } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
 import { SITE_URL } from "@/lib/site-url";
@@ -186,32 +186,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 
-        MARQUEE SEPARATOR - Replaced with Floating Text Stream
-      */}
-      <div className="w-full bg-white relative z-10 py-12 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-transparent to-transparent z-10"></div>
-        <div className="animate-marquee-ltr flex items-center gap-24 min-w-full opacity-10">
-          <span className="text-[120px] font-display font-black leading-none text-[#2d241c] whitespace-nowrap">
-            MINDFULNESS
-          </span>
-          <span
-            className="text-[120px] font-display font-black leading-none text-transparent stroke-text whitespace-nowrap"
-            style={{ WebkitTextStroke: "2px #2d241c" }}
-          >
-            HANDMADE
-          </span>
-          <span className="text-[120px] font-display font-black leading-none text-[#2d241c] whitespace-nowrap">
-            SERENITY
-          </span>
-          <span
-            className="text-[120px] font-display font-black leading-none text-transparent stroke-text whitespace-nowrap"
-            style={{ WebkitTextStroke: "2px #2d241c" }}
-          >
-            CONNECTION
-          </span>
-        </div>
-      </div>
+
 
       {/* 
         FEATURED COLLECTION: Enhanced Grid
@@ -547,77 +522,64 @@ export default async function HomePage() {
          FULL WIDTH IMAGE BREAK & PHILOSOPHY
          Replaces hard cut with organic shape transition.
       */}
-      <section className="relative py-32 md:py-48 bg-[#2d241c] text-[#f5f1ed] overflow-hidden">
-        <div className="px-6 md:px-12 max-w-[1600px] mx-auto relative z-20">
-          <div className="grid lg:grid-cols-2 gap-16 lg:gap-32 items-center">
+      <section className="relative overflow-hidden bg-[#2d241c] py-28 text-[#f5f1ed] md:py-36">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.03] to-transparent" />
+        <div className="pointer-events-none absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-[#c85a2d]/10 blur-3xl" />
+
+        <div className="relative z-20 mx-auto max-w-[1440px] px-6 md:px-12">
+          <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
             {/* Text Content */}
-            <div className="order-2 lg:order-1 flex flex-col items-start">
-              <span className="inline-flex items-center gap-4 text-[#c85a2d] font-bold tracking-[0.2em] uppercase text-xs mb-8">
+            <div className="order-2 flex flex-col items-start lg:order-1">
+              <span className="mb-7 inline-flex items-center gap-4 text-[11px] font-bold uppercase tracking-[0.24em] text-[#c85a2d] md:mb-8">
                 <span className="w-8 h-px bg-[#c85a2d]"></span>
-                Philosophy
+                Filosofi Kami
               </span>
 
-              <h2 className="font-display text-4xl md:text-6xl lg:text-7xl font-black leading-[0.9] tracking-tight mb-10">
-                &quot;Yoga bukan tentang menyentuh jari kaki, tapi apa yang Anda
-                pelajari saat{" "}
-                <span className="text-[#c85a2d] font-serif italic font-medium relative inline-block">
-                  turun ke bawah
-                  <svg
-                    className="absolute w-full h-3 -bottom-1 left-0 text-[#c85a2d]"
-                    viewBox="0 0 200 9"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M2.00025 6.99997C25.7533 3.97825 80.8932 0.380722 198.001 2.00002"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
+              <h2 className="max-w-3xl font-display text-4xl font-black leading-[0.94] tracking-[-0.04em] md:text-6xl lg:text-[76px]">
+                Yoga bukan tentang menyentuh jari kaki,
+                <span className="block font-serif text-[0.92em] font-medium italic tracking-normal text-[#c85a2d]">
+                  tapi tentang apa yang Anda pelajari saat turun ke bawah.
                 </span>
-                .&quot;
               </h2>
 
-              <div className="flex gap-4">
-                <div className="w-16 h-16 rounded-full border border-[#f5f1ed]/20 flex items-center justify-center text-2xl font-serif italic text-[#c85a2d]">
-                  Y
-                </div>
-                <div className="h-16 w-px bg-[#f5f1ed]/20"></div>
-                <p className="flex-1 text-lg text-[#f5f1ed]/80 leading-relaxed max-w-sm">
-                  Setiap karya kami adalah pengingat visual untuk tetap hadir di
-                  sini, saat ini.
-                </p>
+              <p className="mt-6 max-w-xl text-base leading-8 text-[#f5f1ed]/72 md:mt-8 md:text-lg">
+                Setiap karya kami dibuat sebagai pengingat visual untuk kembali
+                hadir, bernapas lebih tenang, dan menemukan ritme yang terasa
+                personal.
+              </p>
+
+              <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-[#f5f1ed]/64 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3">
+                <span>Ritual yang tenang</span>
+                <span>Karakter yang personal</span>
+                <span>Dibuat perlahan dengan tangan</span>
               </div>
             </div>
 
             {/* Image Content - Organic Shape */}
-            <div className="order-1 lg:order-2 flex justify-center lg:justify-end relative">
-              <div className="relative aspect-[3/4] w-full max-w-[500px]">
-                {/* Decorative glow behind image */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#c85a2d]/20 blur-[100px] rounded-full pointer-events-none"></div>
+            <div className="order-1 relative flex justify-center lg:order-2 lg:justify-end">
+              <div className="relative aspect-[4/5] w-full max-w-[460px]">
+                <div className="absolute -inset-5 rounded-[42px] border border-white/6" />
 
-                <div className="relative w-full h-full overflow-hidden rounded-t-[250px] rounded-b-[40px] border border-[#f5f1ed]/10 shadow-2xl isolate">
-                  {/* Local Texture for Image Section */}
-                  <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-40 mix-blend-overlay pointer-events-none z-10"></div>
+                <div className="relative h-full w-full overflow-hidden rounded-[36px] border border-white/10 bg-[#3a3027] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.45)] isolate">
 
                   <Image
                     src="/images/knittedyoga.png"
                     alt="Yoga Philosophy"
                     fill
-                    className="object-cover hover:scale-105 transition-transform duration-[2s] ease-out"
+                    className="object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#2d241c]/60 to-transparent pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#2d241c]/68 via-[#2d241c]/16 to-transparent pointer-events-none"></div>
                 </div>
 
-                {/* Floating badge */}
-                <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[#c85a2d] rounded-full flex items-center justify-center p-4 text-center">
-                  <span className="font-display font-black text-sm uppercase leading-tight tracking-widest text-[#2d241c]">
-                    Mindful
-                    <br />
-                    Living
-                  </span>
+                <div className="absolute inset-x-6 bottom-6 rounded-[28px] border border-white/12 bg-[#2d241c]/72 px-5 py-4 backdrop-blur-sm">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#c85a2d]">
+                    Mindful Living
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#f5f1ed]/74">
+                    Teman visual yang mengingatkan Anda untuk kembali hadir,
+                    lembut, dan utuh.
+                  </p>
                 </div>
               </div>
             </div>
@@ -626,98 +588,45 @@ export default async function HomePage() {
       </section>
 
       {/* 
-        PREMIUM FOOTER CTA 
-        Enhanced with depth, textural narrative, and organic flow.
+        CLOSING CTA
+        Simplified to feel calmer, clearer, and more aligned with the page rhythm.
       */}
-      <section className="py-40 md:py-64 bg-[#2d241c] text-white text-center px-6 relative overflow-hidden selection:bg-[#c85a2d] selection:text-white">
-        <div className="relative z-30 max-w-6xl mx-auto flex flex-col items-center">
-          {/* Top Label - Monospace Pattern */}
-          <div className="flex flex-col items-center gap-4 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <span className="text-[#c85a2d] font-mono text-[10px] uppercase tracking-[0.5em] font-bold">
-              Final Chapter • Begin Your Journey
+      <section className="relative -mt-px overflow-hidden bg-[#2d241c] px-6 py-28 text-white selection:bg-[#c85a2d] selection:text-white md:py-36">
+        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
+          <div className="mb-8 inline-flex items-center gap-4 md:mb-10">
+            <span className="h-px w-10 bg-[#c85a2d]" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#c85a2d]">
+              Temukan Teman Baru
             </span>
-            <div className="w-8 h-px bg-[#c85a2d]/40"></div>
           </div>
 
-          <h2 className="relative font-display text-[14vw] md:text-[160px] lg:text-[200px] font-black leading-[0.75] tracking-tight mb-16 text-white drop-shadow-2xl">
-            <span className="block opacity-90">TEMUKAN</span>
-
-            <div className="relative my-6 md:my-4 flex items-center justify-center">
-              {/* Underline Decoration */}
-              <svg
-                className="absolute -bottom-2 w-full max-w-[400px] h-4 text-[#c85a2d] opacity-60"
-                viewBox="0 0 200 9"
-                fill="none"
-              >
-                <path
-                  d="M2 7C30 4 80 1 198 2"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="text-[#c85a2d] font-serif italic font-light tracking-tight text-[0.45em] md:text-[0.4em] relative z-10 block animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
-                Teman Sejati
-              </span>
-            </div>
-
-            <span
-              className="block text-transparent stroke-text"
-              style={{ WebkitTextStroke: "1px rgba(255,255,255,0.4)" }}
-            >
-              BARU
+          <h2 className="max-w-4xl font-display text-5xl font-black leading-[0.92] tracking-[-0.04em] text-white sm:text-6xl md:text-7xl lg:text-[88px]">
+            Pilih karakter yang terasa
+            <span className="block font-serif text-[0.9em] font-medium italic tracking-normal text-[#c85a2d]">
+              dekat dengan perjalanan Anda.
             </span>
-
-            {/* Floating Decorative Icon */}
-            <div className="absolute -top-12 -right-12 md:-right-24 hidden md:block animate-bounce-slow">
-              <Sparkles className="w-12 h-12 text-[#c85a2d]/40" />
-            </div>
           </h2>
 
-          <p className="text-white/60 text-lg md:text-xl font-medium max-w-xl mb-20 leading-relaxed text-balance">
-            Setiap karakter memiliki cerita. Pilih teman yang beresonansi dengan
-            perjalanan Anda hari ini.
+          <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 md:mt-8 md:text-lg">
+            Setiap karya dibuat untuk menemani ritual yang tenang, personal,
+            dan penuh kehadiran. Temukan yang paling beresonansi hari ini.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-8 md:gap-12 w-full justify-center px-4">
+          <div className="mt-12 flex w-full flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
             <Link
               href="/products"
-              className="group relative h-20 md:h-24 px-12 md:px-20 rounded-[40px] bg-[#c85a2d] text-white font-black text-xl hover:bg-white hover:text-[#2d241c] transition-all duration-500 shadow-[0_30px_60px_-15px_rgba(200,90,45,0.5)] hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.3)] flex items-center gap-6 uppercase tracking-[0.2em] overflow-hidden group/btn"
+              className="group inline-flex min-h-14 items-center gap-3 rounded-full bg-[#c85a2d] px-8 py-4 text-sm font-semibold tracking-[0.08em] text-white transition-all duration-300 hover:bg-[#d86b3f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 md:min-h-16 md:px-10 md:text-base"
             >
-              <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-700 ease-in-out"></div>
-              <span className="relative z-10 group-hover:scale-110 transition-transform">
-                Eksplorasi Sekarang
-              </span>
-              <div className="relative z-10 w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-[#2d241c] group-hover:border-[#2d241c] transition-colors">
-                <MoveRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-500" />
-              </div>
+              <span>Lihat koleksi</span>
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
 
-            <div className="flex flex-col items-center sm:items-start gap-2">
-              <Link
-                href="/track-order"
-                className="group inline-flex items-center gap-3 text-white/50 hover:text-white font-bold uppercase tracking-[0.2em] text-sm transition-all py-2"
-              >
-                <span>Lacak Pesanan</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-[#c85a2d] scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-              </Link>
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-            </div>
-          </div>
-
-          {/* Bottom Footnote - Editorial Detail */}
-          <div className="mt-32 pt-12 border-t border-white/5 w-full flex flex-col md:flex-row items-center justify-between gap-6 opacity-40">
-            <span className="text-[10px] uppercase tracking-[0.3em] font-bold">
-              Artisanal Crochet • Established 2026
-            </span>
-            <div className="flex gap-8">
-              <span className="text-[10px] uppercase tracking-[0.3em] font-bold">
-                Limited Batches
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.3em] font-bold">
-                Handmade Only
-              </span>
-            </div>
+            <Link
+              href="/track-order"
+              className="inline-flex min-h-12 items-center rounded-full border border-white/14 px-6 py-3 text-sm font-medium text-white/72 transition-colors duration-300 hover:border-white/28 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            >
+              Lacak pesanan
+            </Link>
           </div>
         </div>
       </section>

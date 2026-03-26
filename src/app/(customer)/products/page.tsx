@@ -151,14 +151,12 @@ export default async function ProductsPage({
         {/* 
           PAGINATION
         */}
-        <div className="mt-32 flex justify-center">
-          <div className="relative p-3 rounded-full bg-white border border-[#e8dcc8]/60 shadow-lift-sm">
-            <PaginationControls
-              pagination={data.pagination}
-              basePath="/products"
-              sort={sort}
-            />
-          </div>
+        <div className="mt-16 flex justify-center pb-8">
+          <PaginationControls
+            pagination={data.pagination}
+            basePath="/products"
+            sort={sort}
+          />
         </div>
       </div>
     </div>

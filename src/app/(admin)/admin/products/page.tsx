@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   PlusCircle,
   Loader2,
   Search,
-  LayoutGrid,
-  List,
-  Package,
-  PackageCheck,
-  PackageX,
-  AlertTriangle,
-  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ProductTable } from "@/components/admin/products/product-table";
 import { ProductForm } from "@/components/admin/products/product-form";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -26,20 +23,149 @@ import { apiFetch } from "@/lib/api-client";
 import type {
   AdminProductListItem,
   AdminProductListResponse,
+  Pagination,
 } from "@/types/api";
 
+const PRODUCTS_PER_PAGE = 20;
+
+function parseCatalogParams(searchString: string) {
+  const params = new URLSearchParams(searchString);
+  const pageValue = Number(params.get("page"));
+
+  return {
+    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1,
+    search: params.get("search") ?? "",
+    stock: params.get("stock") ?? "all",
+    status: params.get("status") ?? "all",
+  };
+}
+
+function AdminPaginationControls({
+  pagination,
+  loading,
+  onPageChange,
+}: {
+  pagination: Pagination;
+  loading: boolean;
+  onPageChange: (page: number) => void;
+}) {
+  const { page, totalPages } = pagination;
+
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  const pages = Array.from({ length: totalPages }, (_, index) => index + 1);
+  const visiblePages = pages.filter((pageNumber) => {
+    if (totalPages <= 7) {
+      return true;
+    }
+
+    return (
+      pageNumber === 1 ||
+      pageNumber === totalPages ||
+      Math.abs(pageNumber - page) <= 1
+    );
+  });
+
+  const pageItems: Array<number | "ellipsis"> = [];
+  for (const pageNumber of visiblePages) {
+    const lastItem = pageItems[pageItems.length - 1];
+    if (
+      typeof lastItem === "number" &&
+      pageNumber - lastItem > 1
+    ) {
+      pageItems.push("ellipsis");
+    }
+    pageItems.push(pageNumber);
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-3 pt-2">
+      <div className="flex items-center gap-1.5 rounded-full bg-card px-2 py-2 shadow-soft ring-1 ring-warm-sand/30">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          onClick={() => onPageChange(page - 1)}
+          disabled={loading || page <= 1}
+          className="rounded-full border-warm-sand/40 bg-cream text-dark-brown hover:bg-cream"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        {pageItems.map((item, index) =>
+          item === "ellipsis" ? (
+            <span
+              key={`ellipsis-${index}`}
+              className="px-2 text-sm font-bold text-warm-gray"
+            >
+              ...
+            </span>
+          ) : (
+            <Button
+              key={item}
+              type="button"
+              variant={item === page ? "default" : "outline"}
+              size="sm"
+              onClick={() => onPageChange(item)}
+              disabled={loading}
+              className={
+                item === page
+                  ? "min-w-10 rounded-full bg-terracotta px-3 text-white hover:bg-terracotta"
+                  : "min-w-10 rounded-full border-warm-sand/40 bg-white px-3 text-dark-brown hover:bg-cream"
+              }
+            >
+              {item}
+            </Button>
+          )
+        )}
+
+        <Button
+          type="button"
+          variant="outline"
+          size="icon-sm"
+          onClick={() => onPageChange(page + 1)}
+          disabled={loading || page >= totalPages}
+          className="rounded-full border-warm-sand/40 bg-cream text-dark-brown hover:bg-cream"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <p className="text-xs font-bold text-warm-gray">
+        Halaman {page} dari {totalPages}
+      </p>
+    </div>
+  );
+}
+
 export default function AdminProductsPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const initialCatalogParams = parseCatalogParams(
+    typeof window === "undefined" ? "" : window.location.search
+  );
   const [products, setProducts] = useState<AdminProductListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<AdminProductListItem | null>(
     null
   );
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [stockFilter, setStockFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [search, setSearch] = useState(initialCatalogParams.search);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialCatalogParams.search);
+  const [stockFilter, setStockFilter] = useState(initialCatalogParams.stock);
+  const [statusFilter, setStatusFilter] = useState(initialCatalogParams.status);
+  const [currentPage, setCurrentPage] = useState(initialCatalogParams.page);
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    limit: PRODUCTS_PER_PAGE,
+    total: 0,
+    totalPages: 0,
+  });
   const abortRef = useRef<AbortController | null>(null);
+  const hasLoadedOnceRef = useRef(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -48,58 +174,118 @@ export default function AdminProductsPage() {
     return () => clearTimeout(timeout);
   }, [search]);
 
+  useEffect(() => {
+    const syncFromUrl = () => {
+      const nextCatalogParams = parseCatalogParams(window.location.search);
+
+      setSearch(nextCatalogParams.search);
+      setDebouncedSearch(nextCatalogParams.search);
+      setStockFilter(nextCatalogParams.stock);
+      setStatusFilter(nextCatalogParams.status);
+      setCurrentPage(nextCatalogParams.page);
+    };
+
+    const syncTimer = window.setTimeout(syncFromUrl, 0);
+    window.addEventListener("popstate", syncFromUrl);
+
+    return () => {
+      window.clearTimeout(syncTimer);
+      window.removeEventListener("popstate", syncFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const nextParams = new URLSearchParams();
+    if (currentPage > 1) {
+      nextParams.set("page", currentPage.toString());
+    }
+    if (debouncedSearch) {
+      nextParams.set("search", debouncedSearch);
+    }
+    if (stockFilter !== "all") {
+      nextParams.set("stock", stockFilter);
+    }
+    if (statusFilter !== "all") {
+      nextParams.set("status", statusFilter);
+    }
+
+    const nextQuery = nextParams.toString();
+    const currentQuery = window.location.search.startsWith("?")
+      ? window.location.search.slice(1)
+      : window.location.search;
+    if (nextQuery === currentQuery) {
+      return;
+    }
+
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, {
+      scroll: false,
+    });
+  }, [currentPage, debouncedSearch, stockFilter, statusFilter, pathname, router]);
+
   const fetchProducts = useCallback(async () => {
     if (abortRef.current) {
       abortRef.current.abort();
     }
     abortRef.current = new AbortController();
 
-    setLoading(true);
+    if (hasLoadedOnceRef.current) {
+      setIsRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
     const params = new URLSearchParams();
-    params.set("limit", "50");
+    params.set("page", currentPage.toString());
+    params.set("limit", PRODUCTS_PER_PAGE.toString());
     if (debouncedSearch) {
       params.set("search", debouncedSearch);
     }
     if (statusFilter !== "all") {
       params.set("isActive", statusFilter === "active" ? "true" : "false");
     }
+    if (stockFilter !== "all") {
+      params.set("stock", stockFilter);
+    }
 
     const res = await apiFetch<AdminProductListResponse>(
       `/api/admin/products?${params.toString()}`
     );
+
     if (res.success) {
+      if (
+        res.data.pagination.totalPages > 0 &&
+        currentPage > res.data.pagination.totalPages
+      ) {
+        setCurrentPage(res.data.pagination.totalPages);
+        return;
+      }
+
       setProducts(res.data.products);
+      setPagination(res.data.pagination);
     }
+
+    hasLoadedOnceRef.current = true;
     setLoading(false);
-  }, [debouncedSearch, statusFilter]);
+    setIsRefreshing(false);
+  }, [currentPage, debouncedSearch, statusFilter, stockFilter]);
 
   useEffect(() => {
     const timeout = setTimeout(fetchProducts, 0);
     return () => clearTimeout(timeout);
   }, [fetchProducts]);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
-      const matchStock =
-        stockFilter === "all" ||
-        (stockFilter === "in-stock" &&
-          (p.stock === null || p.stock > 10)) ||
-        (stockFilter === "low-stock" &&
-          p.stock !== null &&
-          p.stock > 0 &&
-          p.stock <= 10) ||
-        (stockFilter === "out-of-stock" && p.stock !== null && p.stock === 0);
-
-      return matchStock;
-    });
-  }, [products, stockFilter]);
-
   const stats = useMemo(() => ({
-    total: products.length,
+    total: pagination.total,
     active: products.filter((p) => p.isActive).length,
     outOfStock: products.filter((p) => p.stock === 0).length,
     lowStock: products.filter((p) => p.stock !== null && p.stock > 0 && p.stock <= 10).length,
-  }), [products]);
+  }), [pagination.total, products]);
+
+  void stats;
 
   function handleEdit(product: AdminProductListItem) {
     setEditProduct(product);
@@ -145,14 +331,23 @@ export default function AdminProductsPage() {
               type="text"
               placeholder="Cari berdasarkan nama produk..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full bg-transparent text-sm font-medium text-dark-brown placeholder:text-warm-gray/60 outline-none min-w-0"
             />
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Custom Filters */}
-            <Select value={stockFilter} onValueChange={setStockFilter}>
+            <Select
+              value={stockFilter}
+              onValueChange={(value) => {
+                setStockFilter(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-[160px] h-11 rounded-2xl bg-cream px-5 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/50 hover:ring-terracotta/40 focus:ring-2 focus:ring-terracotta/40 transition-all border-none shadow-none [&>span]:flex [&>span]:items-center [&>span]:gap-2">
                 <SelectValue placeholder="Status Stok" />
               </SelectTrigger>
@@ -172,7 +367,13 @@ export default function AdminProductsPage() {
               </SelectContent>
             </Select>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => {
+                setStatusFilter(value);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-[150px] h-11 rounded-2xl bg-cream px-5 text-sm font-bold text-dark-brown ring-1 ring-warm-sand/50 hover:ring-terracotta/40 focus:ring-2 focus:ring-terracotta/40 transition-all border-none shadow-none [&>span]:flex [&>span]:items-center [&>span]:gap-2">
                 <SelectValue placeholder="Status Produk" />
               </SelectTrigger>
@@ -200,13 +401,32 @@ export default function AdminProductsPage() {
             </span>
           </div>
         ) : (
-          <ProductTable
-            products={filteredProducts}
-            totalCount={products.length}
-            onEdit={handleEdit}
-            onRefresh={fetchProducts}
-            viewMode="grid"
-          />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between min-h-6 px-1">
+              <p className="text-xs font-bold text-warm-gray">
+                Menampilkan {products.length} dari {pagination.total} produk
+              </p>
+              {isRefreshing && (
+                <div className="inline-flex items-center gap-2 text-xs font-bold text-warm-gray">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-terracotta" />
+                  Memperbarui katalog...
+                </div>
+              )}
+            </div>
+
+            <ProductTable
+              products={products}
+              onEdit={handleEdit}
+              onRefresh={fetchProducts}
+              viewMode="grid"
+            />
+
+            <AdminPaginationControls
+              pagination={pagination}
+              loading={isRefreshing}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         )}
       </div>
 

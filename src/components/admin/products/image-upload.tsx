@@ -5,6 +5,11 @@ import { useToast } from "@/components/ui/toast";
 import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiUpload } from "@/lib/api-client";
+import {
+  isHeicImageFile,
+  prepareProductImageFile,
+  PRODUCT_IMAGE_ACCEPT,
+} from "@/lib/product-image-upload";
 import type { ProductImage } from "@/types/api";
 
 export function ImageUpload({
@@ -22,15 +27,32 @@ export function ImageUpload({
     const file = fileRef.current?.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Ukuran file maksimal 5MB");
+    const conversionToastId = isHeicImageFile(file)
+      ? toast.loading(`Mengonversi ${file.name}...`)
+      : undefined;
+
+    let processedFile: File;
+    try {
+      processedFile = await prepareProductImageFile(file);
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : `Gagal memproses ${file.name}`;
+      toast.error(message);
+      if (conversionToastId) {
+        toast.dismiss(conversionToastId);
+      }
       return;
+    }
+
+    if (conversionToastId) {
+      toast.dismiss(conversionToastId);
     }
 
     setLoading(true);
     const res = await apiUpload<ProductImage>(
       `/api/admin/products/${productId}/images`,
-      file
+      processedFile
     );
     setLoading(false);
 
@@ -49,7 +71,7 @@ export function ImageUpload({
       <input
         ref={fileRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={PRODUCT_IMAGE_ACCEPT}
         className="text-sm file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium cursor-pointer"
       />
       <Button size="sm" onClick={handleUpload} disabled={loading}>

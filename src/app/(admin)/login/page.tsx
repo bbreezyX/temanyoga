@@ -187,20 +187,6 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          {/* Footer inside card */}
-          <div className="mt-10 pt-8 border-t border-muted/60 flex flex-col items-center gap-4 text-center">
-            <div className="flex items-center gap-2 px-4 py-1.5 bg-primary/5 rounded-full text-primary/80">
-              <ShieldCheck className="w-4 h-4" />
-              <span className="text-[10px] font-black uppercase tracking-[0.25em]">
-                Secure Encryption Active
-              </span>
-            </div>
-            <p className="text-[13px] text-muted-foreground px-4 leading-relaxed">
-              Authorized personnel only. Access attempt and IP address are
-              logged.
-            </p>
-          </div>
         </div>
 
         {/* External links */}
