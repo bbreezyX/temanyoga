@@ -87,6 +87,19 @@ export function AccessoryList({ accessories, onEdit, onRefresh }: AccessoryListP
               </p>
             )}
 
+            {acc.colorOptions.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {acc.colorOptions.map((color) => (
+                  <span
+                    key={color}
+                    className="inline-flex items-center rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-dark-brown ring-1 ring-warm-sand/40"
+                  >
+                    {color}
+                  </span>
+                ))}
+              </div>
+            )}
+
             <div className="flex items-center justify-end gap-3 pt-1">
               <button
                 onClick={() => onEdit(acc)}
@@ -136,6 +149,11 @@ export function AccessoryList({ accessories, onEdit, onRefresh }: AccessoryListP
                     {acc.description && (
                       <p className="text-[11px] text-warm-gray mt-0.5 line-clamp-1">
                         {acc.description}
+                      </p>
+                    )}
+                    {acc.colorOptions.length > 0 && (
+                      <p className="text-[11px] text-warm-gray mt-1 line-clamp-1">
+                        Warna: {acc.colorOptions.join(", ")}
                       </p>
                     )}
                   </div>

@@ -24,7 +24,7 @@ const NAV_LINKS = [
 ];
 
 export function Header() {
-  const { cartCount } = useCart();
+  const { cartCount, isLoaded } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
@@ -127,7 +127,7 @@ export function Header() {
                   isScrolled ? "h-4 w-4" : "h-[22px] w-[22px]",
                 )}
               />
-              {cartCount > 0 && (
+              {isLoaded && cartCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary p-0 text-[10px] font-bold text-primary-foreground shadow-md ring-2 ring-background">
                   {cartCount}
                 </Badge>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Pencil } from "lucide-react";
 
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/format";
@@ -47,10 +47,10 @@ export function CartItemRow({ item }: { item: CartItem }) {
               <div className="mt-2 flex flex-wrap gap-2">
                 {item.accessories.map((acc) => (
                   <span
-                    key={acc.id}
+                    key={`${acc.id}-${acc.selectedColor ?? "default"}`}
                     className="inline-flex text-[11px] font-bold uppercase tracking-wider text-[#7a9d7f] bg-[#7a9d7f]/5 px-2 py-0.5 rounded-full ring-1 ring-[#7a9d7f]/20"
                   >
-                    + {acc.name}
+                    + {acc.name}{acc.selectedColor ? ` (${acc.selectedColor})` : ""}
                   </span>
                 ))}
               </div>
@@ -59,6 +59,16 @@ export function CartItemRow({ item }: { item: CartItem }) {
                 Tanpa aksesoris
               </p>
             )}
+            <Link
+              href={{
+                pathname: `/products/${item.slug || "#"}`,
+                query: { item: item.cartLineId },
+              }}
+              className="mt-3 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-[#c85a2d] hover:text-[#2d241c] transition-colors"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Edit Item
+            </Link>
           </div>
 
           <button

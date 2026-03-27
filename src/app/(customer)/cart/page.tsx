@@ -8,12 +8,24 @@ import { CartSummary } from "@/components/cart/cart-summary";
 import { useCart } from "@/contexts/cart-context";
 
 export default function CartPage() {
-  const { items } = useCart();
+  const { items, getItemKey, isLoaded } = useCart();
 
   // Scroll to top on mount
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  if (!isLoaded) {
+    return (
+      <div className="bg-white min-h-screen text-[#2d241c] font-sans flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full text-center animate-floatIn">
+          <div className="h-32 w-32 rounded-[40px] bg-[#f5f1ed] animate-pulse mx-auto mb-10" />
+          <div className="h-10 w-56 rounded-full bg-[#f5f1ed] animate-pulse mx-auto mb-4" />
+          <div className="h-5 w-72 rounded-full bg-[#f5f1ed] animate-pulse mx-auto" />
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -72,7 +84,7 @@ export default function CartPage() {
           <div className="lg:grid lg:grid-cols-12 lg:gap-20 items-start">
             <div className="lg:col-span-7 flex flex-col mb-16 lg:mb-0">
               {items.map((item) => (
-                <CartItemRow key={item.productId} item={item} />
+                <CartItemRow key={getItemKey(item)} item={item} />
               ))}
             </div>
 

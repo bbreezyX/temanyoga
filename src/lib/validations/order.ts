@@ -28,9 +28,15 @@ const sanitizedPhone = z
   .max(30)
   .transform((val) => val.replace(/[^\d\s\-\(\)\+]/g, "").trim());
 
+export const accessorySelectionSchema = z.object({
+  accessoryId: z.string().min(1),
+  selectedColor: z.string().trim().min(1).max(50).optional().nullable(),
+});
+
 export const orderItemSchema = z.object({
   productId: z.string().min(1),
   quantity: z.number().int().positive(),
+  accessorySelections: z.array(accessorySelectionSchema).optional(),
   accessoryIds: z.array(z.string()).optional(),
 });
 

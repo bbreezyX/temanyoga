@@ -13,10 +13,10 @@ import { createOrderSchema } from "@/lib/validations/order";
 import { generateOrderCode } from "@/lib/order-code";
 import { broadcastNotification } from "@/lib/notification-broadcast";
 import { rateLimiters, getClientIp } from "@/lib/rate-limit";
+import { isAllowedShippingCourier } from "@/lib/shipping-couriers";
 import {
   sendWhatsAppToCustomer,
   sendWhatsAppToAdmin,
-  getSiteSetting,
 } from "@/lib/whatsapp";
 import {
   orderCreatedCustomer,
@@ -24,6 +24,40 @@ import {
 } from "@/lib/whatsapp-templates";
 import { sendEmailToCustomer } from "@/lib/email";
 import { orderCreatedEmail } from "@/lib/email-templates";
+
+type NormalizedAccessorySelection = {
+  accessoryId: string;
+  selectedColor: string | null;
+};
+
+function normalizeAccessorySelections(item: {
+  accessorySelections?: { accessoryId: string; selectedColor?: string | null }[];
+  accessoryIds?: string[];
+}): NormalizedAccessorySelection[] {
+  if (item.accessorySelections && item.accessorySelections.length > 0) {
+    const uniqueSelections = new Map<string, NormalizedAccessorySelection>();
+
+    for (const selection of item.accessorySelections) {
+      if (!uniqueSelections.has(selection.accessoryId)) {
+        uniqueSelections.set(selection.accessoryId, {
+          accessoryId: selection.accessoryId,
+          selectedColor: selection.selectedColor?.trim() || null,
+        });
+      }
+    }
+
+    return [...uniqueSelections.values()];
+  }
+
+  if (item.accessoryIds && item.accessoryIds.length > 0) {
+    return Array.from(new Set(item.accessoryIds)).map((accessoryId) => ({
+      accessoryId,
+      selectedColor: null,
+    }));
+  }
+
+  return [];
+}
 
 export async function POST(request: Request) {
   try {
@@ -49,9 +83,13 @@ export async function POST(request: Request) {
       couponCode,
       ...customerData
     } = parsed.data;
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      accessorySelections: normalizeAccessorySelections(item),
+    }));
 
     // Fetch all products in one query
-    const productIds = items.map((item) => item.productId);
+    const productIds = normalizedItems.map((item) => item.productId);
     const products = await prisma.product.findMany({
       where: { id: { in: productIds }, isActive: true },
     });
@@ -65,7 +103,7 @@ export async function POST(request: Request) {
 
     // Validate stock
     const productMap = new Map<string, Product>(products.map((p) => [p.id, p]));
-    for (const item of items) {
+    for (const item of normalizedItems) {
       const product = productMap.get(item.productId)!;
       if (product.stock !== null && product.stock < item.quantity) {
         return insufficientStock(product.name, product.stock);
@@ -74,9 +112,9 @@ export async function POST(request: Request) {
 
     // Collect all unique accessory IDs from all items
     const allAccessoryIds = new Set<string>();
-    for (const item of items) {
-      if (item.accessoryIds) {
-        for (const id of item.accessoryIds) allAccessoryIds.add(id);
+    for (const item of normalizedItems) {
+      for (const selection of item.accessorySelections) {
+        allAccessoryIds.add(selection.accessoryId);
       }
     }
 
@@ -88,6 +126,7 @@ export async function POST(request: Request) {
         name: string;
         price: number;
         groupName: string | null;
+        colorOptions: string[];
         isActive: boolean;
       }
     >();
@@ -99,6 +138,7 @@ export async function POST(request: Request) {
           name: true,
           price: true,
           groupName: true,
+          colorOptions: true,
           isActive: true,
         },
       });
@@ -124,18 +164,20 @@ export async function POST(request: Request) {
       accessoriesTotal: number;
     }[] = [];
 
-    for (const item of items) {
+    for (const item of normalizedItems) {
       const product = productMap.get(item.productId)!;
-      const itemAccessories: { name: string; price: number }[] = [];
+      const itemAccessories: {
+        name: string;
+        price: number;
+        selectedColor: string | null;
+      }[] = [];
       let accTotal = 0;
 
-      if (item.accessoryIds && item.accessoryIds.length > 0) {
-        // Deduplicate accessory IDs for the same item
-        const uniqueAccIds = Array.from(new Set(item.accessoryIds));
+      if (item.accessorySelections.length > 0) {
         const groupSeen = new Map<string, string>();
 
-        for (const accId of uniqueAccIds) {
-          const acc = accessoryMap.get(accId)!;
+        for (const selection of item.accessorySelections) {
+          const acc = accessoryMap.get(selection.accessoryId)!;
           if (acc.groupName) {
             if (groupSeen.has(acc.groupName)) {
               return badRequest(
@@ -144,7 +186,24 @@ export async function POST(request: Request) {
             }
             groupSeen.set(acc.groupName, acc.id);
           }
-          itemAccessories.push({ name: acc.name, price: acc.price });
+
+          if (acc.colorOptions.length > 0) {
+            if (!selection.selectedColor) {
+              return badRequest(`Pilih warna untuk aksesoris "${acc.name}" pada produk "${product.name}"`);
+            }
+
+            if (!acc.colorOptions.includes(selection.selectedColor)) {
+              return badRequest(`Warna "${selection.selectedColor}" tidak tersedia untuk aksesoris "${acc.name}"`);
+            }
+          } else if (selection.selectedColor) {
+            return badRequest(`Aksesoris "${acc.name}" tidak memiliki pilihan warna`);
+          }
+
+          itemAccessories.push({
+            name: acc.name,
+            price: acc.price,
+            selectedColor: selection.selectedColor,
+          });
           accTotal += acc.price;
         }
       }
@@ -198,6 +257,15 @@ export async function POST(request: Request) {
 
     if (destinationVillageCode && selectedCourierCode) {
       // MODE API: re-verify price with api.co.id
+      if (
+        !isAllowedShippingCourier({
+          courier_code: selectedCourierCode,
+          courier_name: selectedCourierName,
+        })
+      ) {
+        return badRequest("Kurir tidak tersedia untuk rute ini");
+      }
+
       const weight = items.reduce((sum, item) => sum + item.quantity, 0) || 1;
       const originSetting = await prisma.siteSetting.findUnique({
         where: { key: "origin_village_code" },
@@ -239,7 +307,7 @@ export async function POST(request: Request) {
         const courier = apiData.data.couriers.find(
           (c: { courier_code: string }) => c.courier_code === selectedCourierCode,
         );
-        if (!courier || courier.price <= 0) {
+        if (!courier || !isAllowedShippingCourier(courier) || courier.price <= 0) {
           return badRequest("Kurir tidak tersedia untuk rute ini");
         }
 
@@ -280,7 +348,7 @@ export async function POST(request: Request) {
     // Create order in transaction with stock decrement
     const order = await prisma.$transaction(async (tx) => {
       // Decrement stock for products with finite stock
-      for (const item of items) {
+      for (const item of normalizedItems) {
         const product = productMap.get(item.productId)!;
         if (product.stock !== null) {
           const updated = await tx.product.updateMany({

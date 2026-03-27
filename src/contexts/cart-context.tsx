@@ -4,25 +4,36 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
   useMemo,
   useRef,
+  useEffect,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { nanoid } from "nanoid";
 import type { CartItem } from "@/types/api";
 
 function getCartItemKey(item: CartItem): string {
   const accIds = (item.accessories || [])
-    .map((a) => a.id)
+    .map((a) => `${a.id}:${a.selectedColor ?? ""}`)
     .sort()
     .join(",");
   return `${item.productId}__${accIds}`;
 }
 
+function ensureCartLineId(item: CartItem): CartItem {
+  return {
+    ...item,
+    cartLineId: item.cartLineId || nanoid(12),
+  };
+}
+
 interface CartContextType {
   items: CartItem[];
+  isLoaded: boolean;
   addItem: (item: CartItem) => void;
+  replaceItem: (originalKey: string, item: CartItem) => void;
   removeItem: (key: string) => void;
   updateQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
@@ -42,10 +53,15 @@ function loadCart(): CartItem[] {
     if (!stored) return [];
     const items = JSON.parse(stored) as CartItem[];
     // Migrate old cart items without accessories field
-    return items.map((item) => ({
-      ...item,
-      accessories: item.accessories || [],
-    }));
+    return items.map((item) =>
+      ensureCartLineId({
+        ...item,
+        accessories: (item.accessories || []).map((accessory) => ({
+          ...accessory,
+          selectedColor: accessory.selectedColor ?? null,
+        })),
+      }),
+    );
   } catch {
     return [];
   }
@@ -55,17 +71,17 @@ function saveCart(items: CartItem[]) {
   localStorage.setItem(CART_KEY, JSON.stringify(items));
 }
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
+function subscribeToHydration() {
+  return () => {};
+}
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setItems(loadCart());
-      setLoaded(true);
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>(() => loadCart());
+  const loaded = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => {
@@ -75,8 +91,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(saveTimerRef.current);
   }, [items, loaded]);
 
+  useEffect(() => {
+    if (!loaded) return;
+
+    function handleStorage(event: StorageEvent) {
+      if (event.key !== CART_KEY) {
+        return;
+      }
+
+      setItems(loadCart());
+    }
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, [loaded]);
+
   const addItem = useCallback((item: CartItem) => {
-    const newItem = { ...item, accessories: item.accessories || [] };
+    const newItem = ensureCartLineId({ ...item, accessories: item.accessories || [] });
     const newKey = getCartItemKey(newItem);
 
     setItems((prev) => {
@@ -89,6 +120,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
         );
       }
       return [...prev, newItem];
+    });
+  }, []);
+
+  const replaceItem = useCallback((originalKey: string, item: CartItem) => {
+    const nextItem = ensureCartLineId({ ...item, accessories: item.accessories || [] });
+    const nextKey = getCartItemKey(nextItem);
+
+    setItems((prev) => {
+      const originalIndex = prev.findIndex((cartItem) => getCartItemKey(cartItem) === originalKey);
+      const withoutOriginal = prev.filter((cartItem) => getCartItemKey(cartItem) !== originalKey);
+      const mergeIndex = withoutOriginal.findIndex((cartItem) => getCartItemKey(cartItem) === nextKey);
+
+      if (mergeIndex >= 0) {
+        return withoutOriginal.map((cartItem, index) =>
+          index === mergeIndex
+            ? { ...cartItem, quantity: cartItem.quantity + nextItem.quantity }
+            : cartItem,
+        );
+      }
+
+      if (originalIndex === -1) {
+        return [...withoutOriginal, nextItem];
+      }
+
+      const nextItems = [...withoutOriginal];
+      nextItems.splice(Math.min(originalIndex, nextItems.length), 0, nextItem);
+      return nextItems;
     });
   }, []);
 
@@ -126,7 +184,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   return (
     <CartContext value={{
       items,
+      isLoaded: loaded,
       addItem,
+      replaceItem,
       removeItem,
       updateQuantity,
       clearCart,

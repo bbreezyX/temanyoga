@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Puzzle, Loader2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { apiFetch } from "@/lib/api-client";
@@ -8,13 +8,65 @@ import type { AccessoryItem, CartAccessory } from "@/types/api";
 
 interface AccessoriesSelectorProps {
   onAccessoriesChange: (accessories: CartAccessory[], total: number) => void;
+  initialAccessories?: CartAccessory[];
 }
 
-export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelectorProps) {
+function buildInitialGroupedSelections(initialAccessories: CartAccessory[]) {
+  return new Map(
+    initialAccessories
+      .filter((accessory) => accessory.groupName)
+      .map((accessory) => [accessory.groupName as string, accessory.id]),
+  );
+}
+
+function buildInitialIndependentSelections(initialAccessories: CartAccessory[]) {
+  return new Set(
+    initialAccessories
+      .filter((accessory) => !accessory.groupName)
+      .map((accessory) => accessory.id),
+  );
+}
+
+function buildInitialSelectedColors(initialAccessories: CartAccessory[]) {
+  return new Map(
+    initialAccessories
+      .filter((accessory) => accessory.selectedColor)
+      .map((accessory) => [accessory.id, accessory.selectedColor as string]),
+  );
+}
+
+export function AccessoriesSelector({
+  onAccessoriesChange,
+  initialAccessories = [],
+}: AccessoriesSelectorProps) {
   const [accessories, setAccessories] = useState<AccessoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAccessories, setSelectedAccessories] = useState<Map<string, string>>(new Map());
-  const [selectedIndependent, setSelectedIndependent] = useState<Set<string>>(new Set());
+  const [selectedAccessories, setSelectedAccessories] = useState<Map<string, string>>(
+    () => buildInitialGroupedSelections(initialAccessories),
+  );
+  const [selectedIndependent, setSelectedIndependent] = useState<Set<string>>(
+    () => buildInitialIndependentSelections(initialAccessories),
+  );
+  const [selectedColors, setSelectedColors] = useState<Map<string, string>>(
+    () => buildInitialSelectedColors(initialAccessories),
+  );
+
+  const getAccessoryById = (accessoryId: string) =>
+    accessories.find((accessory) => accessory.id === accessoryId);
+
+  const getDefaultColor = (accessoryId: string) =>
+    getAccessoryById(accessoryId)?.colorOptions[0] ?? null;
+
+  const getResolvedColor = useCallback((accessory: AccessoryItem) => {
+    if (accessory.colorOptions.length === 0) {
+      return null;
+    }
+
+    const selectedColor = selectedColors.get(accessory.id);
+    return selectedColor && accessory.colorOptions.includes(selectedColor)
+      ? selectedColor
+      : accessory.colorOptions[0] ?? null;
+  }, [selectedColors]);
 
   useEffect(() => {
     async function loadAccessories() {
@@ -31,15 +83,31 @@ export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelector
     const result: CartAccessory[] = [];
     for (const [, accId] of selectedAccessories) {
       const acc = accessories.find((a) => a.id === accId);
-      if (acc) result.push({ id: acc.id, name: acc.name, price: acc.price, groupName: acc.groupName });
+      if (acc) {
+        result.push({
+          id: acc.id,
+          name: acc.name,
+          price: acc.price,
+          groupName: acc.groupName,
+          selectedColor: getResolvedColor(acc),
+        });
+      }
     }
     for (const accId of selectedIndependent) {
       const acc = accessories.find((a) => a.id === accId);
-      if (acc) result.push({ id: acc.id, name: acc.name, price: acc.price, groupName: acc.groupName });
+      if (acc) {
+        result.push({
+          id: acc.id,
+          name: acc.name,
+          price: acc.price,
+          groupName: acc.groupName,
+          selectedColor: getResolvedColor(acc),
+        });
+      }
     }
     const total = result.reduce((s, a) => s + a.price, 0);
     onAccessoriesChange(result, total);
-  }, [selectedAccessories, selectedIndependent, accessories, onAccessoriesChange]);
+  }, [selectedAccessories, selectedIndependent, selectedColors, accessories, onAccessoriesChange, getResolvedColor]);
 
   const groups = new Map<string, AccessoryItem[]>();
   const independentAccessories: AccessoryItem[] = [];
@@ -55,11 +123,30 @@ export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelector
   const handleGroupSelect = (groupName: string, accId: string | null) => {
     setSelectedAccessories((prev) => {
       const next = new Map(prev);
+      const previousId = next.get(groupName);
       if (accId) {
         next.set(groupName, accId);
       } else {
         next.delete(groupName);
       }
+
+      setSelectedColors((prevColors) => {
+        const nextColors = new Map(prevColors);
+
+        if (previousId && previousId !== accId) {
+          nextColors.delete(previousId);
+        }
+
+        if (accId) {
+          const defaultColor = getDefaultColor(accId);
+          if (defaultColor) {
+            nextColors.set(accId, nextColors.get(accId) ?? defaultColor);
+          }
+        }
+
+        return nextColors;
+      });
+
       return next;
     });
   };
@@ -69,9 +156,30 @@ export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelector
       const next = new Set(prev);
       if (next.has(accId)) {
         next.delete(accId);
+        setSelectedColors((prevColors) => {
+          const nextColors = new Map(prevColors);
+          nextColors.delete(accId);
+          return nextColors;
+        });
       } else {
         next.add(accId);
+        const defaultColor = getDefaultColor(accId);
+        if (defaultColor) {
+          setSelectedColors((prevColors) => {
+            const nextColors = new Map(prevColors);
+            nextColors.set(accId, nextColors.get(accId) ?? defaultColor);
+            return nextColors;
+          });
+        }
       }
+      return next;
+    });
+  };
+
+  const handleColorChange = (accessoryId: string, color: string) => {
+    setSelectedColors((prev) => {
+      const next = new Map(prev);
+      next.set(accessoryId, color);
       return next;
     });
   };
@@ -166,6 +274,31 @@ export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelector
                     {acc.description && (
                       <p className="text-[11px] md:text-[12px] text-[#6b5b4b] mt-0.5 line-clamp-1">{acc.description}</p>
                     )}
+                    {isSelected && acc.colorOptions.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {acc.colorOptions.map((color) => {
+                          const isActiveColor = getResolvedColor(acc) === color;
+                          return (
+                            <button
+                              key={color}
+                              type="button"
+                              onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                handleColorChange(acc.id, color);
+                              }}
+                              className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                                isActiveColor
+                                  ? "bg-[#c85a2d] text-white"
+                                  : "bg-white text-[#6b5b4b] ring-1 ring-[#e8dcc8]"
+                              }`}
+                            >
+                              {color}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                   <span className="font-black text-[13px] md:text-[14px] text-[#c85a2d] shrink-0">
                     +{formatCurrency(acc.price)}
@@ -218,6 +351,31 @@ export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelector
                     {acc.description && (
                       <p className="text-[11px] md:text-[12px] text-[#6b5b4b] mt-0.5 line-clamp-1">{acc.description}</p>
                     )}
+                    {isSelected && acc.colorOptions.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {acc.colorOptions.map((color) => {
+                          const isActiveColor = getResolvedColor(acc) === color;
+                          return (
+                            <button
+                              key={color}
+                              type="button"
+                              onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                handleColorChange(acc.id, color);
+                              }}
+                              className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                                isActiveColor
+                                  ? "bg-[#c85a2d] text-white"
+                                  : "bg-white text-[#6b5b4b] ring-1 ring-[#e8dcc8]"
+                              }`}
+                            >
+                              {color}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                   <span className="font-black text-[13px] md:text-[14px] text-[#c85a2d] shrink-0">
                     +{formatCurrency(acc.price)}
@@ -240,7 +398,10 @@ export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelector
               if (!acc) return null;
               return (
                 <div key={acc.id} className="flex justify-between text-[12px] md:text-[13px]">
-                  <span className="text-[#3f3328] font-medium">{acc.name}</span>
+                  <span className="text-[#3f3328] font-medium">
+                    {acc.name}
+                    {acc.colorOptions.length > 0 && ` (${getResolvedColor(acc)})`}
+                  </span>
                   <span className="text-[#7a9d7f] font-bold">+{formatCurrency(acc.price)}</span>
                 </div>
               );
@@ -250,7 +411,10 @@ export function AccessoriesSelector({ onAccessoriesChange }: AccessoriesSelector
               if (!acc) return null;
               return (
                 <div key={acc.id} className="flex justify-between text-[12px] md:text-[13px]">
-                  <span className="text-[#3f3328] font-medium">{acc.name}</span>
+                  <span className="text-[#3f3328] font-medium">
+                    {acc.name}
+                    {acc.colorOptions.length > 0 && ` (${getResolvedColor(acc)})`}
+                  </span>
                   <span className="text-[#7a9d7f] font-bold">+{formatCurrency(acc.price)}</span>
                 </div>
               );

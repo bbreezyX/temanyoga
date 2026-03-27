@@ -4,6 +4,7 @@ import { useState, useCallback, Suspense } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Minus,
   Plus,
@@ -11,15 +12,17 @@ import {
   Truck,
   ShieldCheck,
   Clock,
+  Pencil,
 } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/format";
 import { getImageUrl } from "@/lib/image-url";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProductReviews } from "@/components/review/product-reviews";
 import type {
   ProductDetail as ProductDetailType,
   CartAccessory,
+  CartItem,
 } from "@/types/api";
 
 const AccessoriesSelector = dynamic(
@@ -54,13 +57,48 @@ function AccessoriesSkeleton() {
 }
 
 export function ProductDetail({ product }: { product: ProductDetailType }) {
-  const { addItem } = useCart();
-  const [quantity, setQuantity] = useState(1);
+  const searchParams = useSearchParams();
+  const { items, getItemKey, isLoaded } = useCart();
+
+  const editLineId = searchParams.get("item");
+  const editingCartItem = isLoaded
+    ? items.find(
+        (item) => item.cartLineId === editLineId && item.productId === product.id,
+      ) ?? null
+    : null;
+  const selectionKey = editingCartItem ? getItemKey(editingCartItem) : "new";
+
+  return (
+    <ProductDetailContent
+      key={`${product.id}:${selectionKey}`}
+      product={product}
+      editLineId={editLineId}
+      editingCartItem={editingCartItem}
+      selectionKey={selectionKey}
+    />
+  );
+}
+
+function ProductDetailContent({
+  product,
+  editLineId,
+  editingCartItem,
+  selectionKey,
+}: {
+  product: ProductDetailType;
+  editLineId: string | null;
+  editingCartItem: CartItem | null;
+  selectionKey: string;
+}) {
+  const router = useRouter();
+  const { addItem, replaceItem, getItemKey } = useCart();
+  const [quantity, setQuantity] = useState(editingCartItem?.quantity ?? 1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedAccessories, setSelectedAccessories] = useState<
     CartAccessory[]
   >([]);
   const [accessoriesTotal, setAccessoriesTotal] = useState(0);
+  const isEditingCartItem = !!editingCartItem;
 
   const handleAccessoriesChange = useCallback(
     (accessories: CartAccessory[], total: number) => {
@@ -78,7 +116,8 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
   const handleAddToCart = () => {
     // Defer cart update to next frame to ensure toast appears instantly
     requestAnimationFrame(() => {
-      addItem({
+      const nextItem = {
+        cartLineId: editingCartItem?.cartLineId ?? "",
         productId: product.id,
         name: product.name,
         slug: product.slug,
@@ -87,7 +126,15 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
         quantity,
         stock: product.stock,
         accessories: selectedAccessories,
-      });
+      };
+
+      if (editingCartItem && editLineId) {
+        replaceItem(getItemKey(editingCartItem), nextItem);
+        router.push("/cart");
+        return;
+      }
+
+      addItem(nextItem);
     });
   };
 
@@ -248,7 +295,9 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
           <div className="space-y-10">
             <Suspense fallback={<AccessoriesSkeleton />}>
               <AccessoriesSelector
+                key={selectionKey}
                 onAccessoriesChange={handleAccessoriesChange}
+                initialAccessories={editingCartItem?.accessories ?? []}
               />
             </Suspense>
 
@@ -298,8 +347,8 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
                   disabled={product.stock != null && product.stock <= 0}
                   className="flex-1 min-h-[56px] md:min-h-[64px] inline-flex items-center justify-center gap-4 rounded-full bg-[#2d241c] text-white font-black text-[15px] uppercase tracking-widest shadow-lift-sm hover:bg-[#c85a2d] transition-all active:scale-[0.98] disabled:opacity-20"
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>Tambah ke Keranjang</span>
+                  {isEditingCartItem ? <Pencil className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
+                  <span>{isEditingCartItem ? "Simpan Perubahan" : "Tambah ke Keranjang"}</span>
                 </button>
               </div>
             </div>

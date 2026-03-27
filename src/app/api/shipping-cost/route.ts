@@ -2,6 +2,11 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, badRequest, serverError, rateLimited } from "@/lib/api-response";
 import { rateLimiters, getClientIp } from "@/lib/rate-limit";
+import {
+  filterAllowedShippingCouriers,
+  NO_ALLOWED_COURIER_MESSAGE,
+  SHIPPING_API_UNAVAILABLE_MESSAGE,
+} from "@/lib/shipping-couriers";
 
 interface ExternalCourier {
   courier_code: string;
@@ -80,15 +85,20 @@ export async function GET(request: NextRequest) {
       console.log("[shipping-cost] Response:", JSON.stringify(apiData));
 
       if (!apiRes.ok) {
-        return badRequest(`api.co.id error: HTTP ${apiRes.status} — ${JSON.stringify(apiData)}`);
+        console.error("api.co.id returned non-OK response:", {
+          status: apiRes.status,
+          body: apiData,
+        });
+        return badRequest(SHIPPING_API_UNAVAILABLE_MESSAGE);
       }
 
       if (!apiData.is_success || !apiData.data?.couriers) {
-        return badRequest(apiData.message || `api.co.id gagal: ${JSON.stringify(apiData)}`);
+        console.error("api.co.id returned invalid payload:", apiData);
+        return badRequest(SHIPPING_API_UNAVAILABLE_MESSAGE);
       }
 
       // Filter out couriers with price <= 0
-      const couriers = apiData.data.couriers
+      const couriers = filterAllowedShippingCouriers(apiData.data.couriers)
         .filter((c) => c.price > 0)
         .map((c) => ({
           courier_code: c.courier_code,
@@ -98,17 +108,17 @@ export async function GET(request: NextRequest) {
         }));
 
       if (couriers.length === 0) {
-        return badRequest("Tidak ada kurir tersedia untuk rute ini");
+        return badRequest(NO_ALLOWED_COURIER_MESSAGE);
       }
 
       return apiSuccess({ mode: "api" as const, couriers });
     } catch (err) {
       clearTimeout(timeout);
       if (err instanceof DOMException && err.name === "AbortError") {
-        return badRequest("Request ke api.co.id timeout (>5 detik)");
+        return badRequest(SHIPPING_API_UNAVAILABLE_MESSAGE);
       }
       console.error("api.co.id request failed:", err);
-      return badRequest(`Gagal menghubungi api.co.id: ${err instanceof Error ? err.message : String(err)}`);
+      return badRequest(SHIPPING_API_UNAVAILABLE_MESSAGE);
     }
   } catch (error) {
     console.error("GET /api/shipping-cost error:", error);

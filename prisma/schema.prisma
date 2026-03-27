@@ -102,6 +102,7 @@ model Accessory {
   description String?
   price       Int
   groupName   String?
+  colorOptions String[] @default([])
   imageUrl    String?
   imageKey    String?
   isActive    Boolean  @default(true)

@@ -5,6 +5,7 @@ import { Package2, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { formatCurrency } from "@/lib/format";
 import { getImageUrl } from "@/lib/image-url";
+import type { AccessorySnapshot } from "@/types/api";
 
 type OrderItem = {
   id: string;
@@ -37,7 +38,7 @@ export function OrderItemsSection({
   shippingZoneName,
 }: OrderItemsSectionProps) {
   const parsedAccessories = useMemo(() => {
-    const map = new Map<string, { name: string; price: number }[]>();
+    const map = new Map<string, AccessorySnapshot[]>();
     for (const item of items) {
       if (item.accessoriesSnapshot) {
         try {
@@ -243,7 +244,7 @@ function AccessoriesList({
   accessories,
   mobile,
 }: {
-  accessories: { name: string; price: number }[];
+  accessories: AccessorySnapshot[];
   mobile?: boolean;
 }) {
   return (
@@ -253,7 +254,7 @@ function AccessoriesList({
           key={idx}
           className={`${mobile ? "text-[10px]" : "text-[11px]"} text-sage font-bold leading-tight`}
         >
-          + {acc.name} ({formatCurrency(acc.price)})
+          + {acc.name}{acc.selectedColor ? ` - ${acc.selectedColor}` : ""} ({formatCurrency(acc.price)})
         </p>
       ))}
     </div>

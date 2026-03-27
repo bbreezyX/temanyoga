@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useCart } from "@/contexts/cart-context";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/format";
 import { ArrowRight } from "lucide-react";
 
 export function CartSummary() {

@@ -12,6 +12,7 @@ export async function GET() {
         description: true,
         price: true,
         groupName: true,
+        colorOptions: true,
         imageUrl: true,
         sortOrder: true,
       },

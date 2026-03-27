@@ -17,6 +17,7 @@ const accessoryFormSchema = z.object({
     "Harga harus berupa angka >= 0"
   ),
   groupName: z.string().max(100, "Nama grup maksimal 100 karakter").optional(),
+  colorOptionsInput: z.string().optional(),
   sortOrder: z.string().refine(
     (val) => val === "" || (!isNaN(parseInt(val, 10)) && parseInt(val, 10) >= 0),
     "Urutan harus berupa angka >= 0"
@@ -25,6 +26,21 @@ const accessoryFormSchema = z.object({
 });
 
 type AccessoryFormData = z.infer<typeof accessoryFormSchema>;
+
+function parseColorOptions(input?: string) {
+  if (!input) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      input
+        .split(/\r?\n|,/)
+        .map((value) => value.trim())
+        .filter(Boolean)
+    )
+  );
+}
 
 interface AccessoryFormProps {
   accessory: AdminAccessory | null;
@@ -53,6 +69,7 @@ export function AccessoryForm({
       description: accessory?.description ?? "",
       price: accessory?.price != null ? String(accessory.price) : "",
       groupName: accessory?.groupName ?? "",
+      colorOptionsInput: accessory?.colorOptions?.join("\n") ?? "",
       sortOrder: accessory?.sortOrder != null ? String(accessory.sortOrder) : "0",
       isActive: accessory?.isActive ?? true,
     },
@@ -61,11 +78,14 @@ export function AccessoryForm({
   const isActive = watch("isActive");
 
   const onSubmit = async (data: AccessoryFormData) => {
+    const colorOptions = parseColorOptions(data.colorOptionsInput);
+
     const payload = {
       name: data.name.trim(),
       description: data.description?.trim() || null,
       price: parseInt(data.price, 10),
       groupName: data.groupName?.trim() || null,
+      colorOptions,
       sortOrder: parseInt(data.sortOrder || "0", 10),
       ...(accessory ? { isActive: data.isActive } : {}),
     };
@@ -181,6 +201,21 @@ export function AccessoryForm({
               />
               <p className="text-[10px] text-warm-gray/70 leading-tight mt-1 px-1">
                 Gunakan nama grup yang sama untuk membuat pilihan radio (pilih salah satu).
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray">
+                Pilihan Warna (opsional)
+              </label>
+              <textarea
+                {...register("colorOptionsInput")}
+                placeholder={"Contoh:\nHijau Sage\nTerracotta\nCream"}
+                rows={4}
+                className="w-full rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-dark-brown ring-1 ring-warm-sand/50 focus:outline-none focus:ring-2 focus:ring-terracotta/40 transition-all resize-none"
+              />
+              <p className="text-[10px] text-warm-gray/70 leading-tight mt-1 px-1">
+                Isi satu warna per baris atau pisahkan dengan koma. Jika diisi, pembeli wajib memilih satu warna.
               </p>
             </div>
 

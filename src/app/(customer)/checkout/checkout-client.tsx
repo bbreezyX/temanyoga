@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
+import useSWR from "swr";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/components/ui/toast";
@@ -18,8 +19,12 @@ import {
 } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { apiFetch, apiPost } from "@/lib/api-client";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/format";
 import { getImageUrl } from "@/lib/image-url";
+import {
+  NO_ALLOWED_COURIER_MESSAGE,
+  SHIPPING_API_UNAVAILABLE_MESSAGE,
+} from "@/lib/shipping-couriers";
 import {
   AddressFields,
   type AddressData,
@@ -54,28 +59,28 @@ const addressSchema = z.object({
       code: z.string(),
       name: z.string(),
     },
-    "Pilih provinsi",
+    "Pilih Provinsi",
   ),
   regency: z.object(
     {
       code: z.string(),
       name: z.string(),
     },
-    "Pilih kota/kabupaten",
+    "Pilih Kota/Kabupaten",
   ),
   district: z.object(
     {
       code: z.string(),
       name: z.string(),
     },
-    "Pilih kecamatan",
+    "Pilih Kecamatan",
   ),
   village: z.object(
     {
       code: z.string(),
       name: z.string(),
     },
-    "Pilih kelurahan",
+    "Pilih Kelurahan",
   ),
   streetAddress: z
     .string()
@@ -89,12 +94,9 @@ const addressSchema = z.object({
 
 export function CheckoutClient() {
   const router = useRouter();
-  const { items, cartTotal, clearCart, getItemKey } = useCart();
+  const { items, cartTotal, clearCart, getItemKey, isLoaded } = useCart();
   const toast = useToast();
 
-  const [shippingResult, setShippingResult] = useState<ShippingCostResponse | null>(null);
-  const [shippingLoading, setShippingLoading] = useState(false);
-  const [shippingError, setShippingError] = useState<string | null>(null);
   const [selectedCourierCode, setSelectedCourierCode] = useState<string | null>(null);
 
   const [couponCode, setCouponCode] = useState("");
@@ -115,8 +117,40 @@ export function CheckoutClient() {
     Record<string, { message: string }>
   >({});
 
-  const shippingCost = shippingResult?.couriers?.find((c) => c.courier_code === selectedCourierCode)?.price ?? 0;
-  const hasShippingSelection = !!selectedCourierCode;
+  const shippingWeight = items.reduce((sum, item) => sum + item.quantity, 0) || 1;
+  const shippingRequestKey = addressData.village?.code
+    ? ["/api/shipping-cost", addressData.village.code, shippingWeight]
+    : null;
+  const { data: shippingData, error: shippingRequestError, isLoading: shippingLoading } =
+    useSWR(
+      shippingRequestKey,
+      async ([endpoint, destinationVillageCode, weight]: [
+        string,
+        string,
+        number,
+      ]) => {
+        const res = await apiFetch<ShippingCostResponse>(
+          `${endpoint}?destination_village_code=${destinationVillageCode}&weight=${weight}`,
+        );
+
+        if (!res.success) {
+          throw new Error(res.error || SHIPPING_API_UNAVAILABLE_MESSAGE);
+        }
+
+        return res.data;
+      },
+    );
+  const shippingResult = shippingData ?? null;
+  const shippingError = shippingRequestError?.message ?? null;
+  const isAllowedCourierUnavailable = shippingError === NO_ALLOWED_COURIER_MESSAGE;
+  const isShippingServiceUnavailable =
+    shippingError === SHIPPING_API_UNAVAILABLE_MESSAGE;
+  const shippingCost =
+    shippingResult?.couriers?.find((c) => c.courier_code === selectedCourierCode)
+      ?.price ?? 0;
+  const hasShippingSelection = !!shippingResult?.couriers?.some(
+    (courier) => courier.courier_code === selectedCourierCode,
+  );
 
   const discountAmount = appliedCoupon
     ? appliedCoupon.discountType === "PERCENTAGE"
@@ -140,35 +174,25 @@ export function CheckoutClient() {
   }, []);
 
   useEffect(() => {
-    if (items.length === 0 && !orderPlaced.current) {
-      router.replace("/cart");
-    }
-  }, [items.length, router]);
-
-  useEffect(() => {
-    if (!addressData.village?.code) {
-      setShippingResult(null);
-      setSelectedCourierCode(null);
+    if (!isLoaded) {
       return;
     }
 
-    const weight = items.reduce((sum, i) => sum + i.quantity, 0) || 1;
-    setShippingLoading(true);
-    setShippingError(null);
+    if (items.length === 0 && !orderPlaced.current) {
+      router.replace("/cart");
+    }
+  }, [isLoaded, items.length, router]);
 
-    apiFetch<ShippingCostResponse>(
-      `/api/shipping-cost?destination_village_code=${addressData.village.code}&weight=${weight}`,
-    )
-      .then((res) => {
-        if (res.success) {
-          setShippingResult(res.data);
-          setSelectedCourierCode(null);
-        } else {
-          setShippingError("Gagal memuat ongkos kirim. Coba lagi.");
-        }
-      })
-      .finally(() => setShippingLoading(false));
-  }, [addressData.village?.code, items]);
+  const handleAddressChange = useCallback((nextAddress: AddressData) => {
+    const currentVillageCode = addressData.village?.code;
+    const nextVillageCode = nextAddress.village?.code;
+
+    if (currentVillageCode !== nextVillageCode) {
+      setSelectedCourierCode(null);
+    }
+
+    setAddressData(nextAddress);
+  }, [addressData.village?.code]);
 
   async function handleApplyCoupon() {
     const code = couponCode.trim();
@@ -239,7 +263,10 @@ export function CheckoutClient() {
         items: items.map((i) => ({
           productId: i.productId,
           quantity: i.quantity,
-          accessoryIds: (i.accessories || []).map((a) => a.id),
+          accessorySelections: (i.accessories || []).map((accessory) => ({
+            accessoryId: accessory.id,
+            selectedColor: accessory.selectedColor,
+          })),
         })),
       };
 
@@ -292,7 +319,7 @@ export function CheckoutClient() {
     [handleSubmit, onSubmit],
   );
 
-  if (items.length === 0) return null;
+  if (!isLoaded || items.length === 0) return null;
 
   return (
     <div className="bg-white min-h-screen text-[#2d241c] font-sans">
@@ -427,7 +454,7 @@ export function CheckoutClient() {
 
                     <AddressFields
                       value={addressData}
-                      onChange={setAddressData}
+                      onChange={handleAddressChange}
                       errors={addressErrors}
                     />
                   </div>
@@ -445,9 +472,31 @@ export function CheckoutClient() {
                   </div>
 
                   {!addressData.village?.code ? (
-                    <p className="text-[14px] text-[#6b5b4b] py-4">
-                      Pilih kelurahan terlebih dahulu untuk melihat pilihan ongkir.
-                    </p>
+                    <div className="rounded-[28px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6 sm:px-8">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="space-y-2">
+                          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
+                            Menunggu Alamat Lengkap
+                          </p>
+                          <p className="text-[16px] font-bold leading-snug text-[#2d241c]">
+                            Lengkapi kelurahan untuk menampilkan pilihan kurir.
+                          </p>
+                          <p className="max-w-xl text-[14px] leading-relaxed text-[#6b5b4b]">
+                            Setelah kelurahan dipilih, ongkir dan estimasi
+                            pengiriman akan muncul otomatis di sini.
+                          </p>
+                        </div>
+
+                        <div className="shrink-0 rounded-2xl border border-[#eadfce] bg-white px-4 py-3">
+                          <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#9a8772]">
+                            Status
+                          </span>
+                          <span className="mt-1 block text-[14px] font-bold text-[#6b5b4b]">
+                            Belum Bisa Dihitung
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   ) : shippingLoading ? (
                     <div className="flex items-center py-4 gap-3">
                       <Loader2 className="w-5 h-5 animate-spin text-[#c85a2d]" />
@@ -456,9 +505,63 @@ export function CheckoutClient() {
                       </span>
                     </div>
                   ) : shippingError ? (
-                    <p className="text-[14px] text-red-500 font-medium py-4">
-                      {shippingError}
-                    </p>
+                    isAllowedCourierUnavailable ? (
+                      <div className="rounded-[28px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6 sm:px-8">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
+                              Kurir Belum Tersedia
+                            </p>
+                            <p className="text-[16px] font-bold leading-snug text-[#2d241c]">
+                              JNE, J&amp;T, Lion Parcel, dan AnterAja belum melayani kelurahan ini.
+                            </p>
+                            <p className="max-w-xl text-[14px] leading-relaxed text-[#6b5b4b]">
+                              Periksa kembali kelurahan tujuan, gunakan alamat penerima lain,
+                              atau hubungi admin agar kami bantu cek opsi pengiriman manual.
+                            </p>
+                          </div>
+
+                          <div className="shrink-0 rounded-2xl border border-[#eadfce] bg-white px-4 py-3">
+                            <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#9a8772]">
+                              Status
+                            </span>
+                            <span className="mt-1 block text-[14px] font-bold text-[#6b5b4b]">
+                              Alamat Belum Terjangkau
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : isShippingServiceUnavailable ? (
+                      <div className="rounded-[28px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6 sm:px-8">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="space-y-2">
+                            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
+                              Layanan Sedang Bermasalah
+                            </p>
+                            <p className="text-[16px] font-bold leading-snug text-[#2d241c]">
+                              Ongkir belum bisa dimuat karena layanan cek ongkir sedang gangguan.
+                            </p>
+                            <p className="max-w-xl text-[14px] leading-relaxed text-[#6b5b4b]">
+                              Tunggu beberapa saat lalu coba lagi. Jika masih berlanjut,
+                              hubungi admin agar kami bantu cek ongkir manual untuk alamat Anda.
+                            </p>
+                          </div>
+
+                          <div className="shrink-0 rounded-2xl border border-[#eadfce] bg-white px-4 py-3">
+                            <span className="block text-[11px] font-bold uppercase tracking-[0.18em] text-[#9a8772]">
+                              Status
+                            </span>
+                            <span className="mt-1 block text-[14px] font-bold text-[#6b5b4b]">
+                              Coba Lagi Nanti
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-[14px] text-red-500 font-medium py-4">
+                        {shippingError}
+                      </p>
+                    )
                   ) : shippingResult?.couriers && shippingResult.couriers.length > 0 ? (
                     <div className="grid gap-4">
                       {shippingResult.couriers.map((courier) => {
@@ -661,10 +764,10 @@ export function CheckoutClient() {
                             <div className="mt-1 flex flex-wrap gap-1.5 line-clamp-1">
                               {item.accessories.map((acc) => (
                                 <span
-                                  key={acc.id}
+                                  key={`${acc.id}-${acc.selectedColor ?? "default"}`}
                                   className="text-[10px] text-[#7a9d7f] font-bold uppercase tracking-wider"
                                 >
-                                  + {acc.name}
+                                  + {acc.name}{acc.selectedColor ? ` (${acc.selectedColor})` : ""}
                                 </span>
                               ))}
                             </div>

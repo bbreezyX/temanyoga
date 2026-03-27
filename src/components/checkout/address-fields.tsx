@@ -180,7 +180,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
           Provinsi
         </label>
         <WilayahSelect
-          placeholder="Pilih provinsi"
+          placeholder="Pilih Provinsi"
           items={provinces}
           value={value.province?.code ?? null}
           onChange={handleProvinceChange}
@@ -194,7 +194,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
           Kota / Kabupaten
         </label>
         <WilayahSelect
-          placeholder="Pilih kota/kabupaten"
+          placeholder="Pilih Kota/Kabupaten"
           items={regencies}
           value={value.regency?.code ?? null}
           onChange={handleRegencyChange}
@@ -210,7 +210,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
             Kecamatan
           </label>
           <WilayahSelect
-            placeholder="Pilih kecamatan"
+            placeholder="Pilih Kecamatan"
             items={districts}
             value={value.district?.code ?? null}
             onChange={handleDistrictChange}
@@ -225,7 +225,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
             Kelurahan
           </label>
           <WilayahSelect
-            placeholder="Pilih kelurahan"
+            placeholder="Pilih Kelurahan"
             items={villages}
             value={value.village?.code ?? null}
             onChange={handleVillageChange}

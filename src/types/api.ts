@@ -69,6 +69,7 @@ export interface AccessoryItem {
   description: string | null;
   price: number;
   groupName: string | null;
+  colorOptions: string[];
   imageUrl: string | null;
   sortOrder: number;
 }
@@ -85,9 +86,16 @@ export interface CartAccessory {
   name: string;
   price: number;
   groupName: string | null;
+  selectedColor: string | null;
+}
+
+export interface AccessorySelectionInput {
+  accessoryId: string;
+  selectedColor?: string | null;
 }
 
 export interface CartItem {
+  cartLineId: string;
   productId: string;
   name: string;
   slug: string;
@@ -101,6 +109,7 @@ export interface CartItem {
 export interface AccessorySnapshot {
   name: string;
   price: number;
+  selectedColor: string | null;
 }
 
 export interface OrderItem {
