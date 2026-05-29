@@ -15,5 +15,10 @@
       "Bash(npx prisma migrate dev:*)",
       "mcp__context7__query-docs"
     ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [],
+    "Stop": [],
+    "Notification": []
   }
 }
