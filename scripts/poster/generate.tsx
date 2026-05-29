@@ -41,7 +41,7 @@ async function main() {
       });
 
       const name =
-        (data.slug ?? slugify(data.title, { lower: true, strict: true })) + ".pdf";
+        (data.slug ?? slugify(data.heading, { lower: true, strict: true })) + ".pdf";
       await page.pdf({
         path: path.join(OUT_DIR, name),
         printBackground: true,

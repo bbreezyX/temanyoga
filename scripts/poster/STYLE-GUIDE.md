@@ -106,6 +106,12 @@ npm run dev      # http://localhost:3000/poster
 Isi form → upload foto/logo → atur logo (seret/handle/slider) → **Cetak / Simpan PDF**
 (paper A3, margins None, Background graphics on). Auto-save ke browser.
 
+**Dwibahasa (ID/EN).** Editor punya toggle bahasa. Teks (judul, stempel, subjudul,
+tagline, intro, deskripsi item, detail, inspirasi) disimpan **terpisah per bahasa** —
+edit di satu bahasa tak menimpa yang lain. **Aset dipakai bersama**: foto & nama item,
+logo + posisi/ukuran. Cetak tiap bahasa bergantian (Cetak ngikut bahasa aktif di layar).
+Autosave per bahasa; editor kebuka di bahasa terakhir dipakai.
+
 ### Jalur kode (batch / bleed-ready)
 
 Taruh foto di `assets/`, isi data, lalu:

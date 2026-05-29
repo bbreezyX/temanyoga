@@ -91,6 +91,8 @@ export interface EventCatalogData {
   logoSize?: number;
   /** Big puffy title word, e.g. "CATALOG" / "KATALOG". */
   heading: string;
+  /** Small craft "seal" stamp shown above the subtitle, e.g. "Handmade". */
+  stamp?: string;
   /** Bold script line under the title. */
   subtitle?: string;
   /** Script affirmation line. */

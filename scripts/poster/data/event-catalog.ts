@@ -21,6 +21,7 @@ export const eventCatalogs: EventCatalogData[] = [
     logo: "logo.png",
     brandTag: "#temanyoga",
     heading: "KATALOG",
+    stamp: "Handmade",
     subtitle: "Teman Baik Yoga – Boneka Rajut Yoga",
     tagline: "Aku menghirup kedamaian. Aku tenang. Aku merasa cukup.",
     intro:
@@ -44,6 +45,7 @@ export const eventCatalogs: EventCatalogData[] = [
     logo: "logo.png",
     brandTag: "#temanyoga",
     heading: "CATALOG",
+    stamp: "Handmade",
     subtitle: "Yoga Best Friend – Crochet Yoga Doll",
     tagline: "I breathe in peace. I am calm. I am enough.",
     intro:

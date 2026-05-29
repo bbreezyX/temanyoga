@@ -48,7 +48,7 @@ async function main() {
       });
 
       const name =
-        (data.slug ?? slugify(data.title, { lower: true, strict: true })) + ".png";
+        (data.slug ?? slugify(data.heading, { lower: true, strict: true })) + ".png";
       await page.screenshot({ path: path.join(OUT_DIR, name) });
       console.log(`✓ ${name}  (${data.size} ${data.orientation})`);
     }

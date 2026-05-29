@@ -6,27 +6,39 @@ import { getDimensions } from "../../../scripts/poster/lib/sizes";
 import type { DetailLine, EventCatalogData } from "../../../scripts/poster/lib/types";
 import { EventCatalogPoster } from "../../../scripts/poster/templates/EventCatalogPoster";
 
+type Lang = "id" | "en";
+
 interface Item {
   id: string;
-  name: string;
-  description: string;
-  photo: string | null; // data URL
+  name: string; // shared across languages
+  photo: string | null; // data URL, shared
 }
 
-interface PosterState {
+/** Text that differs per language. */
+interface LangContent {
   heading: string;
-  brandTag: string;
+  stamp: string;
   subtitle: string;
   tagline: string;
   intro: string;
-  items: Item[];
-  logo: string | null;
-  logoPos: { x: number; y: number };
-  logoSize: number;
   detailTitle: string;
   details: DetailLine[];
   inspirationTitle: string;
   inspiration: string;
+  /** itemId → short description (the pill tag). */
+  descriptions: Record<string, string>;
+}
+
+interface PosterState {
+  lang: Lang;
+  // shared across languages
+  brandTag: string;
+  items: Item[];
+  logo: string | null;
+  logoPos: { x: number; y: number };
+  logoSize: number;
+  // per-language text
+  content: { id: LangContent; en: LangContent };
 }
 
 const FONTS =
@@ -58,28 +70,28 @@ const STYLE = `
 let seq = 100;
 const newId = () => String(seq++);
 
-const DEFAULT_ITEMS: Item[] = [
-  { id: "1", name: "Surya Tadasana Ready", description: "Energi pagi, siap yoga", photo: null },
-  { id: "2", name: "Chandra Shanti Pose", description: "Tenang seperti malam", photo: null },
-  { id: "3", name: "Vayu Sukhasana Smile", description: "Ringan, ceria, bebas", photo: null },
-  { id: "4", name: "Anahata Anjali Mudra", description: "Penuh cinta & ketenangan", photo: null },
-  { id: "5", name: "Arjuna Dhyana", description: "Fokus, tenang, bijak", photo: null },
-  { id: "6", name: "Shiva Pranam Mudra", description: "Spiritual, kuat, dalam", photo: null },
-  { id: "7", name: "Agni Surya Namaskar", description: "Energik, hangat, aktif", photo: null },
-  { id: "8", name: "Rishi Shanti Pose", description: "Bijak, tenang, damai", photo: null },
+const POSES = [
+  { id: "1", name: "Surya Tadasana Ready", id_: "Energi pagi, siap yoga", en: "Morning energy, ready for yoga" },
+  { id: "2", name: "Chandra Shanti Pose", id_: "Tenang seperti malam", en: "Calm as night" },
+  { id: "3", name: "Vayu Sukhasana Smile", id_: "Ringan, ceria, bebas", en: "Light, cheerful, free" },
+  { id: "4", name: "Anahata Anjali Mudra", id_: "Penuh cinta & ketenangan", en: "Full of love & serenity" },
+  { id: "5", name: "Arjuna Dhyana", id_: "Fokus, tenang, bijak", en: "Focus, calm, wise" },
+  { id: "6", name: "Shiva Pranam Mudra", id_: "Spiritual, kuat, dalam", en: "Spiritual, strong, deep" },
+  { id: "7", name: "Agni Surya Namaskar", id_: "Energik, hangat, aktif", en: "Energetic, warm, active" },
+  { id: "8", name: "Rishi Shanti Pose", id_: "Bijak, tenang, damai", en: "Wise, calm, peaceful" },
 ];
 
-const DEFAULTS: PosterState = {
+const DEFAULT_ITEMS: Item[] = POSES.map((p) => ({ id: p.id, name: p.name, photo: null }));
+const descFor = (key: "id_" | "en"): Record<string, string> =>
+  Object.fromEntries(POSES.map((p) => [p.id, p[key]]));
+
+const CONTENT_ID: LangContent = {
   heading: "KATALOG",
-  brandTag: "#temanyoga",
+  stamp: "Handmade",
   subtitle: "Teman Baik Yoga – Boneka Rajut Yoga",
   tagline: "Aku menghirup kedamaian. Aku tenang. Aku merasa cukup.",
   intro:
     "Teman kecil handmade untuk menemani mat yoga dan momen meditasimu. Poseable, bisa diatur sesuai pose favoritmu. Ekspresi tenang dengan tangan anjali mudra bikin hati langsung adem.",
-  items: DEFAULT_ITEMS,
-  logo: null,
-  logoPos: { x: 86, y: 10 },
-  logoSize: 30,
   detailTitle: "Detail",
   details: [
     { label: "Bahan", value: "Benang polychery 100% polyester vegan-friendly, isi dakron, aksesoris manik." },
@@ -89,7 +101,87 @@ const DEFAULTS: PosterState = {
   inspirationTitle: "Inspirasi",
   inspiration:
     "Terinspirasi dari yogini di seluruh dunia yang percaya bahwa yoga adalah tentang hadir dan menerima diri sendiri apa adanya.",
+  descriptions: descFor("id_"),
 };
+
+const CONTENT_EN: LangContent = {
+  heading: "CATALOG",
+  stamp: "Handmade",
+  subtitle: "Yoga Best Friend – Crochet Yoga Doll",
+  tagline: "I breathe in peace. I am calm. I am enough.",
+  intro:
+    "A little handmade companion to accompany your yoga mat and meditation moments. Poseable and adjustable to match your favorite poses. Its calm expression and anjali mudra hands bring an instant sense of peace and serenity.",
+  detailTitle: "Detail",
+  details: [
+    { label: "Material", value: "Polychery yarn, 100% vegan-friendly polyester. Strong, durable fiber, Dacron filling and bead accessories." },
+    { label: "Size", value: "15–17 cm" },
+    { label: "Feature", value: "Comes with a knitted mini yoga mat" },
+  ],
+  inspirationTitle: "Inspiration",
+  inspiration:
+    "Inspired by yoginis around the world who believe that yoga is about being present and embracing yourself as you are.",
+  descriptions: descFor("en"),
+};
+
+const DEFAULTS: PosterState = {
+  lang: "id",
+  brandTag: "#temanyoga",
+  items: DEFAULT_ITEMS,
+  logo: null,
+  logoPos: { x: 86, y: 10 },
+  logoSize: 30,
+  content: { id: CONTENT_ID, en: CONTENT_EN },
+};
+
+// Merge saved state with defaults; migrate the old flat (pre-i18n) shape so
+// uploaded photos / edits aren't lost.
+function coerce(saved: Record<string, unknown>): PosterState {
+  if (saved.content && (saved.lang === "id" || saved.lang === "en")) {
+    const c = saved.content as { id?: Partial<LangContent>; en?: Partial<LangContent> };
+    return {
+      ...DEFAULTS,
+      ...(saved as Partial<PosterState>),
+      content: {
+        id: { ...CONTENT_ID, ...(c.id ?? {}) },
+        en: { ...CONTENT_EN, ...(c.en ?? {}) },
+      },
+    };
+  }
+  if (typeof saved.heading === "string") {
+    const oldItems = (saved.items as Array<Record<string, unknown>>) ?? [];
+    const descriptions: Record<string, string> = {};
+    oldItems.forEach((it) => {
+      if (typeof it.id === "string") descriptions[it.id] = (it.description as string) ?? "";
+    });
+    const pick = <T,>(key: string, fallback: T): T => (saved[key] as T) ?? fallback;
+    return {
+      lang: "id",
+      brandTag: pick("brandTag", DEFAULTS.brandTag),
+      items: oldItems.length
+        ? oldItems.map((it) => ({ id: it.id as string, name: (it.name as string) ?? "", photo: (it.photo as string) ?? null }))
+        : DEFAULT_ITEMS,
+      logo: pick("logo", null),
+      logoPos: pick("logoPos", DEFAULTS.logoPos),
+      logoSize: pick("logoSize", DEFAULTS.logoSize),
+      content: {
+        id: {
+          heading: pick("heading", CONTENT_ID.heading),
+          stamp: pick("stamp", CONTENT_ID.stamp),
+          subtitle: pick("subtitle", CONTENT_ID.subtitle),
+          tagline: pick("tagline", CONTENT_ID.tagline),
+          intro: pick("intro", CONTENT_ID.intro),
+          detailTitle: pick("detailTitle", CONTENT_ID.detailTitle),
+          details: pick("details", CONTENT_ID.details),
+          inspirationTitle: pick("inspirationTitle", CONTENT_ID.inspirationTitle),
+          inspiration: pick("inspiration", CONTENT_ID.inspiration),
+          descriptions,
+        },
+        en: CONTENT_EN,
+      },
+    };
+  }
+  return DEFAULTS;
+}
 
 // --- tiny IndexedDB key/value (handles large photo data URLs) ---
 const DB_NAME = "poster-maker";
@@ -180,7 +272,7 @@ export default function PosterMakerPage() {
   useEffect(() => {
     setMounted(true);
     idbGet().then((saved) => {
-      if (saved) setS({ ...DEFAULTS, ...saved });
+      if (saved) setS(coerce(saved as unknown as Record<string, unknown>));
       setLoaded(true);
     });
   }, []);
@@ -248,6 +340,14 @@ export default function PosterMakerPage() {
   const base = getDimensions("A3", "portrait");
   const dims = { ...base, full: base.trim, bleed: 0, contentInset: base.safe };
 
+  const c = s.content[s.lang]; // active-language text
+  // update a field of the active language's content
+  const setC = <K extends keyof LangContent>(key: K, value: LangContent[K]) =>
+    setS((prev) => ({
+      ...prev,
+      content: { ...prev.content, [prev.lang]: { ...prev.content[prev.lang], [key]: value } },
+    }));
+
   const data: EventCatalogData = {
     size: "A3",
     orientation: "portrait",
@@ -255,24 +355,38 @@ export default function PosterMakerPage() {
     brandTag: s.brandTag,
     logoPos: s.logoPos,
     logoSize: s.logoSize,
-    heading: s.heading,
-    subtitle: s.subtitle,
-    tagline: s.tagline,
-    intro: s.intro,
-    items: s.items.map((it, i) => ({ photo: `p${i}`, name: it.name, tag: it.description || undefined })),
-    detailTitle: s.detailTitle,
-    details: s.details,
-    inspirationTitle: s.inspirationTitle,
-    inspiration: s.inspiration,
+    heading: c.heading,
+    stamp: c.stamp,
+    subtitle: c.subtitle,
+    tagline: c.tagline,
+    intro: c.intro,
+    items: s.items.map((it, i) => ({ photo: `p${i}`, name: it.name, tag: c.descriptions[it.id] || undefined })),
+    detailTitle: c.detailTitle,
+    details: c.details,
+    inspirationTitle: c.inspirationTitle,
+    inspiration: c.inspiration,
   };
   const photos = Object.fromEntries(s.items.map((it, i) => [`p${i}`, it.photo]));
 
   const setItem = (id: string, patch: Partial<Item>) =>
     set("items", s.items.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-  const addItem = () => set("items", [...s.items, { id: newId(), name: "", description: "", photo: null }]);
-  const removeItem = (id: string) => set("items", s.items.filter((it) => it.id !== id));
+  const setDesc = (id: string, value: string) => setC("descriptions", { ...c.descriptions, [id]: value });
+  const addItem = () => set("items", [...s.items, { id: newId(), name: "", photo: null }]);
+  const removeItem = (id: string) =>
+    setS((prev) => {
+      const strip = (m: Record<string, string>) =>
+        Object.fromEntries(Object.entries(m).filter(([k]) => k !== id));
+      return {
+        ...prev,
+        items: prev.items.filter((it) => it.id !== id),
+        content: {
+          id: { ...prev.content.id, descriptions: strip(prev.content.id.descriptions) },
+          en: { ...prev.content.en, descriptions: strip(prev.content.en.descriptions) },
+        },
+      };
+    });
   const setDetail = (i: number, patch: Partial<DetailLine>) =>
-    set("details", s.details.map((d, j) => (j === i ? { ...d, ...patch } : d)));
+    setC("details", c.details.map((d, j) => (j === i ? { ...d, ...patch } : d)));
 
   const reset = () => {
     idbClear().then(() => setS(DEFAULTS));
@@ -295,6 +409,19 @@ export default function PosterMakerPage() {
         <div className="border-b border-neutral-200 bg-white px-5 py-4">
           <h1 className="text-base font-bold text-neutral-900">Poster Maker</h1>
           <p className="text-xs text-neutral-500">Katalog event · A3 portrait</p>
+          <div className="mt-3 inline-flex rounded-lg border border-neutral-200 bg-neutral-100 p-0.5 text-xs font-semibold">
+            {(["id", "en"] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => set("lang", l)}
+                className={`rounded-md px-3 py-1 transition ${
+                  s.lang === l ? "bg-white text-orange-600 shadow-sm" : "text-neutral-500 hover:text-neutral-700"
+                }`}
+              >
+                {l === "id" ? "Indonesia" : "English"}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => window.print()}
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-700"
@@ -337,11 +464,11 @@ export default function PosterMakerPage() {
                   <input className={inputCls} value={it.name} onChange={(e) => setItem(it.id, { name: e.target.value })} />
                 </div>
                 <div>
-                  <label className={labelCls}>Deskripsi singkat</label>
+                  <label className={labelCls}>Deskripsi singkat · {s.lang === "id" ? "ID" : "EN"}</label>
                   <input
                     className={inputCls}
-                    value={it.description}
-                    onChange={(e) => setItem(it.id, { description: e.target.value })}
+                    value={c.descriptions[it.id] ?? ""}
+                    onChange={(e) => setDesc(it.id, e.target.value)}
                   />
                 </div>
                 <div className="flex items-center gap-3">
@@ -388,22 +515,31 @@ export default function PosterMakerPage() {
 
           {/* poster text */}
           <section className="space-y-3">
-            <h2 className={sectionTitleCls}>Teks poster</h2>
+            <h2 className={sectionTitleCls}>Teks poster · {s.lang === "id" ? "ID" : "EN"}</h2>
             <div>
               <label className={labelCls}>Judul</label>
-              <input className={inputCls} value={s.heading} onChange={(e) => set("heading", e.target.value)} />
+              <input className={inputCls} value={c.heading} onChange={(e) => setC("heading", e.target.value)} />
+            </div>
+            <div>
+              <label className={labelCls}>Aksen stempel</label>
+              <input
+                className={inputCls}
+                value={c.stamp}
+                placeholder="Handmade"
+                onChange={(e) => setC("stamp", e.target.value)}
+              />
             </div>
             <div>
               <label className={labelCls}>Subjudul</label>
-              <input className={inputCls} value={s.subtitle} onChange={(e) => set("subtitle", e.target.value)} />
+              <input className={inputCls} value={c.subtitle} onChange={(e) => setC("subtitle", e.target.value)} />
             </div>
             <div>
               <label className={labelCls}>Tagline</label>
-              <input className={inputCls} value={s.tagline} onChange={(e) => set("tagline", e.target.value)} />
+              <input className={inputCls} value={c.tagline} onChange={(e) => setC("tagline", e.target.value)} />
             </div>
             <div>
               <label className={labelCls}>Intro</label>
-              <textarea className={inputCls} rows={3} value={s.intro} onChange={(e) => set("intro", e.target.value)} />
+              <textarea className={inputCls} rows={3} value={c.intro} onChange={(e) => setC("intro", e.target.value)} />
             </div>
             <div>
               <label className={labelCls}>Logo</label>
@@ -459,8 +595,8 @@ export default function PosterMakerPage() {
 
           {/* detail + inspiration */}
           <section className="space-y-3">
-            <h2 className={sectionTitleCls}>Detail & Inspirasi</h2>
-            {s.details.map((d, i) => (
+            <h2 className={sectionTitleCls}>Detail & Inspirasi · {s.lang === "id" ? "ID" : "EN"}</h2>
+            {c.details.map((d, i) => (
               <div key={i} className="grid grid-cols-[7rem_1fr] gap-2">
                 <input
                   className={`${inputCls} min-w-0`}
@@ -478,8 +614,8 @@ export default function PosterMakerPage() {
               <label className={labelCls}>Judul inspirasi</label>
               <input
                 className={inputCls}
-                value={s.inspirationTitle}
-                onChange={(e) => set("inspirationTitle", e.target.value)}
+                value={c.inspirationTitle}
+                onChange={(e) => setC("inspirationTitle", e.target.value)}
               />
             </div>
             <div>
@@ -487,8 +623,8 @@ export default function PosterMakerPage() {
               <textarea
                 className={inputCls}
                 rows={3}
-                value={s.inspiration}
-                onChange={(e) => set("inspiration", e.target.value)}
+                value={c.inspiration}
+                onChange={(e) => setC("inspiration", e.target.value)}
               />
             </div>
           </section>

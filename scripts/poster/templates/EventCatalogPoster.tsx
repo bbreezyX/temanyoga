@@ -154,6 +154,38 @@ export function EventCatalogPoster({ data, dims, photos, logo, editable }: Props
           textAlign: "center",
         }}
       >
+        {data.stamp && (
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: mm(2.8) }}>
+            {/* rubber-stamp "seal" — double rule + rotated, riso ink-stamp feel */}
+            <div style={{ transform: "rotate(-2.4deg)", border: `${mm(0.5)} solid ${CREAM}`, padding: mm(0.8) }}>
+              <div
+                style={{
+                  border: `${mm(0.4)} solid ${CREAM}`,
+                  padding: `${mm(1)} ${mm(3)}`,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: mm(2),
+                }}
+              >
+                <span style={{ width: mm(1.4), height: mm(1.4), background: CREAM, transform: "rotate(45deg)", flex: "0 0 auto" }} />
+                <span
+                  style={{
+                    fontFamily: fonts.body,
+                    fontWeight: 800,
+                    textTransform: "uppercase",
+                    letterSpacing: mm(1.1),
+                    fontSize: mm(3),
+                    lineHeight: 1,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {data.stamp}
+                </span>
+                <span style={{ width: mm(1.4), height: mm(1.4), background: CREAM, transform: "rotate(45deg)", flex: "0 0 auto" }} />
+              </div>
+            </div>
+          </div>
+        )}
         <div
           style={{
             fontFamily: fonts.body,

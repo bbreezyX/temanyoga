@@ -131,7 +131,7 @@ function ItemCard({
   unitWithAcc,
 }: {
   item: OrderItem;
-  accSnapshots: { name: string; price: number }[];
+  accSnapshots: AccessorySnapshot[];
   unitWithAcc: number;
 }) {
   return (
@@ -178,7 +178,7 @@ function ItemRow({
   unitWithAcc,
 }: {
   item: OrderItem;
-  accSnapshots: { name: string; price: number }[];
+  accSnapshots: AccessorySnapshot[];
   unitWithAcc: number;
 }) {
   return (
