@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ClipboardCheck,
   CheckCircle2,
+  Check,
   Clock,
   ShieldCheck,
   CreditCard,
@@ -52,64 +53,90 @@ const STEP_CONFIG = [
 
 const STEP_STATUS_VALUES: readonly string[] = STEP_CONFIG.map((s) => s.status);
 
-const StepItem = memo(function StepItem({
-  step,
-  isCompleted,
-  isPast,
-  isActive,
-  isLast,
+const StatusFlow = memo(function StatusFlow({
+  activeStep,
 }: {
-  step: (typeof STEP_CONFIG)[number];
-  isCompleted: boolean;
-  isPast: boolean;
-  isActive: boolean;
-  isLast: boolean;
+  activeStep: number;
 }) {
-  const Icon = STEP_ICONS[step.status as keyof typeof STEP_ICONS];
+  const progressWidth = useMemo(
+    () => `${(Math.max(0, activeStep) / (STEP_CONFIG.length - 1)) * 100}%`,
+    [activeStep],
+  );
 
   return (
-    <div className="flex md:flex-col items-center md:items-center gap-5 md:gap-4 group relative">
-      {!isLast && (
-        <div className="md:hidden absolute left-[28px] top-[56px] w-[2px] h-[calc(100%-40px)] bg-[#f9f9f9] -z-10">
-          <div
-            className={cn(
-              "w-full bg-[#c85a2d] origin-top transition-transform duration-300 will-change-transform",
-              isPast ? "scale-y-100" : "scale-y-0",
-            )}
-          />
-        </div>
-      )}
-      <div
-        className={cn(
-          "w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center transition-all duration-300 z-10",
-          isCompleted
-            ? "bg-[#2d241c] text-white shadow-lift-sm"
-            : "bg-white text-[#9a8772] border border-[#e8dcc8]/60",
-          isActive &&
-            "bg-[#c85a2d] text-white scale-110 shadow-lift-sm border-none",
-        )}
-      >
-        <Icon className="w-6 h-6 md:w-7 md:h-7" />
+    <div className="relative">
+      {/* Desktop horizontal progress line (behind nodes) */}
+      <div className="absolute left-[8.333%] right-[8.333%] top-7 hidden h-0.5 bg-black/10 md:block">
+        <div
+          className="h-full bg-ink transition-[width] duration-500 ease-out will-change-[width]"
+          style={{ width: progressWidth }}
+        />
       </div>
-      <div className="text-left md:text-center flex flex-col pt-1">
-        <span
-          className={cn(
-            "text-sm md:text-[15px] font-black leading-tight uppercase tracking-wider",
-            isCompleted ? "text-[#2d241c]" : "text-[#9a8772]",
-            isActive && "text-[#c85a2d]",
-          )}
-        >
-          {step.label}
-        </span>
-        <span
-          className={cn(
-            "text-[10px] md:text-[11px] font-bold uppercase tracking-widest mt-1 opacity-60",
-            isActive ? "text-[#c85a2d]" : "text-[#6b5b4b]",
-          )}
-        >
-          {step.sub}
-        </span>
-      </div>
+
+      <ol className="grid grid-cols-1 gap-0 md:grid-cols-6 md:gap-2">
+        {STEP_CONFIG.map((step, i) => {
+          const Icon = STEP_ICONS[step.status as keyof typeof STEP_ICONS];
+          const done = i < activeStep;
+          const active = i === activeStep;
+          const isLast = i === STEP_CONFIG.length - 1;
+
+          return (
+            <li
+              key={step.status}
+              className="relative flex items-center gap-4 pb-7 last:pb-0 md:flex-col md:items-center md:gap-3 md:pb-0 md:text-center"
+            >
+              {/* Mobile-only vertical connector */}
+              {!isLast && (
+                <span className="absolute left-[27px] top-[56px] h-[calc(100%-56px)] w-0.5 bg-black/10 md:hidden">
+                  <span
+                    className={cn(
+                      "block h-full w-full origin-top bg-action transition-transform duration-500",
+                      done ? "scale-y-100" : "scale-y-0",
+                    )}
+                  />
+                </span>
+              )}
+
+              <div
+                className={cn(
+                  "relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-all duration-300",
+                  done
+                    ? "bg-ink text-white"
+                    : "border border-black/10 bg-paper text-ink/40",
+                  active &&
+                    "border-none bg-action text-white shadow-lg shadow-action/30 ring-4 ring-action/15 md:scale-110",
+                )}
+              >
+                {done ? (
+                  <Check className="h-6 w-6" />
+                ) : (
+                  <Icon className="h-6 w-6" />
+                )}
+              </div>
+
+              <div className="md:mt-1">
+                <p
+                  className={cn(
+                    "text-sm font-bold leading-tight tracking-tight",
+                    done ? "text-ink" : "text-ink/40",
+                    active && "text-action",
+                  )}
+                >
+                  {step.label}
+                </p>
+                <p
+                  className={cn(
+                    "mt-0.5 text-[11px] font-medium leading-tight",
+                    active ? "text-ink-soft" : "text-ink/40",
+                  )}
+                >
+                  {step.sub}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 });
@@ -124,49 +151,15 @@ const OrderStatusBadge = memo(function OrderStatusBadge({
   return (
     <div
       className={cn(
-        "px-6 py-2.5 rounded-full text-[13px] font-black uppercase tracking-widest border",
+        "inline-flex shrink-0 items-center rounded-full border px-5 py-2 text-xs font-semibold uppercase tracking-widest sm:text-[13px]",
         status === "COMPLETED"
-          ? "bg-[#7a9d7f]/10 text-[#7a9d7f] border-[#7a9d7f]/20"
+          ? "border-sage/20 bg-sage/10 text-sage"
           : status === "CANCELLED"
-            ? "bg-red-50 text-red-600 border-red-100"
-            : "bg-[#c85a2d]/10 text-[#c85a2d] border-[#c85a2d]/20",
+            ? "border-red-100 bg-red-50 text-red-600"
+            : "border-action/20 bg-action/10 text-action",
       )}
     >
       {displayStatus}
-    </div>
-  );
-});
-
-const JourneyTrack = memo(function JourneyTrack({
-  activeStep,
-}: {
-  activeStep: number;
-}) {
-  const progressWidth = useMemo(
-    () => `${(Math.max(0, activeStep) / (STEP_CONFIG.length - 1)) * 100}%`,
-    [activeStep],
-  );
-
-  return (
-    <div className="relative">
-      <div className="hidden md:block absolute top-[28px] left-[40px] right-[40px] h-[2px] bg-[#f9f9f9] z-0">
-        <div
-          className="absolute top-0 left-0 h-full bg-[#2d241c] transition-[width] duration-500 ease-out will-change-[width]"
-          style={{ width: progressWidth }}
-        />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 md:gap-4 relative z-10">
-        {STEP_CONFIG.map((step, i) => (
-          <StepItem
-            key={step.status}
-            step={step}
-            isCompleted={i <= activeStep}
-            isPast={i < activeStep}
-            isActive={i === activeStep}
-            isLast={i === STEP_CONFIG.length - 1}
-          />
-        ))}
-      </div>
     </div>
   );
 });
@@ -177,22 +170,17 @@ const OrderCodeCard = memo(function OrderCodeCard({
   orderCode: string;
 }) {
   return (
-    <div className="rounded-[40px] bg-white p-8 border border-[#e8dcc8]/60 flex flex-col justify-between group hover:border-[#c85a2d]/40 transition-all shadow-sm">
-      <div className="flex items-center justify-between mb-8">
-        <div className="w-12 h-12 rounded-2xl bg-[#c85a2d] text-white flex items-center justify-center rotate-3 group-hover:rotate-6 transition-transform shadow-lift-sm">
-          <Sparkles className="w-6 h-6" />
-        </div>
-        <span className="text-[11px] font-bold text-[#9a8772]">
-          Informasi Pesanan
-        </span>
-      </div>
-      <div>
-        <h3 className="text-[11px] font-bold text-[#6b5b4b] mb-1">
+    <div className="group flex items-center justify-between gap-4 rounded-[32px] border border-black/5 bg-paper p-7 transition-colors hover:border-action/40">
+      <div className="min-w-0">
+        <h3 className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-ink-soft">
           Kode Pesanan
         </h3>
-        <p className="text-3xl font-mono font-black tracking-tight text-[#2d241c] group-hover:text-[#c85a2d] transition-colors">
+        <p className="break-all font-mono text-2xl font-bold tracking-tight text-ink transition-colors group-hover:text-action sm:text-3xl">
           {orderCode}
         </p>
+      </div>
+      <div className="flex h-12 w-12 shrink-0 rotate-3 items-center justify-center rounded-2xl bg-action text-white shadow-sm transition-transform group-hover:rotate-6">
+        <Sparkles className="h-6 w-6" />
       </div>
     </div>
   );
@@ -217,19 +205,19 @@ const SummaryStats = memo(function SummaryStats({
 
   return (
     <div className="grid grid-cols-2 gap-4">
-      <div className="rounded-[32px] md:rounded-[40px] bg-[#f9f9f9] p-6 border border-[#e8dcc8]/60">
-        <Calendar className="w-6 h-6 text-[#7a9d7f] mb-4" />
-        <p className="text-[11px] font-bold text-[#6b5b4b] mb-0.5">
+      <div className="rounded-[24px] border border-black/5 bg-paper p-5 sm:p-6">
+        <Calendar className="mb-4 h-6 w-6 text-sage" />
+        <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide text-ink-soft">
           Tanggal
         </p>
-        <p className="text-sm font-black text-[#2d241c]">{formattedDate}</p>
+        <p className="text-sm font-bold text-ink">{formattedDate}</p>
       </div>
-      <div className="rounded-[32px] md:rounded-[40px] bg-[#f9f9f9] p-6 border border-[#e8dcc8]/60">
-        <Package className="w-6 h-6 text-[#c85a2d] mb-4" />
-        <p className="text-[11px] font-bold text-[#6b5b4b] mb-0.5">
+      <div className="rounded-[24px] border border-black/5 bg-paper p-5 sm:p-6">
+        <Package className="mb-4 h-6 w-6 text-action" />
+        <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-wide text-ink-soft">
           Total
         </p>
-        <p className="text-sm font-black text-[#c85a2d]">
+        <p className="text-sm font-bold text-action">
           {formatCurrency(totalAmount)}
         </p>
       </div>
@@ -239,25 +227,25 @@ const SummaryStats = memo(function SummaryStats({
 
 const DeliveryInfo = memo(function DeliveryInfo() {
   return (
-    <div className="rounded-[40px] bg-white p-8 border border-[#e8dcc8]/60 relative group">
+    <div className="rounded-[32px] border border-black/5 bg-paper p-7">
       <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-full bg-[#f9f9f9] flex items-center justify-center shrink-0">
-          <MapPin className="w-5 h-5 text-[#9a8772]" />
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas-oat">
+          <MapPin className="h-5 w-5 text-ink/50" />
         </div>
         <div className="space-y-4">
-          <h4 className="text-[16px] font-black tracking-tight text-[#2d241c]">
+          <h4 className="text-base font-bold tracking-tight text-ink">
             Informasi Produksi
           </h4>
-          <p className="text-[13px] text-[#6b5b4b] leading-relaxed font-medium">
+          <p className="text-[13px] font-medium leading-relaxed text-ink-soft">
             Setiap produk dTeman dibuat secara manual dengan cinta. Proses
             handmade membutuhkan waktu ±3 minggu sebelum siap dikirim ke rumah
             Anda.
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-[12px] font-black text-[#c85a2d] hover:gap-3 transition-all"
+            className="inline-flex items-center gap-2 text-[12px] font-bold text-action transition-all hover:gap-3"
           >
-            Kembali Berbelanja <ArrowRight className="w-3 h-3" />
+            Kembali Berbelanja <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </div>
@@ -271,26 +259,26 @@ const PaymentAction = memo(function PaymentAction({
   orderCode: string;
 }) {
   return (
-    <div className="rounded-[40px] bg-[#fdf8f6] p-8 md:p-12 border border-[#c85a2d]/20 flex flex-col md:flex-row items-center justify-between gap-8 animate-floatIn">
-      <div className="flex items-center gap-6">
-        <div className="w-16 h-16 rounded-2xl bg-white shadow-lift-sm flex items-center justify-center shrink-0">
-          <CreditCard className="w-8 h-8 text-[#c85a2d]" />
+    <div className="flex flex-col items-center justify-between gap-8 rounded-[40px] border border-action/30 bg-paper p-8 animate-floatIn md:flex-row md:p-10">
+      <div className="flex flex-col items-center gap-6 sm:flex-row">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-action/10 text-action">
+          <CreditCard className="h-8 w-8" />
         </div>
         <div className="text-center md:text-left">
-          <h3 className="text-xl md:text-2xl font-black tracking-tight text-[#2d241c] mb-2">
+          <h3 className="mb-2 text-xl font-bold tracking-tight text-ink">
             Selesaikan Pembayaran
           </h3>
-          <p className="text-[#6b5b4b] font-medium text-sm md:text-base">
+          <p className="text-sm font-medium text-ink-soft">
             Transfer Anda dinanti untuk mulai menyiapkan dTeman pilihan Anda.
           </p>
         </div>
       </div>
       <Link
         href={`/checkout/success/${orderCode}`}
-        className="group inline-flex items-center justify-center gap-3 h-16 px-10 rounded-full bg-[#c85a2d] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#2d241c] transition-all shadow-lift-sm whitespace-nowrap"
+        className="group inline-flex h-14 w-full shrink-0 items-center justify-center gap-3 whitespace-nowrap rounded-full bg-action px-8 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:-translate-y-0.5 hover:brightness-110 md:w-auto"
       >
         <span>Upload Bukti Bayar</span>
-        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
       </Link>
     </div>
   );
@@ -308,42 +296,42 @@ const TrackingInfo = memo(function TrackingInfo({
   onCopy: (text: string) => void;
 }) {
   return (
-    <div className="rounded-[48px] bg-[#2d241c] p-10 md:p-14 text-white relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-80 h-80 bg-[#c85a2d]/10 blur-[80px] -mr-40 -mt-40 pointer-events-none" />
-      <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
-        <div className="flex items-center gap-8">
-          <div className="w-20 h-20 rounded-3xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10 backdrop-blur-sm">
-            <Package className="w-10 h-10 text-[#c85a2d]" />
+    <div className="relative overflow-hidden rounded-[40px] bg-ink p-8 text-white sm:p-10">
+      <div className="pointer-events-none absolute right-0 top-0 -mr-32 -mt-32 h-72 w-72 bg-action/20 blur-[80px]" />
+      <div className="relative z-10 flex flex-col gap-8">
+        <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:text-left">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl border border-white/10 bg-white/10 backdrop-blur-sm">
+            <Package className="h-8 w-8 text-action" />
           </div>
-          <div className="text-center md:text-left">
-            <p className="text-[#c85a2d] font-bold text-[12px] mb-2">
+          <div>
+            <p className="mb-1 text-[12px] font-semibold uppercase tracking-wide text-action">
               Informasi Pengiriman
             </p>
-            <h3 className="text-3xl md:text-4xl font-black tracking-tight mb-3">
+            <h3 className="mb-2 text-2xl font-bold tracking-tight sm:text-3xl">
               {status === "COMPLETED" ? "Pesanan Tiba!" : "Paket Dikirim"}
             </h3>
-            <p className="text-white/60 font-medium text-sm md:text-base max-w-sm">
-              <span className="text-white font-bold">
+            <p className="text-sm font-medium text-white/60">
+              <span className="font-bold text-white">
                 {courier || "Ekspedisi"}
               </span>{" "}
-              — Pesanan Anda sedang diproses oleh kurir terpercaya kami.
+              — diproses oleh kurir terpercaya kami.
             </p>
           </div>
         </div>
-        <div className="bg-white/5 rounded-[32px] p-8 border border-white/10 backdrop-blur-md w-full lg:w-auto text-center md:text-left">
-          <p className="text-[12px] font-bold text-white/40 mb-2">
+        <div className="rounded-[24px] border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+          <p className="mb-2 text-[12px] font-semibold uppercase tracking-wide text-white/40">
             Nomor Resi
           </p>
-          <div className="flex items-center justify-center md:justify-start gap-5">
-            <code className="text-2xl md:text-3xl font-mono font-black tracking-tight text-[#c85a2d]">
+          <div className="flex items-center justify-between gap-4">
+            <code className="break-all font-mono text-xl font-bold tracking-tight text-action sm:text-2xl">
               {trackingNumber}
             </code>
             <button
               onClick={() => onCopy(trackingNumber)}
-              className="w-12 h-12 rounded-full bg-white text-[#2d241c] flex items-center justify-center hover:bg-[#c85a2d] hover:text-white transition-all shadow-lift-sm"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-ink shadow-sm transition-all hover:bg-action hover:text-white"
               aria-label="Salin nomor resi"
             >
-              <ClipboardCheck className="w-5 h-5" />
+              <ClipboardCheck className="h-5 w-5" />
             </button>
           </div>
         </div>
@@ -443,131 +431,137 @@ export default function TrackOrderContent({
   }, [order]);
 
   return (
-    <div className="min-h-screen text-[#2d241c] font-sans selection:bg-[#c85a2d] selection:text-white bg-white">
-      <section className="relative pt-8 md:pt-12 pb-12 md:pb-20 px-6 md:px-12 max-w-[1600px] mx-auto">
-        <div className="relative min-h-[50svh] flex flex-col items-center justify-center py-16 md:py-24 px-8 md:px-20 rounded-[80px] bg-[#f9f9f9] overflow-hidden border border-[#e8dcc8]/40">
-          <div className="absolute top-[-20%] right-[-10%] w-[60%] aspect-square rounded-full bg-gradient-to-br from-[#c85a2d]/5 to-transparent blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-[-20%] left-[-10%] w-[60%] aspect-square rounded-full bg-gradient-to-tr from-[#7a9d7f]/5 to-transparent blur-[120px] pointer-events-none" />
+    <div className="-mt-20 min-h-screen bg-canvas-oat pt-20 font-sans text-ink selection:bg-action selection:text-white overflow-x-hidden md:-mt-24 md:pt-24">
+      {/* ─────────────────────  SEARCH HERO  ──────────────────────── */}
+      <section className="mx-auto max-w-3xl px-5 pt-10 pb-12 text-center sm:px-8 sm:pt-14 md:pt-16 md:pb-16">
+        <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-paper px-5 py-2 shadow-sm">
+          <span className="flex h-2 w-2 animate-pulse rounded-full bg-action" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-action sm:text-[11px]">
+            D`Teman Order Tracking
+          </span>
+        </span>
 
-          <div className="relative z-10 w-full max-w-4xl text-center">
-            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-white border border-[#e8dcc8]/60 mb-10 shadow-sm">
-              <span className="flex h-2 w-2 rounded-full bg-[#c85a2d] animate-pulse" />
-              <span className="text-[11px] font-bold text-[#c85a2d]">
-                D`Teman Order Tracking
-              </span>
-            </div>
+        <h1 className="mt-6 font-bungee text-[clamp(2.25rem,9vw,5rem)] leading-[0.95] text-ink">
+          Jejak Pesanan
+        </h1>
 
-            <h1 className="font-display text-5xl md:text-[92px] leading-[0.9] tracking-[-0.04em] font-black text-[#2d241c] mb-8">
-              Jejak Pesanan
-            </h1>
+        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-soft sm:text-base md:text-lg">
+          Pantau perjalanan produk handmade Anda secara real-time. Masukkan kode
+          pesanan untuk melihat detail status terbaru.
+        </p>
 
-            <p className="text-[16px] md:text-[20px] text-[#6b5b4b] mb-12 md:mb-16 max-w-2xl mx-auto font-medium leading-relaxed">
-              Pantau perjalanan produk handmade Anda secara real-time. Masukkan
-              kode pesanan untuk melihat detail status terbaru.
-            </p>
-
-            <div className="relative max-w-2xl mx-auto">
-              <form onSubmit={handleSubmit} className="relative">
-                <input
-                  type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value)}
-                  placeholder="Contoh: ORD-2024..."
-                  className="w-full h-20 md:h-24 rounded-[32px] bg-white px-10 pr-32 md:pr-40 text-lg md:text-2xl font-display font-black text-[#2d241c] border border-[#e8dcc8] focus:border-[#c85a2d] focus:outline-none shadow-lift-sm transition-all placeholder:text-[#9a8772]"
-                />
-                <button
-                  type="submit"
-                  disabled={loading || !code.trim()}
-                  className="absolute right-3 md:right-4 top-3 md:top-4 h-14 md:h-16 px-10 md:px-12 rounded-[24px] bg-[#2d241c] text-white font-black flex items-center justify-center gap-3 hover:bg-[#c85a2d] active:scale-95 transition-all disabled:opacity-30"
-                >
-                  {loading ? (
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                  ) : (
-                    <>
-                      <span className="hidden sm:inline text-sm uppercase tracking-widest">
-                        Lacak
-                      </span>
-                      <Search className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-
-            {error && (
-              <div className="mt-8 p-5 rounded-2xl bg-red-50 text-red-600 border border-red-100 font-bold text-sm inline-flex items-center gap-3 animate-floatIn">
-                <span>{error}</span>
-              </div>
+        <form onSubmit={handleSubmit} className="relative mx-auto mt-8 sm:mt-10">
+          <input
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Contoh: ORD-2024..."
+            aria-label="Kode pesanan"
+            className="h-16 w-full rounded-full border border-black/10 bg-paper pl-6 pr-28 text-base font-semibold text-ink shadow-sm transition-all placeholder:text-ink/40 focus:border-action focus:outline-none focus:ring-4 focus:ring-action/15 sm:h-20 sm:pl-8 sm:pr-44 sm:text-xl"
+          />
+          <button
+            type="submit"
+            disabled={loading || !code.trim()}
+            className="absolute right-2 top-1/2 inline-flex h-12 -translate-y-1/2 items-center justify-center gap-2 rounded-full bg-ink px-5 text-white transition-all hover:bg-action active:scale-95 disabled:opacity-30 sm:right-3 sm:h-14 sm:px-8"
+          >
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin sm:h-6 sm:w-6" />
+            ) : (
+              <>
+                <span className="hidden text-sm font-semibold uppercase tracking-widest sm:inline">
+                  Lacak
+                </span>
+                <Search className="h-5 w-5" />
+              </>
             )}
+          </button>
+        </form>
+
+        {error && (
+          <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-red-100 bg-red-50 px-5 py-3 text-sm font-semibold text-red-600 animate-floatIn">
+            <span>{error}</span>
           </div>
-        </div>
+        )}
       </section>
 
+      {/* ─────────────  ORDER DETAIL (single column timeline)  ────── */}
       {order && (
-        <section className="pb-24 md:pb-32 px-6 md:px-12 max-w-[1400px] mx-auto animate-floatIn">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start">
-            <div className="lg:col-span-8 space-y-8 md:space-y-12">
-              <div className="rounded-[48px] bg-white p-10 md:p-14 border border-[#e8dcc8]/60 relative overflow-hidden shadow-sm">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#7a9d7f]/5 blur-3xl -mr-32 -mt-32 pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 md:mb-16">
-                  <div>
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tight text-[#2d241c] mb-3">
-                      Status Pesanan
-                    </h2>
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-[#7a9d7f] animate-pulse" />
-                      <p className="text-[13px] font-bold text-[#6b5b4b]">
-                        Terakhir diperbarui {updatedAtFormatted}
-                      </p>
-                    </div>
-                  </div>
-                  <OrderStatusBadge status={order.status} />
+        <section className="mx-auto max-w-4xl px-5 pb-24 sm:px-8 md:pb-32 animate-floatIn">
+          {/* Status flow */}
+          <div className="rounded-[40px] border border-black/5 bg-paper p-6 sm:p-9 md:p-12">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight text-ink">
+                  Status Pesanan
+                </h2>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-sage" />
+                  <p className="text-[13px] font-semibold text-ink-soft">
+                    Terakhir diperbarui {updatedAtFormatted}
+                  </p>
                 </div>
-
-                <JourneyTrack activeStep={activeStep} />
               </div>
-
-              {order.status === "PENDING_PAYMENT" && (
-                <PaymentAction orderCode={order.orderCode} />
-              )}
-
-              {(order.status === "SHIPPED" || order.status === "COMPLETED") &&
-                order.trackingNumber && (
-                  <TrackingInfo
-                    status={order.status}
-                    courier={order.courier}
-                    trackingNumber={order.trackingNumber}
-                    onCopy={copyTracking}
-                  />
-                )}
+              <OrderStatusBadge status={order.status} />
             </div>
 
-            <div className="lg:col-span-4 grid grid-cols-1 gap-4 md:gap-6">
+            {order.status === "CANCELLED" ? (
+              <div className="rounded-[24px] border border-red-100 bg-red-50 p-6 text-center">
+                <p className="text-sm font-semibold text-red-600">
+                  Pesanan ini telah dibatalkan.
+                </p>
+              </div>
+            ) : (
+              <StatusFlow activeStep={activeStep} />
+            )}
+          </div>
+
+          {/* Contextual action / tracking */}
+          {order.status === "PENDING_PAYMENT" && (
+            <div className="mt-6">
+              <PaymentAction orderCode={order.orderCode} />
+            </div>
+          )}
+
+          {(order.status === "SHIPPED" || order.status === "COMPLETED") &&
+            order.trackingNumber && (
+              <div className="mt-6">
+                <TrackingInfo
+                  status={order.status}
+                  courier={order.courier}
+                  trackingNumber={order.trackingNumber}
+                  onCopy={copyTracking}
+                />
+              </div>
+            )}
+
+          {/* Order info cards */}
+          <div className="mt-6 space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
               <OrderCodeCard orderCode={order.orderCode} />
               <SummaryStats
                 createdAt={order.createdAt}
                 totalAmount={order.totalAmount}
               />
-              <DeliveryInfo />
             </div>
+            <DeliveryInfo />
           </div>
         </section>
       )}
 
+      {/* ─────────────────────  EMPTY STATE  ──────────────────────── */}
       {!order && !loading && (
-        <section className="pb-32 px-6 md:px-12 max-w-4xl mx-auto flex flex-col items-center text-center">
-          <div className="w-16 h-px bg-[#e8dcc8] mb-12" />
-          <p className="text-[#6b5b4b] font-medium max-w-md leading-relaxed mb-10 text-[16px] md:text-[18px]">
+        <section className="mx-auto flex max-w-2xl flex-col items-center px-5 pb-28 text-center sm:px-8">
+          <div className="mb-10 h-px w-16 bg-black/10" />
+          <p className="mb-10 max-w-md text-base font-medium leading-relaxed text-ink-soft md:text-lg">
             Sudah punya dTeman tapi belum dilacak? Masukkan kode pesanan Anda di
             atas untuk melihat status terbaru.
           </p>
           <Link
             href="/products"
-            className="group inline-flex items-center gap-4 px-10 py-5 rounded-full bg-[#2d241c] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#c85a2d] transition-all shadow-lift-sm"
+            className="group inline-flex items-center gap-3 rounded-full bg-ink px-8 py-4 text-sm font-semibold uppercase tracking-widest text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-action"
           >
             <span>Mulai Belanja</span>
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>
         </section>
       )}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ImageOff, ArrowRight } from "lucide-react";
+import { ImageOff } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
 import type { ProductListItem } from "@/types/api";
@@ -10,58 +10,49 @@ export function ProductCard({ product }: { product: ProductListItem }) {
   const outOfStock = product.stock !== null && product.stock <= 0;
 
   return (
-    <Link href={`/products/${product.slug}`} className="group block relative">
-      <div className="flex flex-col gap-5">
-        <div className="relative aspect-[3/4] overflow-hidden rounded-[40px] bg-[#f9f9f9] border border-[#e8dcc8]/40 isolate">
-          {image ? (
-            <Image
-              src={getImageUrl(image.url)}
-              alt={product.name}
-              fill
-              className="object-cover transition-all duration-1000 group-hover:scale-105 group-hover:rotate-1"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              loading="lazy"
-            />
+    <Link
+      href={`/products/${product.slug}`}
+      className="group flex h-full flex-col rounded-[24px] border border-black/5 bg-paper p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-24px_rgba(32,32,32,0.3)] sm:rounded-[32px] sm:p-4"
+    >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[18px] bg-canvas-oat sm:rounded-[24px]">
+        {image ? (
+          <Image
+            src={getImageUrl(image.url)}
+            alt={product.name}
+            fill
+            className={`object-cover transition-transform duration-700 group-hover:scale-105 ${
+              outOfStock ? "opacity-70" : ""
+            }`}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-ink/20">
+            <ImageOff className="h-10 w-10" />
+          </div>
+        )}
+
+        {/* Status badge */}
+        <div className="absolute left-3 top-3 z-10 sm:left-4 sm:top-4">
+          {outOfStock ? (
+            <span className="inline-flex items-center rounded-full bg-paper px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-red-500 shadow-sm">
+              Sold Out
+            </span>
           ) : (
-            <div className="h-full w-full flex items-center justify-center text-[#9a8772]">
-              <ImageOff className="w-12 h-12 opacity-20" />
-            </div>
+            <span className="inline-flex items-center rounded-full bg-paper/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-action shadow-sm backdrop-blur-sm">
+              Handmade
+            </span>
           )}
-
-          {/* Premium Badges */}
-          <div className="absolute top-6 left-6 flex flex-col gap-2 z-20">
-            {outOfStock && (
-              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 border border-red-100 shadow-lift-sm text-red-500">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                  Sent Out
-                </span>
-              </div>
-            )}
-            {!outOfStock && (
-              <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 border border-[#e8dcc8]/60 shadow-lift-sm text-[#c85a2d] opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                  Handmade
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Simple Link Icon */}
-          <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-500 z-20 translate-x-4 group-hover:translate-x-0">
-            <div className="w-12 h-12 rounded-full bg-[#2d241c] text-white flex items-center justify-center shadow-lift-md">
-              <ArrowRight className="w-5 h-5" />
-            </div>
-          </div>
         </div>
+      </div>
 
-        <div className="flex flex-col gap-2 px-2 items-center text-center">
-          <h3 className="font-display text-2xl font-black leading-tight text-[#2d241c] group-hover:text-[#c85a2d] transition-colors line-clamp-1 uppercase tracking-tight">
-            {product.name}
-          </h3>
-          <p className="text-[#6b5b4b] font-bold font-sans uppercase tracking-[0.2em] text-[13px]">
-            {formatCurrency(Number(product.price))}
-          </p>
-        </div>
+      <div className="flex flex-1 flex-col items-center px-1 pt-4 pb-1 text-center">
+        <h3 className="line-clamp-1 w-full text-sm font-semibold text-ink transition-colors group-hover:text-action sm:text-base">
+          {product.name}
+        </h3>
+        <span className="mt-2 inline-block rounded-full bg-canvas-oat px-3 py-1 text-xs font-semibold text-ink sm:text-sm">
+          {formatCurrency(Number(product.price))}
+        </span>
       </div>
     </Link>
   );

@@ -13,10 +13,19 @@
   --color-warm-sand: #e8dcc8;
   --color-warm-gray: #6b5b4b;
 
+  /* Landing page — Ko-fi style craft palette (hybrid) */
+  --color-canvas-oat: #e9dfd2; /* warm page background */
+  --color-paper: #ffffff; /* cards & elevated surfaces */
+  --color-ink: #202020; /* primary text & headings */
+  --color-ink-soft: #6b5b4b; /* secondary text */
+  --color-action: #c85a2d; /* terracotta CTA / accent (kept) */
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-manrope);
-  --font-display: var(--font-archivo);
+  --font-sans: var(--font-dm-sans);
+  /* Display / headings — Bungee (chunky substitute for bogue-black per DESIGN.md) */
+  --font-display: var(--font-bungee);
+  --font-bungee: var(--font-bungee);
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -59,6 +68,10 @@
   --shadow-lift:
     0 22px 60px -28px rgba(63, 51, 40, 0.2),
     0 12px 22px -14px rgba(63, 51, 40, 0.1);
+  /* Subtle lift between shadow-soft and none — used on pills, cards, badges */
+  --shadow-lift-sm:
+    0 6px 18px -8px rgba(63, 51, 40, 0.14),
+    0 2px 6px -3px rgba(63, 51, 40, 0.08);
 
   @keyframes floatIn {
     0% {
@@ -340,6 +353,12 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  /* Bungee ships a single weight (400). Prevent blurry faux-bold from
+     the font-black/font-bold utilities used across display headings. */
+  .font-display,
+  .font-bungee {
+    font-synthesis-weight: none;
   }
 }
 

@@ -77,51 +77,44 @@ export default async function ProductsPage({
   const sort = sortParam || "latest";
   const data = await getProducts(page, 12, sort);
 
+  const dateActive = sort === "latest" || sort === "oldest";
+  const priceActive = sort.startsWith("price");
+
   return (
-    <div className="bg-white min-h-screen text-[#2d241c] font-sans selection:bg-[#c85a2d] selection:text-white pb-32">
-      <div className="pt-24 px-8 md:px-12 max-w-[1600px] mx-auto text-center space-y-6">
-        <div className="inline-flex items-center gap-3 px-5 py-1.5 rounded-full bg-white border border-[#e8dcc8]/60 shadow-sm">
-          <div className="w-2 h-2 rounded-full bg-[#c85a2d] animate-pulse"></div>
-          <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
+    <div className="-mt-20 min-h-screen bg-canvas-oat pt-20 font-sans text-ink selection:bg-action selection:text-white overflow-x-hidden md:-mt-24 md:pt-24">
+      {/* ─────────────────────────  HEADER  ───────────────────────── */}
+      <section className="mx-auto max-w-3xl px-5 pt-10 pb-12 text-center sm:px-8 sm:pt-14 md:pt-16 md:pb-16">
+        <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-paper px-5 py-2 shadow-sm">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-action" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-action sm:text-[11px]">
             Curated Artisanal Crafts
           </span>
-        </div>
-        <h1 className="font-display text-[48px] md:text-[110px] font-black leading-[0.85] tracking-[-0.04em] text-[#2d241c]">
-          Koleksi{" "}
-          <span className="text-[#c85a2d] italic serif font-medium">
-            dTeman
-          </span>{" "}
-          Yoga
+        </span>
+        <h1 className="mt-6 font-bungee text-[clamp(2.25rem,9vw,5rem)] leading-[0.95] text-ink">
+          Koleksi <span className="text-action">dTeman</span>
         </h1>
-        <p className="max-w-2xl mx-auto text-[16px] md:text-[18px] text-[#6b5b4b] font-medium leading-relaxed">
+        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-soft sm:text-base md:text-lg">
           Temukan boneka rajut yang paling pas sebagai teman latihan harian
           Anda. Dibuat perlahan dengan ketulusan dan energi positif.
         </p>
-      </div>
+      </section>
 
-      <div className="mt-20 md:mt-32 px-8 md:px-12 max-w-[1600px] mx-auto">
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 mb-16 md:mb-20">
-          <div className="flex flex-col gap-4">
-            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[#2d241c]">
-              Eksplorasi Kurasi Kami
-            </h2>
-            <div className="flex items-center gap-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#7a9d7f]"></div>
-              <span className="text-sm md:text-base font-bold text-[#6b5b4b] uppercase tracking-widest">
-                Menampilkan {data.products.length} dari {data.pagination.total}{" "}
-                dTeman
-              </span>
-            </div>
-          </div>
+      {/* ─────────────────────  TOOLBAR + GRID  ───────────────────── */}
+      <section className="mx-auto max-w-6xl px-5 pb-24 sm:px-8 md:pb-32">
+        <div className="mb-8 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-soft sm:text-sm">
+            Menampilkan {data.products.length} dari {data.pagination.total}{" "}
+            dTeman
+          </p>
 
-          <div className="flex w-full md:w-auto overflow-x-auto pb-4 md:pb-0 gap-4 no-scrollbar snap-x">
+          <div className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-1 no-scrollbar sm:mx-0 sm:px-0 sm:pb-0">
             <Link
               href={`/products?sort=${sort === "latest" ? "oldest" : "latest"}&page=1`}
               className={cn(
-                "h-14 px-8 rounded-full text-[13px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap snap-start shrink-0",
-                sort === "latest" || sort === "oldest"
-                  ? "bg-[#2d241c] text-white shadow-lift-sm"
-                  : "bg-white border border-[#e8dcc8]/60 hover:border-[#c85a2d]/40",
+                "flex h-11 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-5 text-xs font-semibold uppercase tracking-[0.16em] transition-all sm:text-[13px]",
+                dateActive
+                  ? "bg-action text-white shadow-sm"
+                  : "border border-black/10 bg-paper text-ink hover:border-action",
               )}
             >
               {sort === "oldest" ? "Koleksi Klasik" : "Koleksi Terbaru"}
@@ -130,17 +123,17 @@ export default async function ProductsPage({
             <Link
               href={`/products?sort=${sort === "price-asc" ? "price-desc" : "price-asc"}&page=1`}
               className={cn(
-                "h-14 px-8 rounded-full text-[13px] font-black uppercase tracking-widest transition-all flex items-center gap-2 whitespace-nowrap snap-start shrink-0",
-                sort.startsWith("price")
-                  ? "bg-[#2d241c] text-white shadow-lift-sm"
-                  : "bg-white border border-[#e8dcc8]/60 hover:border-[#c85a2d]/40",
+                "flex h-11 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-5 text-xs font-semibold uppercase tracking-[0.16em] transition-all sm:text-[13px]",
+                priceActive
+                  ? "bg-action text-white shadow-sm"
+                  : "border border-black/10 bg-paper text-ink hover:border-action",
               )}
             >
               Harga{" "}
               {sort === "price-asc"
-                ? "Low to High"
+                ? "Termurah"
                 : sort === "price-desc"
-                  ? "High to Low"
+                  ? "Termahal"
                   : ""}
             </Link>
           </div>
@@ -148,17 +141,14 @@ export default async function ProductsPage({
 
         <ProductGrid products={data.products as unknown as ProductListItem[]} />
 
-        {/* 
-          PAGINATION
-        */}
-        <div className="mt-16 flex justify-center pb-8">
+        <div className="mt-14 flex justify-center md:mt-16">
           <PaginationControls
             pagination={data.pagination}
             basePath="/products"
             sort={sort}
           />
         </div>
-      </div>
+      </section>
     </div>
   );
 }

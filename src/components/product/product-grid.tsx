@@ -1,21 +1,23 @@
 import { ProductCard } from "./product-card";
+import { Sparkles } from "lucide-react";
 import type { ProductListItem } from "@/types/api";
 
 export function ProductGrid({ products }: { products: ProductListItem[] }) {
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-        <p>Belum ada produk.</p>
+      <div className="rounded-[32px] border border-black/5 bg-paper px-8 py-16 text-center">
+        <Sparkles className="mx-auto h-10 w-10 text-action/40" />
+        <p className="mt-4 text-base font-medium text-ink-soft">
+          Belum ada produk untuk ditampilkan.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10 items-stretch">
+    <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
       {products.map((product) => (
-        <div key={product.id} className="h-full flex flex-col">
-          <ProductCard product={product} />
-        </div>
+        <ProductCard key={product.id} product={product} />
       ))}
     </div>
   );

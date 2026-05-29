@@ -20,8 +20,8 @@ function SuccessRedirect() {
   }, [code, email, router]);
 
   return (
-    <div className="min-h-screen bg-[#f5f1ed] flex items-center justify-center text-[#c85a2d]">
-      <Loader2 className="w-10 h-10 animate-spin" />
+    <div className="-mt-20 flex min-h-screen items-center justify-center bg-canvas-oat text-action md:-mt-24">
+      <Loader2 className="h-10 w-10 animate-spin" />
     </div>
   );
 }

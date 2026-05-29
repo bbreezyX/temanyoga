@@ -2,7 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { Sparkles, ArrowRight, ArrowUpRight } from "lucide-react";
+import {
+  Sparkles,
+  ArrowRight,
+  ArrowUpRight,
+  Leaf,
+  Hand,
+  Heart,
+} from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
 import { SITE_URL } from "@/lib/site-url";
@@ -30,6 +37,38 @@ async function getFeaturedProducts() {
   }
 }
 
+const MARQUEE_ITEMS = [
+  "Handmade in Indonesia",
+  "100% Milk Cotton",
+  "Slow Handcraft",
+  "Limited Batches",
+  "Dibuat dengan Hati",
+];
+
+const STORY_STEPS = [
+  {
+    no: "01",
+    eyebrow: "Material Source",
+    title: "Natural & Ethical",
+    body: "Kami hanya menggunakan benang katun susu (milk cotton) premium yang lembut di kulit dan ramah lingkungan. Tanpa plastik berlebih, kembali ke alam.",
+    Icon: Leaf,
+  },
+  {
+    no: "02",
+    eyebrow: "Craft Method",
+    title: "Slow Handcraft",
+    body: "Tidak ada mesin. Hanya tangan-tangan terampil pengrajin lokal yang mendedikasikan 8–12 jam untuk satu karakter. Ketidaksempurnaan adalah tanda keaslian.",
+    Icon: Hand,
+  },
+  {
+    no: "03",
+    eyebrow: "The Soul",
+    title: "Soulful Energy",
+    body: "Diciptakan dengan intensi positif. Setiap karakter dirancang untuk membawa senyum dan ketenangan — anchor visual saat Anda kehilangan fokus.",
+    Icon: Heart,
+  },
+];
+
 export default async function HomePage() {
   const products = await getFeaturedProducts();
 
@@ -52,578 +91,285 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="min-h-screen text-[#3f3328] font-sans selection:bg-[#c85a2d] selection:text-white overflow-x-hidden">
+    <div className="-mt-20 min-h-screen bg-canvas-oat pt-20 font-sans text-ink selection:bg-action selection:text-white overflow-x-hidden md:-mt-24 md:pt-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 
-        HERO SECTION: Organic Modern & Artisan
-        Refined typography, overlapping elements, and textural depth.
-      */}
-      <section className="-mt-[6rem] pt-[6rem] relative min-h-[100dvh] w-full bg-white text-[#3f3328] overflow-hidden">
-        <div className="relative z-10 grid lg:grid-cols-12 min-h-[100dvh] max-w-[1800px] mx-auto px-6 md:px-12 pt-24 pb-12 items-center">
-          {/* Typography & Content - Left Side */}
-          <div className="lg:col-span-7 flex flex-col justify-center lg:pr-12 xl:pr-24">
-            {/* Tagline */}
-            <div className="relative inline-flex items-center gap-4 mb-8 sm:mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000 fill-mode-both">
-              <span className="w-8 sm:w-16 h-[2px] bg-[#c85a2d]"></span>
-              <span className="text-xs sm:text-sm font-black tracking-[0.25em] uppercase text-[#c85a2d]">
-                Handmade in Indonesia • Est. 2026
-              </span>
-            </div>
+      {/* ─────────────────────────  HERO  ───────────────────────── */}
+      <section className="relative px-5 pt-28 pb-20 sm:px-8 sm:pt-32 md:pb-28">
+        <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
+          {/* Eyebrow pill */}
+          <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-paper px-5 py-2 text-xs font-semibold tracking-wide text-ink-soft shadow-sm sm:text-sm animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+            <Sparkles className="h-4 w-4 text-action" />
+            Handmade in Indonesia · Est. 2026
+          </span>
 
-            {/* Main Headline (SEO optimized) */}
-            <h1 className="sr-only">
-              Boneka Rajut Yoga Premium: Modern Amigurumi
-            </h1>
-            <div
-              aria-hidden="true"
-              className="relative font-display text-[15vw] sm:text-[13vw] lg:text-[10vw] xl:text-[160px] leading-[0.8] font-black tracking-[-0.04em] text-[#2d241c] mb-6 sm:mb-10 mix-blend-darken animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-100 fill-mode-both"
+          {/* Headline */}
+          <h1 className="sr-only">
+            Boneka Rajut Yoga Premium — Modern Amigurumi
+          </h1>
+          <p
+            aria-hidden="true"
+            className="mt-8 font-bungee text-[clamp(2.75rem,11vw,7.5rem)] leading-[0.95] text-ink animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 fill-mode-both"
+          >
+            MODERN
+            <span className="mt-1 block text-action">AMIGURUMI</span>
+          </p>
+
+          {/* Subhead */}
+          <p className="mt-7 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg md:text-xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200 fill-mode-both">
+            Lebih dari sekadar boneka rajut — simbol kehadiran, ketenangan, dan
+            teman setia dalam setiap perjalanan yoga Anda.
+          </p>
+
+          {/* CTAs */}
+          <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300 fill-mode-both">
+            <Link
+              href="/products"
+              className="group inline-flex items-center gap-2 rounded-full bg-action px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/50 sm:text-base"
             >
-              MODERN
-              <span className="block ml-[0.5em] sm:ml-[1.5em] -mt-[0.3em] sm:-mt-[0.25em] text-[#c85a2d] font-serif italic font-medium tracking-normal text-[0.8em] sm:text-[0.6em]">
-                Amigurumi
-              </span>
-            </div>
+              Eksplorasi Kurasi
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="#story"
+              className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-canvas-oat px-7 py-3.5 text-sm font-semibold text-ink transition-colors duration-300 hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 sm:text-base"
+            >
+              Cerita Kami
+            </Link>
+          </div>
+        </div>
 
-            {/* Description */}
-            <div className="flex flex-col sm:flex-row gap-8 sm:gap-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200 fill-mode-both">
-              <div className="hidden sm:block w-px bg-[#c85a2d]/30 h-auto self-stretch"></div>
-              <p className="text-lg sm:text-xl md:text-2xl font-medium text-[#6b5b4b] leading-relaxed max-w-xl text-balance">
-                Lebih dari sekadar boneka rajut. Sebuah simbol kehadiran,
-                ketenangan, dan teman setia dalam setiap perjalanan yoga Anda.
-                <span className="block mt-4 text-[#c85a2d] font-serif italic text-xl sm:text-2xl">
-                  Dibuat dengan hati, untuk jiwa.
-                </span>
-              </p>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="mt-12 sm:mt-16 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-10 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 fill-mode-both">
-              <Link
-                href="/products"
-                className="group relative inline-flex items-center gap-4 text-lg font-black uppercase tracking-widest text-[#2d241c] hover:text-[#c85a2d] transition-colors"
-              >
-                <div className="absolute -bottom-2 left-0 w-full h-[2px] bg-[#2d241c] origin-left group-hover:scale-x-0 transition-transform duration-500"></div>
-                <div className="absolute -bottom-2 left-0 w-full h-[2px] bg-[#c85a2d] origin-right scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-                <span>Eksplorasi Kurasi</span>
-                <div className="w-10 h-10 rounded-full border border-[#2d241c] group-hover:border-[#c85a2d] flex items-center justify-center transition-colors">
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                </div>
-              </Link>
-
-              <Link
-                href="#story"
-                className="group inline-flex items-center gap-2 text-base font-bold text-[#6b5b4b] uppercase tracking-widest hover:text-[#2d241c] transition-colors"
-              >
-                <span>Cerita Kami</span>
-                <span className="block w-1.5 h-1.5 rounded-full bg-[#c85a2d] opacity-0 group-hover:opacity-100 transition-opacity"></span>
-              </Link>
-            </div>
+        {/* Hero image card */}
+        <div className="relative mx-auto mt-16 max-w-4xl md:mt-20 animate-in fade-in zoom-in-95 duration-1000 delay-500 fill-mode-both">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-[40px] border border-ink/15 bg-paper shadow-[0_30px_80px_-30px_rgba(32,32,32,0.35)] sm:aspect-[16/9]">
+            <Image
+              src="/images/crochet.png"
+              alt="Yoga Companion Amigurumi"
+              fill
+              priority
+              className="object-cover object-center"
+              sizes="(max-width: 768px) 100vw, 900px"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/15 to-transparent" />
           </div>
 
-          {/* Image Composition - Right Side */}
-          <div className="mt-12 lg:mt-0 lg:col-span-5 relative h-[60vh] lg:h-[85vh] w-full flex items-center justify-center animate-in fade-in zoom-in-95 duration-1000 delay-500 fill-mode-both">
-            {/* Main Image Container */}
-            <div className="relative w-full h-full max-w-[600px]">
-              {/* Backing Shape (Solid) */}
-              <div className="absolute top-[10%] right-[5%] w-[90%] h-[80%] bg-[#e8dcc8] rounded-t-[200px] rounded-b-[40px] transform rotate-3"></div>
+          {/* Floating badge */}
+          <div className="absolute -bottom-6 left-4 z-20 rounded-[24px] border-2 border-ink bg-paper px-6 py-4 shadow-lg sm:left-8">
+            <span className="block font-bungee text-3xl leading-none text-action">
+              100%
+            </span>
+            <span className="mt-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
+              Cotton Milk Premium
+            </span>
+          </div>
 
-              {/* Image Mask (Arch) */}
-              <div className="absolute inset-0 z-10 overflow-hidden rounded-t-[300px] rounded-b-[40px] shadow-2xl shadow-[#3f3328]/10 group">
-                <Image
-                  src="/images/crochet.png"
-                  alt="Yoga Companion Amigurumi"
-                  fill
-                  priority
-                  className="object-cover object-top scale-105 group-hover:scale-110 transition-transform duration-[2s] ease-[cubic-bezier(0.22,1,0.36,1)]"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-
-                {/* Subtle Overlay Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#3f3328]/20 to-transparent pointer-events-none"></div>
-              </div>
-
-              {/* Floating Badge */}
-              <div className="absolute -bottom-6 -left-6 z-20 bg-[#f5f1ed] p-6 pr-10 rounded-tr-[40px] shadow-lg border border-[#e8dcc8]">
-                <div className="flex flex-col">
-                  <span className="font-display text-5xl font-black text-[#c85a2d] leading-none">
-                    100%
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#3f3328] mt-2">
-                    Cotton Milk Premium
-                  </span>
-                </div>
-                {/* Decorative corner accent */}
-                <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#c85a2d]"></div>
-              </div>
-
-              {/* Decorative "Sticker" */}
-              <div className="absolute top-12 -right-4 md:-right-8 z-30 w-20 h-20 md:w-24 md:h-24 bg-[#2d241c] rounded-full flex items-center justify-center text-[#f5f1ed] text-center animate-[spin_10s_linear_infinite]">
-                <svg
-                  viewBox="0 0 100 100"
-                  width="100"
-                  height="100"
-                  className="w-full h-full absolute inset-0"
-                >
-                  <path
-                    id="curve"
-                    d="M 50 50 m -37 0 a 37 37 0 1 1 74 0 a 37 37 0 1 1 -74 0"
-                    fill="transparent"
-                  />
-                  <text className="text-[11px] font-bold uppercase tracking-widest fill-current">
-                    <textPath href="#curve" startOffset="0%">
-                      • Authentic • Mindful • Crafted •
-                    </textPath>
-                  </text>
-                </svg>
-                <Sparkles className="w-6 h-6 text-[#c85a2d]" />
-              </div>
-            </div>
+          {/* Spinning sticker */}
+          <div className="absolute -top-6 right-4 z-30 flex h-20 w-20 items-center justify-center rounded-full bg-ink text-cream sm:right-8 sm:h-24 sm:w-24 animate-[spin_14s_linear_infinite]">
+            <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
+              <path
+                id="sticker-curve"
+                d="M 50 50 m -37 0 a 37 37 0 1 1 74 0 a 37 37 0 1 1 -74 0"
+                fill="transparent"
+              />
+              <text className="fill-current text-[10px] font-semibold uppercase tracking-[0.18em]">
+                <textPath href="#sticker-curve" startOffset="0%">
+                  • Authentic • Mindful • Crafted •
+                </textPath>
+              </text>
+            </svg>
+            <Sparkles className="h-6 w-6 text-action" />
           </div>
         </div>
       </section>
 
+      {/* ───────────────────────  TRUST MARQUEE  ─────────────────── */}
+      <section className="overflow-hidden border-y border-black/5 bg-paper py-4">
+        <div className="flex w-max animate-marquee-ltr">
+          {[0, 1].map((dup) => (
+            <ul
+              key={dup}
+              aria-hidden={dup === 1 ? "true" : undefined}
+              className="flex items-center gap-8 pr-8"
+            >
+              {MARQUEE_ITEMS.map((item) => (
+                <li
+                  key={`${dup}-${item}`}
+                  className="flex items-center gap-8 whitespace-nowrap text-sm font-semibold uppercase tracking-[0.18em] text-ink-soft"
+                >
+                  {item}
+                  <span className="h-1.5 w-1.5 rounded-full bg-action" />
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </section>
 
-
-      {/* 
-        FEATURED COLLECTION: Enhanced Grid
-      */}
-      <section id="products" className="py-24 md:py-32 bg-white relative">
-        <div className="px-6 md:px-12 max-w-[1600px] mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8 relative z-10">
-            <div className="relative">
-              <h2 className="font-display text-[15vw] md:text-[180px] leading-[0.8] font-black tracking-tighter text-[#f7f5f2] absolute -top-[0.8em] -left-[0.2em] -z-10 select-none">
-                CURATED
-              </h2>
-              <span className="block text-[#c85a2d] font-bold tracking-[0.3em] uppercase text-xs mb-4 pl-1">
+      {/* ────────────────────  FEATURED COLLECTION  ──────────────── */}
+      <section id="products" className="px-5 py-20 sm:px-8 md:py-28">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-[0.25em] text-action">
                 Selected Works
               </span>
-              <h2 className="font-display text-5xl md:text-6xl font-black text-[#2d241c]">
-                Kurasi{" "}
-                <span className="font-serif italic font-medium text-[#c85a2d]">
-                  Terpilih
-                </span>
+              <h2 className="mt-3 font-bungee text-[clamp(2rem,5vw,3.25rem)] leading-[1] text-ink">
+                Kurasi Terpilih
               </h2>
             </div>
-
             <Link
               href="/products"
-              className="group flex items-center gap-3 px-6 py-3 rounded-full border border-[#e8dcc8] hover:border-[#c85a2d] hover:bg-[#c85a2d] hover:text-white transition-all duration-300"
+              className="group inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-paper px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 hover:border-action hover:bg-action hover:text-white"
             >
-              <span className="text-sm font-bold tracking-widest uppercase">
-                Lihat Katalog
-              </span>
-              <ArrowUpRight className="w-4 h-4 group-hover:rotate-45 transition-transform" />
+              Lihat Katalog
+              <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" />
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-16">
-            {products.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.slug}`}
-                className="group block relative"
-              >
-                <div className="flex flex-col gap-6">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-[#f9f9f9] border border-[#e8dcc8]/60 rounded-[40px] isolate">
+          {products.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-4">
+              {products.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.slug}`}
+                  className="group block rounded-[32px] border border-black/5 bg-paper p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-24px_rgba(32,32,32,0.3)]"
+                >
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-[24px] bg-canvas-oat">
                     {product.images[0] ? (
                       <Image
                         src={getImageUrl(product.images[0].url)}
                         alt={product.name}
                         fill
-                        className="object-cover transition-all duration-1000 group-hover:scale-105"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, 25vw"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#e8dcc8]">
-                        <Sparkles className="w-10 h-10 opacity-30" />
+                      <div className="flex h-full w-full items-center justify-center text-ink/20">
+                        <Sparkles className="h-10 w-10" />
                       </div>
                     )}
-
-                    <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-500 z-20 translate-x-4 group-hover:translate-x-0">
-                      <div className="w-14 h-14 rounded-full bg-[#2d241c] text-white flex items-center justify-center shadow-lift-md">
-                        <ArrowRight className="w-6 h-6" />
-                      </div>
-                    </div>
                   </div>
-
-                  <div className="flex flex-col gap-2 px-2 items-center text-center">
-                    <h3 className="font-display text-2xl font-black leading-tight text-[#2d241c] group-hover:text-[#c85a2d] transition-colors uppercase tracking-tight">
+                  <div className="px-2 pt-4 pb-1">
+                    <h3 className="line-clamp-1 text-base font-semibold text-ink transition-colors group-hover:text-action">
                       {product.name}
                     </h3>
-                    <p className="text-[#6b5b4b] font-bold font-sans uppercase tracking-[0.2em] text-[14px]">
+                    <span className="mt-2 inline-block rounded-full bg-canvas-oat px-3 py-1 text-sm font-semibold text-ink">
                       {formatCurrency(Number(product.price))}
-                    </p>
+                    </span>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 
-        NARRATIVE SECTION: "The Artisan Way"
-        Reimagined as a seamless editorial continuation.
-        Broken grid layout with overlapping elements and strong typographic hierarchy.
-      */}
-      <section
-        id="story"
-        className="py-32 md:py-48 bg-white relative overflow-hidden"
-      >
-        {/* Thread Line - Visual Connector from previous section */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-32 bg-gradient-to-b from-[#e8dcc8] to-[#c85a2d] z-0"></div>
-
-        <div className="px-6 md:px-12 max-w-[1700px] mx-auto relative z-10">
-          {/* Section Header - Centered & Monumental */}
-          <div className="text-center mb-24 md:mb-40 relative">
-            <span className="inline-block py-2 px-6 rounded-full border border-[#2d241c] text-[#2d241c] text-xs font-bold uppercase tracking-[0.3em] bg-white relative z-10">
-              Process & Soul
-            </span>
-            <h2 className="font-display text-[12vw] md:text-[140px] leading-[0.8] font-black text-[#2d241c] mt-8 tracking-tighter mix-blend-multiply relative z-10">
-              THE{" "}
-              <span
-                className="text-transparent stroke-text"
-                style={{ WebkitTextStroke: "1px #2d241c" }}
-              >
-                ARTISAN
-              </span>{" "}
-              WAY
-            </h2>
-            {/* Decorative circle behind title */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40vw] h-[40vw] bg-[#f5f1ed] rounded-full blur-[80px] -z-0"></div>
-          </div>
-
-          {/* Staggered Editorial Layout */}
-          <div className="space-y-32 md:space-y-0">
-            {/* Block 01: Left Aligned */}
-            <div className="flex flex-col md:flex-row items-center gap-12 md:gap-24 relative">
-              <div className="w-full md:w-5/12 relative group">
-                <div className="aspect-[4/5] relative rounded-[4rem] overflow-hidden bg-[#f3efe9] shadow-2xl border border-white/50">
-                  {/* CSS Art: Yarn Softness */}
-                  <div className="absolute inset-0">
-                    {/* Abstract background blobs */}
-                    <div className="absolute -top-10 -right-10 w-64 h-64 bg-[#7a9d7f]/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute top-1/2 -left-10 w-48 h-48 bg-[#c85a2d]/10 rounded-full blur-3xl animate-pulse delay-700"></div>
-
-                    {/* SVG Illustration: Yarn Balls */}
-                    <div className="absolute inset-0 flex items-center justify-center p-8">
-                      <svg
-                        viewBox="0 0 200 240"
-                        fill="none"
-                        className="w-full h-full drop-shadow-xl"
-                      >
-                        {/* Yarn Ball 1 (Sage) */}
-                        <circle
-                          cx="60"
-                          cy="80"
-                          r="45"
-                          fill="#7a9d7f"
-                          className="opacity-90"
-                        />
-                        <path
-                          d="M60 35c24.8 0 45 20.2 45 45s-20.2 45-45 45S15 104.8 15 80s20.2-45 45-45z"
-                          stroke="#fff"
-                          strokeWidth="0.5"
-                          strokeOpacity="0.3"
-                        />
-                        <path
-                          d="M40 50 Q 80 50, 80 110"
-                          stroke="white"
-                          strokeWidth="1"
-                          strokeLinecap="round"
-                          className="opacity-40"
-                        />
-                        <path
-                          d="M30 70 Q 90 70, 70 100"
-                          stroke="white"
-                          strokeWidth="1"
-                          strokeLinecap="round"
-                          className="opacity-40"
-                        />
-
-                        {/* Yarn Ball 2 (Terracotta - Center overlap) */}
-                        <circle
-                          cx="130"
-                          cy="110"
-                          r="55"
-                          fill="#c85a2d"
-                          className="opacity-95"
-                        />
-                        <path
-                          d="M130 55c30.4 0 55 24.6 55 55s-24.6 55-55 55-55-24.6-55-55 24.6-55 55-55z"
-                          stroke="#fff"
-                          strokeWidth="0.5"
-                          strokeOpacity="0.3"
-                        />
-                        <path
-                          d="M100 90 Q 160 80, 160 140"
-                          stroke="white"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          className="opacity-40"
-                        />
-                        <path
-                          d="M110 130 Q 150 100, 170 130"
-                          stroke="white"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          className="opacity-40"
-                        />
-
-                        {/* Loose Thread Connection */}
-                        <path
-                          d="M130 165 C 130 200, 70 150, 70 200"
-                          stroke="#c85a2d"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          fill="none"
-                          className="drop-shadow-sm"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Foreground Glass Card */}
-                  <div className="absolute bottom-8 right-8 bg-white/60 backdrop-blur-md border border-white/60 p-5 rounded-3xl shadow-lg max-w-[180px] z-10 transition-transform duration-500 hover:-translate-y-2">
-                    <div className="w-10 h-10 bg-[#7a9d7f]/20 rounded-full flex items-center justify-center mb-3 text-[#5a7d5f]">
-                      <Sparkles className="w-5 h-5" />
-                    </div>
-                    <p className="font-display font-bold text-[#3f3328] text-sm leading-tight">
-                      Premium Milk Cotton Blend
-                    </p>
-                    <p className="text-[10px] uppercase tracking-widest text-[#8b7b6b] mt-1">
-                      Soft Touch
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-5/12 pt-12 md:pt-0">
-                <span className="text-[#7a9d7f] font-mono text-xs uppercase tracking-widest mb-4 block">
-                  01 — Material Source
-                </span>
-                <h3 className="font-display text-4xl md:text-6xl font-black mb-6 leading-[0.9]">
-                  Natural & <br />
-                  <span className="italic font-serif font-light">Ethical</span>
-                </h3>
-                <p className="text-lg text-[#6b5b4b] leading-relaxed max-w-md">
-                  Kami hanya menggunakan benang katun susu (milk cotton) premium
-                  yang lembut di kulit dan ramah lingkungan. Tanpa plastik
-                  berlebih, kembali ke alam.
-                </p>
-              </div>
+                </Link>
+              ))}
             </div>
-
-            {/* Block 02: Right Aligned / Overlapping */}
-            <div className="flex flex-col md:flex-row-reverse items-center justify-end gap-12 md:gap-24 relative md:-mt-20">
-              <div className="w-full md:w-4/12 relative z-10 group">
-                <div className="aspect-square relative rounded-full overflow-hidden bg-[#2d241c] border-8 border-white shadow-2xl flex items-center justify-center">
-                  {/* SVG Art: The Loop / Hook */}
-                  <div className="relative w-full h-full p-12">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#c85a2d]/20 to-transparent rounded-full animate-spin-slow opacity-50"></div>
-
-                    <svg
-                      viewBox="0 0 100 100"
-                      className="w-full h-full drop-shadow-2xl"
-                    >
-                      {/* Stylized Hook */}
-                      <path
-                        d="M70 20 L50 40 L30 20"
-                        stroke="transparent"
-                        fill="none"
-                      />
-                      <path
-                        d="M60 10 C60 10, 65 5, 70 10 C 75 15, 70 20, 65 25 L 35 65 C 30 72, 25 80, 30 85 C 35 90, 45 90, 50 85"
-                        stroke="#e8dcc8"
-                        strokeWidth="4"
-                        strokeLinecap="round"
-                        fill="none"
-                        className="drop-shadow-lg"
-                      />
-
-                      {/* The Loop / Thread being pulled */}
-                      <path
-                        d="M40 55 C 20 50, 10 30, 30 20 C 50 10, 60 30, 50 45"
-                        stroke="#c85a2d"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="5 3"
-                        className="opacity-80"
-                      />
-
-                      {/* "Magic Ring" Circle */}
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="35"
-                        stroke="white"
-                        strokeWidth="0.5"
-                        fill="none"
-                        opacity="0.1"
-                      />
-                    </svg>
-
-                    {/* Number Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="font-display font-black text-white/10 text-[180px] leading-none select-none blur-[1px]">
-                        02
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-5/12 text-right">
-                <span className="text-[#c85a2d] font-mono text-xs uppercase tracking-widest mb-4 block">
-                  02 — Craft Method
-                </span>
-                <h3 className="font-display text-4xl md:text-6xl font-black mb-6 leading-[0.9]">
-                  Slow <br />
-                  <span className="italic font-serif font-light">
-                    Handcraft
-                  </span>
-                </h3>
-                <p className="text-lg text-[#6b5b4b] leading-relaxed max-w-md ml-auto">
-                  Tidak ada mesin. Hanya tangan-tangan terampil pengrajin lokal
-                  yang mendedikasikan 8-12 jam untuk satu karakter.
-                  Ketidaksempurnaan adalah tanda keaslian.
-                </p>
-              </div>
-            </div>
-
-            {/* Block 03: Centered Statement */}
-            <div className="flex flex-col items-center text-center pt-24 md:pt-40 relative">
-              <div className="h-24 w-px bg-[#2d241c] mb-12"></div>
-
-              <div className="max-w-4xl relative">
-                <span className="absolute -top-12 left-1/2 -translate-x-1/2 text-[200px] leading-none text-[#f5f1ed] -z-10 font-display font-black select-none">
-                  03
-                </span>
-                <h3 className="font-display text-5xl md:text-8xl font-black mb-10 text-[#2d241c]">
-                  Soulful Energy
-                </h3>
-                <p className="text-xl md:text-2xl text-[#6b5b4b] leading-relaxed font-medium">
-                  &quot;Diciptakan dengan intensi positif. Setiap karakter
-                  dirancang untuk membawa senyum dan ketenangan, menjadi{" "}
-                  <span className="text-[#c85a2d] italic font-serif">
-                    anchor visual
-                  </span>{" "}
-                  saat Anda kehilangan fokus.&quot;
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 
-         FULL WIDTH IMAGE BREAK & PHILOSOPHY
-         Replaces hard cut with organic shape transition.
-      */}
-      <section className="relative overflow-hidden bg-[#2d241c] py-28 text-[#f5f1ed] md:py-36">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.03] to-transparent" />
-        <div className="pointer-events-none absolute right-0 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-[#c85a2d]/10 blur-3xl" />
-
-        <div className="relative z-20 mx-auto max-w-[1440px] px-6 md:px-12">
-          <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
-            {/* Text Content */}
-            <div className="order-2 flex flex-col items-start lg:order-1">
-              <span className="mb-7 inline-flex items-center gap-4 text-[11px] font-bold uppercase tracking-[0.24em] text-[#c85a2d] md:mb-8">
-                <span className="w-8 h-px bg-[#c85a2d]"></span>
-                Filosofi Kami
-              </span>
-
-              <h2 className="max-w-3xl font-display text-4xl font-black leading-[0.94] tracking-[-0.04em] md:text-6xl lg:text-[76px]">
-                Yoga bukan tentang menyentuh jari kaki,
-                <span className="block font-serif text-[0.92em] font-medium italic tracking-normal text-[#c85a2d]">
-                  tapi tentang apa yang Anda pelajari saat turun ke bawah.
-                </span>
-              </h2>
-
-              <p className="mt-6 max-w-xl text-base leading-8 text-[#f5f1ed]/72 md:mt-8 md:text-lg">
-                Setiap karya kami dibuat sebagai pengingat visual untuk kembali
-                hadir, bernapas lebih tenang, dan menemukan ritme yang terasa
-                personal.
+          ) : (
+            <div className="rounded-[32px] border border-black/5 bg-paper px-8 py-16 text-center">
+              <Sparkles className="mx-auto h-10 w-10 text-action/40" />
+              <p className="mt-4 text-base font-medium text-ink-soft">
+                Koleksi baru sedang dirajut. Segera hadir.
               </p>
-
-              <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-[#f5f1ed]/64 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3">
-                <span>Ritual yang tenang</span>
-                <span>Karakter yang personal</span>
-                <span>Dibuat perlahan dengan tangan</span>
-              </div>
             </div>
+          )}
+        </div>
+      </section>
 
-            {/* Image Content - Organic Shape */}
-            <div className="order-1 relative flex justify-center lg:order-2 lg:justify-end">
-              <div className="relative aspect-[4/5] w-full max-w-[460px]">
-                <div className="absolute -inset-5 rounded-[42px] border border-white/6" />
+      {/* ─────────────────────  THE ARTISAN WAY  ─────────────────── */}
+      <section id="story" className="px-5 py-20 sm:px-8 md:py-28">
+        <div className="mx-auto mb-14 max-w-3xl text-center md:mb-16">
+          <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-paper px-5 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">
+            Process & Soul
+          </span>
+          <h2 className="mt-5 font-bungee text-[clamp(2rem,6vw,3.75rem)] leading-[1] text-ink">
+            The Artisan Way
+          </h2>
+        </div>
 
-                <div className="relative h-full w-full overflow-hidden rounded-[36px] border border-white/10 bg-[#3a3027] shadow-[0_30px_80px_-30px_rgba(0,0,0,0.45)] isolate">
-
-                  <Image
-                    src="/images/knittedyoga.png"
-                    alt="Yoga Philosophy"
-                    fill
-                    className="object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#2d241c]/68 via-[#2d241c]/16 to-transparent pointer-events-none"></div>
+        <div className="mx-auto flex max-w-5xl flex-col gap-6 md:gap-8">
+          {STORY_STEPS.map((step, i) => {
+            const { Icon } = step;
+            const imageFirst = i % 2 === 0;
+            return (
+              <div
+                key={step.no}
+                className="grid items-center gap-6 rounded-[40px] border border-black/5 bg-paper p-6 md:grid-cols-2 md:gap-10 md:p-10"
+              >
+                {/* Illustration panel */}
+                <div
+                  className={`relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-[28px] border border-ink/10 bg-canvas-oat ${
+                    imageFirst ? "md:order-1" : "md:order-2"
+                  }`}
+                >
+                  <span className="font-bungee text-[clamp(4rem,14vw,9rem)] leading-none text-ink/10 select-none">
+                    {step.no}
+                  </span>
+                  <span className="absolute flex h-16 w-16 items-center justify-center rounded-full bg-paper text-action shadow-md">
+                    <Icon className="h-7 w-7" />
+                  </span>
                 </div>
 
-                <div className="absolute inset-x-6 bottom-6 rounded-[28px] border border-white/12 bg-[#2d241c]/72 px-5 py-4 backdrop-blur-sm">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#c85a2d]">
-                    Mindful Living
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-[#f5f1ed]/74">
-                    Teman visual yang mengingatkan Anda untuk kembali hadir,
-                    lembut, dan utuh.
+                {/* Text */}
+                <div className={imageFirst ? "md:order-2" : "md:order-1"}>
+                  <span className="text-xs font-semibold uppercase tracking-[0.22em] text-action">
+                    {step.no} — {step.eyebrow}
+                  </span>
+                  <h3 className="mt-3 font-bungee text-2xl leading-tight text-ink md:text-3xl">
+                    {step.title}
+                  </h3>
+                  <p className="mt-4 text-base leading-relaxed text-ink-soft">
+                    {step.body}
                   </p>
                 </div>
               </div>
-            </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ─────────────────────────  PHILOSOPHY  ──────────────────── */}
+      <section className="px-5 py-10 sm:px-8 md:py-14">
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-action px-8 py-16 text-center text-white md:px-16 md:py-24">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-black/10 blur-3xl" />
+          <div className="relative z-10">
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-white/80">
+              Filosofi Kami
+            </span>
+            <p className="mx-auto mt-5 max-w-3xl font-bungee text-[clamp(1.5rem,4.2vw,3rem)] leading-[1.05]">
+              Yoga bukan tentang menyentuh jari kaki.
+            </p>
+            <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/85 md:text-lg">
+              Tapi tentang apa yang Anda pelajari saat turun ke bawah. Setiap
+              karya dibuat sebagai pengingat untuk kembali hadir.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* 
-        CLOSING CTA
-        Simplified to feel calmer, clearer, and more aligned with the page rhythm.
-      */}
-      <section className="relative -mt-px overflow-hidden bg-[#2d241c] px-6 py-28 text-white selection:bg-[#c85a2d] selection:text-white md:py-36">
-        <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
-          <div className="mb-8 inline-flex items-center gap-4 md:mb-10">
-            <span className="h-px w-10 bg-[#c85a2d]" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#c85a2d]">
-              Temukan Teman Baru
-            </span>
-          </div>
-
-          <h2 className="max-w-4xl font-display text-5xl font-black leading-[0.92] tracking-[-0.04em] text-white sm:text-6xl md:text-7xl lg:text-[88px]">
-            Pilih karakter yang terasa
-            <span className="block font-serif text-[0.9em] font-medium italic tracking-normal text-[#c85a2d]">
-              dekat dengan perjalanan Anda.
-            </span>
+      {/* ────────────────────────  CLOSING CTA  ──────────────────── */}
+      <section className="px-5 py-20 sm:px-8 md:py-28">
+        <div className="mx-auto max-w-4xl rounded-[40px] border-2 border-ink bg-paper px-8 py-16 text-center shadow-[0_30px_80px_-40px_rgba(32,32,32,0.4)] md:px-16 md:py-20">
+          <span className="text-xs font-semibold uppercase tracking-[0.22em] text-action">
+            Temukan Teman Baru
+          </span>
+          <h2 className="mt-4 font-bungee text-[clamp(2rem,6vw,3.75rem)] leading-[1] text-ink">
+            Pilih Karaktermu
           </h2>
-
-          <p className="mt-6 max-w-2xl text-base leading-8 text-white/68 md:mt-8 md:text-lg">
-            Setiap karya dibuat untuk menemani ritual yang tenang, personal,
-            dan penuh kehadiran. Temukan yang paling beresonansi hari ini.
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg">
+            Setiap karya dibuat untuk menemani ritual yang tenang, personal, dan
+            penuh kehadiran. Temukan yang paling beresonansi hari ini.
           </p>
-
-          <div className="mt-12 flex w-full flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+          <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               href="/products"
-              className="group inline-flex min-h-14 items-center gap-3 rounded-full bg-[#c85a2d] px-8 py-4 text-sm font-semibold tracking-[0.08em] text-white transition-all duration-300 hover:bg-[#d86b3f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 md:min-h-16 md:px-10 md:text-base"
+              className="group inline-flex items-center gap-2 rounded-full bg-action px-8 py-4 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/50 md:text-base"
             >
-              <span>Lihat koleksi</span>
+              Lihat koleksi
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
-
             <Link
               href="/track-order"
-              className="inline-flex min-h-12 items-center rounded-full border border-white/14 px-6 py-3 text-sm font-medium text-white/72 transition-colors duration-300 hover:border-white/28 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="inline-flex items-center rounded-full border border-ink/15 px-7 py-4 text-sm font-semibold text-ink-soft transition-colors duration-300 hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 md:text-base"
             >
               Lacak pesanan
             </Link>

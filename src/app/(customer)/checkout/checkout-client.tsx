@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import useSWR from "swr";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -92,6 +92,24 @@ const addressSchema = z.object({
     .max(20, "Kode pos maksimal 20 karakter"),
 });
 
+const inputClass =
+  "h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium";
+const labelClass =
+  "text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]";
+const cardClass =
+  "rounded-[32px] border border-[#e8dcc8]/70 bg-white shadow-soft p-6 md:p-8";
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="h-5 w-1.5 rounded-full bg-[#c85a2d] shrink-0" />
+      <h2 className="font-display tracking-tight text-xl md:text-2xl text-[#2d241c]">
+        {title}
+      </h2>
+    </div>
+  );
+}
+
 export function CheckoutClient() {
   const router = useRouter();
   const { items, cartTotal, clearCart, getItemKey, isLoaded } = useCart();
@@ -158,16 +176,41 @@ export function CheckoutClient() {
       : Math.min(appliedCoupon.discountValue, cartTotal)
     : 0;
   const totalAmount = cartTotal - discountAmount + shippingCost;
+  const displayedTotal = hasShippingSelection
+    ? totalAmount
+    : cartTotal - discountAmount;
 
   const orderPlaced = useRef(false);
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutFormSchema),
   });
+
+  // Real progress derived from form + address + courier state
+  const [watchedName, watchedEmail, watchedPhone] = useWatch({
+    control,
+    name: ["customerName", "customerEmail", "customerPhone"],
+  });
+  const hasReceiverInfo = Boolean(
+    watchedName?.trim() && watchedEmail?.trim() && watchedPhone?.trim(),
+  );
+  const hasAddress = Boolean(
+    addressData.village?.code &&
+      addressData.streetAddress.trim() &&
+      addressData.postalCode.trim(),
+  );
+  const step1Done = hasReceiverInfo && hasAddress;
+  const step2Done = hasShippingSelection;
+  const progressSteps = [
+    { label: "Penerima", done: step1Done, active: !step1Done },
+    { label: "Kurir", done: step2Done, active: step1Done && !step2Done },
+    { label: "Selesai", done: false, active: step1Done && step2Done },
+  ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -324,50 +367,62 @@ export function CheckoutClient() {
   return (
     <div className="bg-white min-h-screen text-[#2d241c] font-sans">
       <main
-        className="flex-1 px-6 md:px-12 pb-24 w-full max-w-7xl mx-auto"
+        className="flex-1 px-6 md:px-12 pb-32 lg:pb-24 w-full max-w-7xl mx-auto"
         id="top"
       >
-        <section className="pt-12 md:pt-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
-            <div className="lg:col-span-7 flex flex-col gap-12">
-              <div className="relative">
-                <div className="flex flex-col gap-6 mb-12">
-                  <Link
-                    href="/cart"
-                    className="group inline-flex items-center gap-2 self-start text-[14px] font-bold text-[#6b5b4b] hover:text-[#c85a2d] transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                    <span>Kembali Berbelanja</span>
-                  </Link>
+        <section className="pt-12 md:pt-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+            {/* LEFT — Form */}
+            <div className="lg:col-span-7 flex flex-col gap-8">
+              {/* Header */}
+              <div className="flex flex-col gap-6">
+                <Link
+                  href="/cart"
+                  className="group inline-flex items-center gap-2 self-start text-[14px] font-bold text-[#6b5b4b] hover:text-[#c85a2d] transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                  <span>Kembali ke Keranjang</span>
+                </Link>
 
-                  <div className="max-w-xl">
-                    <div className="inline-flex items-center gap-2 mb-4">
-                      <span className="h-px w-8 bg-[#c85a2d]" />
-                      <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#c85a2d]">
-                        Langkah 01
-                      </span>
-                    </div>
-                    <h1 className="font-display text-4xl md:text-6xl font-black text-[#2d241c] leading-tight">
-                      Informasi Pengiriman
-                    </h1>
+                <div className="max-w-xl">
+                  <div className="inline-flex items-center gap-2 mb-4">
+                    <span className="h-px w-8 bg-[#c85a2d]" />
+                    <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#c85a2d]">
+                      Checkout
+                    </span>
                   </div>
+                  <h1 className="font-display text-3xl md:text-5xl text-[#2d241c] leading-[1.1]">
+                    Selesaikan Pesanan
+                  </h1>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 mb-12">
-                  {[
-                    { id: 1, label: "Alamat", active: true },
-                    { id: 2, label: "Bayar", active: false },
-                    { id: 3, label: "Selesai", active: false },
-                  ].map((step) => (
-                    <div key={step.id} className="relative">
+                {/* Real progress */}
+                <div className="grid grid-cols-3 gap-3">
+                  {progressSteps.map((step, i) => (
+                    <div key={step.label}>
                       <div
-                        className={`h-1 rounded-full transition-colors duration-500 ${step.active ? "bg-[#c85a2d]" : "bg-[#f5f1ed]"}`}
+                        className={`h-1.5 rounded-full transition-colors duration-500 ${
+                          step.done
+                            ? "bg-[#c85a2d]"
+                            : step.active
+                              ? "bg-[#c85a2d]/40"
+                              : "bg-[#f5f1ed]"
+                        }`}
                       />
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-3 flex items-center gap-1.5">
+                        {step.done && (
+                          <Check className="w-3 h-3 text-[#c85a2d]" />
+                        )}
                         <span
-                          className={`text-[11px] font-black uppercase tracking-widest ${step.active ? "text-[#c85a2d]" : "text-[#9a8772]"}`}
+                          className={`text-[11px] font-black uppercase tracking-widest ${
+                            step.done
+                              ? "text-[#c85a2d]"
+                              : step.active
+                                ? "text-[#2d241c]"
+                                : "text-[#9a8772]"
+                          }`}
                         >
-                          0{step.id} {step.label}
+                          0{i + 1} {step.label}
                         </span>
                       </div>
                     </div>
@@ -375,31 +430,24 @@ export function CheckoutClient() {
                 </div>
               </div>
 
-              <form className="space-y-16" onSubmit={formSubmit}>
-                {/* Step 1: Receiver Info */}
-                <div className="space-y-10">
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#c85a2d] text-white text-xs font-black">
-                      1
-                    </span>
-                    <h2 className="font-display font-black tracking-tight text-2xl text-[#2d241c]">
-                      Informasi Penerima
-                    </h2>
-                  </div>
-
-                  <div className="grid gap-10">
+              <form
+                id="checkout-form"
+                className="flex flex-col gap-6"
+                onSubmit={formSubmit}
+              >
+                {/* Card 1 — Receiver info */}
+                <div className={`${cardClass} space-y-7`}>
+                  <SectionHeader title="Informasi Penerima" />
+                  <div className="grid gap-6">
                     <div className="grid gap-3">
-                      <label
-                        htmlFor="customerName"
-                        className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
-                      >
+                      <label htmlFor="customerName" className={labelClass}>
                         Nama Lengkap
                       </label>
                       <input
                         id="customerName"
                         {...register("customerName")}
                         placeholder="Contoh: Raisa Andriana"
-                        className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
+                        className={inputClass}
                       />
                       {errors.customerName && (
                         <p className="text-xs text-red-500 font-medium px-1">
@@ -408,12 +456,9 @@ export function CheckoutClient() {
                       )}
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-10">
+                    <div className="grid md:grid-cols-2 gap-6">
                       <div className="grid gap-3">
-                        <label
-                          htmlFor="customerEmail"
-                          className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
-                        >
+                        <label htmlFor="customerEmail" className={labelClass}>
                           Email
                         </label>
                         <input
@@ -421,7 +466,7 @@ export function CheckoutClient() {
                           type="email"
                           {...register("customerEmail")}
                           placeholder="raisa@email.com"
-                          className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
+                          className={inputClass}
                         />
                         {errors.customerEmail && (
                           <p className="text-xs text-red-500 font-medium px-1">
@@ -431,10 +476,7 @@ export function CheckoutClient() {
                       </div>
 
                       <div className="grid gap-3">
-                        <label
-                          htmlFor="customerPhone"
-                          className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
-                        >
+                        <label htmlFor="customerPhone" className={labelClass}>
                           Nomor WhatsApp
                         </label>
                         <input
@@ -442,7 +484,7 @@ export function CheckoutClient() {
                           type="tel"
                           {...register("customerPhone")}
                           placeholder="0812345678..."
-                          className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium"
+                          className={inputClass}
                         />
                         {errors.customerPhone && (
                           <p className="text-xs text-red-500 font-medium px-1">
@@ -451,28 +493,25 @@ export function CheckoutClient() {
                         )}
                       </div>
                     </div>
-
-                    <AddressFields
-                      value={addressData}
-                      onChange={handleAddressChange}
-                      errors={addressErrors}
-                    />
                   </div>
                 </div>
 
-                {/* Step 2: Ongkos Kirim */}
-                <div className="space-y-10">
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#c85a2d] text-white text-xs font-black">
-                      2
-                    </span>
-                    <h2 className="font-display font-black tracking-tight text-2xl text-[#2d241c]">
-                      Ongkos Kirim
-                    </h2>
-                  </div>
+                {/* Card 2 — Address */}
+                <div className={`${cardClass} space-y-7`}>
+                  <SectionHeader title="Alamat Pengiriman" />
+                  <AddressFields
+                    value={addressData}
+                    onChange={handleAddressChange}
+                    errors={addressErrors}
+                  />
+                </div>
+
+                {/* Card 3 — Shipping */}
+                <div className={`${cardClass} space-y-7`}>
+                  <SectionHeader title="Pilih Kurir" />
 
                   {!addressData.village?.code ? (
-                    <div className="rounded-[28px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6 sm:px-8">
+                    <div className="rounded-[24px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="space-y-2">
                           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
@@ -498,7 +537,7 @@ export function CheckoutClient() {
                       </div>
                     </div>
                   ) : shippingLoading ? (
-                    <div className="flex items-center py-4 gap-3">
+                    <div className="flex items-center py-2 gap-3">
                       <Loader2 className="w-5 h-5 animate-spin text-[#c85a2d]" />
                       <span className="text-[14px] text-[#6b5b4b]">
                         Menghitung ongkir...
@@ -506,7 +545,7 @@ export function CheckoutClient() {
                     </div>
                   ) : shippingError ? (
                     isAllowedCourierUnavailable ? (
-                      <div className="rounded-[28px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6 sm:px-8">
+                      <div className="rounded-[24px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                           <div className="space-y-2">
                             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
@@ -532,7 +571,7 @@ export function CheckoutClient() {
                         </div>
                       </div>
                     ) : isShippingServiceUnavailable ? (
-                      <div className="rounded-[28px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6 sm:px-8">
+                      <div className="rounded-[24px] border border-dashed border-[#e8dcc8] bg-[#fbf7f3] px-6 py-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                           <div className="space-y-2">
                             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#c85a2d]">
@@ -558,7 +597,7 @@ export function CheckoutClient() {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-[14px] text-red-500 font-medium py-4">
+                      <p className="text-[14px] text-red-500 font-medium py-2">
                         {shippingError}
                       </p>
                     )
@@ -569,10 +608,10 @@ export function CheckoutClient() {
                         return (
                           <label
                             key={courier.courier_code}
-                            className={`group flex items-center gap-5 rounded-3xl p-6 cursor-pointer transition-all border ${
+                            className={`group flex items-center gap-5 rounded-3xl p-5 cursor-pointer transition-all border ${
                               isSelected
                                 ? "bg-[#fdf8f6] border-[#c85a2d]/40 ring-1 ring-[#c85a2d]/10"
-                                : "bg-white border-[#e8dcc8] hover:border-[#c85a2d]/30 shadow-sm"
+                                : "bg-white border-[#e8dcc8] hover:border-[#c85a2d]/30"
                             }`}
                           >
                             <input
@@ -584,7 +623,7 @@ export function CheckoutClient() {
                               className="sr-only"
                             />
                             <div
-                              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                              className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                                 isSelected
                                   ? "border-[#c85a2d] bg-[#c85a2d]"
                                   : "border-[#e8dcc8] bg-white group-hover:border-[#c85a2d]/50"
@@ -594,7 +633,7 @@ export function CheckoutClient() {
                                 <div className="w-2.5 h-2.5 rounded-full bg-white shadow-sm" />
                               )}
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 min-w-0">
                               <p className="font-bold text-[16px] text-[#2d241c]">
                                 {courier.courier_name}
                               </p>
@@ -604,7 +643,7 @@ export function CheckoutClient() {
                                 </p>
                               )}
                             </div>
-                            <span className="font-black text-[18px] text-[#c85a2d]">
+                            <span className="font-black text-[18px] text-[#c85a2d] shrink-0">
                               {formatCurrency(courier.price)}
                             </span>
                           </label>
@@ -614,25 +653,18 @@ export function CheckoutClient() {
                   ) : null}
                 </div>
 
-                {/* Step 3: Coupon */}
-                <div className="space-y-10">
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#c85a2d] text-white text-xs font-black">
-                      3
-                    </span>
-                    <h2 className="font-display font-black tracking-tight text-2xl text-[#2d241c]">
-                      Punya Kupon?
-                    </h2>
-                  </div>
+                {/* Card 4 — Coupon */}
+                <div className={`${cardClass} space-y-7`}>
+                  <SectionHeader title="Punya Kupon?" />
 
                   {appliedCoupon ? (
-                    <div className="flex items-center justify-between gap-4 rounded-3xl bg-[#7a9d7f]/5 border border-[#7a9d7f]/30 p-8">
+                    <div className="flex items-center justify-between gap-4 rounded-3xl bg-[#7a9d7f]/5 border border-[#7a9d7f]/30 p-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-[#7a9d7f]/10 flex items-center justify-center text-[#7a9d7f]">
+                        <div className="w-12 h-12 rounded-2xl bg-[#7a9d7f]/10 flex items-center justify-center text-[#7a9d7f] shrink-0">
                           <Check className="w-6 h-6" />
                         </div>
                         <div>
-                          <p className="font-black text-[18px] text-[#2d241c] uppercase tracking-widest">
+                          <p className="font-black text-[17px] text-[#2d241c] uppercase tracking-widest">
                             {appliedCoupon.code}
                           </p>
                           <p className="text-[14px] font-bold text-[#7a9d7f]">
@@ -645,7 +677,7 @@ export function CheckoutClient() {
                       <button
                         type="button"
                         onClick={handleRemoveCoupon}
-                        className="text-[13px] font-bold text-red-500 hover:underline px-4 uppercase tracking-widest"
+                        className="text-[12px] font-bold text-red-500 hover:underline px-2 uppercase tracking-widest shrink-0"
                       >
                         Hapus
                       </button>
@@ -660,13 +692,13 @@ export function CheckoutClient() {
                           setCouponError(null);
                         }}
                         placeholder="KODE KUPON"
-                        className="w-full sm:flex-1 h-14 rounded-2xl bg-white border border-[#e8dcc8] px-8 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-black tracking-widest uppercase shadow-sm"
+                        className="w-full sm:flex-1 h-14 rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-black tracking-widest uppercase"
                       />
                       <button
                         type="button"
                         onClick={handleApplyCoupon}
                         disabled={couponLoading || !couponCode.trim()}
-                        className="w-full sm:w-auto sm:px-12 h-14 rounded-2xl bg-[#2d241c] text-white font-black text-[15px] uppercase tracking-widest hover:bg-[#c85a2d] transition-all disabled:opacity-40 active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm"
+                        className="w-full sm:w-auto sm:px-10 h-14 rounded-2xl bg-[#2d241c] text-white font-black text-[14px] uppercase tracking-widest hover:bg-[#c85a2d] transition-all disabled:opacity-40 active:scale-[0.98] flex items-center justify-center gap-2"
                       >
                         {couponLoading ? (
                           <Loader2 className="w-5 h-5 animate-spin" />
@@ -677,57 +709,36 @@ export function CheckoutClient() {
                     </div>
                   )}
                   {couponError && (
-                    <p className="text-sm text-red-500 font-bold px-2">
+                    <p className="text-sm text-red-500 font-bold px-1">
                       {couponError}
                     </p>
                   )}
                 </div>
 
-                <div className="pt-10 space-y-12">
-                  <div className="grid gap-3">
-                    <label
-                      htmlFor="notes"
-                      className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
-                    >
-                      Catatan (Opsional)
-                    </label>
-                    <textarea
-                      id="notes"
-                      {...register("notes")}
-                      placeholder="Contoh: Titip di satpam jika tidak ada orang."
-                      rows={4}
-                      className="w-full rounded-3xl bg-[#f9f9f9] border border-[#e8dcc8] p-8 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium resize-none shadow-sm"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || !hasShippingSelection}
-                    className="group w-full h-14 rounded-2xl bg-[#c85a2d] text-white font-black text-[18px] shadow-lift hover:bg-[#2d241c] hover:shadow-none transition-all active:scale-[0.98] flex items-center justify-center gap-4"
-                  >
-                    {isSubmitting ? (
-                      <Loader2 className="w-8 h-8 animate-spin text-white" />
-                    ) : (
-                      <>
-                        <span>Pesan</span>
-                        <ArrowRight className="w-6 h-6 transition-transform group-hover:translate-x-2" />
-                      </>
-                    )}
-                  </button>
+                {/* Card 5 — Notes */}
+                <div className={`${cardClass} space-y-7`}>
+                  <SectionHeader title="Catatan (Opsional)" />
+                  <textarea
+                    id="notes"
+                    {...register("notes")}
+                    placeholder="Contoh: Titip di satpam jika tidak ada orang."
+                    rows={4}
+                    className="w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] p-6 text-[16px] text-[#2d241c] placeholder:text-[#9a8772] focus:outline-none focus:border-[#c85a2d] transition-all font-medium resize-none"
+                  />
                 </div>
               </form>
             </div>
 
-            {/* Right Side: Order Summary */}
-            <div className="lg:col-span-5 lg:sticky lg:top-32 flex flex-col gap-10">
-              <div className="rounded-[40px] bg-[#f9f9f9] border border-[#e8dcc8]/60 overflow-hidden shadow-sm">
-                <div className="px-10 py-8 border-b border-[#e8dcc8]/40">
+            {/* RIGHT — Order summary */}
+            <div className="lg:col-span-5 lg:sticky lg:top-32 flex flex-col gap-6">
+              <div className="rounded-[40px] bg-white border border-[#e8dcc8]/70 overflow-hidden shadow-soft">
+                <div className="px-7 md:px-8 py-7 border-b border-[#e8dcc8]/50">
                   <h2 className="font-display font-black text-2xl text-[#2d241c]">
                     Ringkasan Pesanan
                   </h2>
                 </div>
 
-                <div className="px-10 py-8 space-y-6 max-h-[450px] overflow-y-auto overflow-x-hidden no-scrollbar">
+                <div className="px-7 md:px-8 py-7 space-y-6 max-h-[420px] overflow-y-auto overflow-x-hidden no-scrollbar">
                   {items.map((item) => {
                     const accTotal = (item.accessories || []).reduce(
                       (s, a) => s + a.price,
@@ -737,9 +748,9 @@ export function CheckoutClient() {
                     return (
                       <div
                         key={getItemKey(item)}
-                        className="flex gap-6 items-start group"
+                        className="flex gap-5 items-start group"
                       >
-                        <div className="relative h-20 w-20 rounded-[28px] bg-[#f5f1ed] overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-500">
+                        <div className="relative h-20 w-20 rounded-[24px] bg-[#f5f1ed] overflow-hidden shrink-0 group-hover:scale-105 transition-transform duration-500">
                           {item.image ? (
                             <Image
                               src={getImageUrl(item.image)}
@@ -757,7 +768,7 @@ export function CheckoutClient() {
                           </span>
                         </div>
                         <div className="min-w-0 flex-1 pt-1">
-                          <p className="font-bold text-[16px] text-[#2d241c] truncate">
+                          <p className="font-bold text-[15px] text-[#2d241c] truncate">
                             {item.name}
                           </p>
                           {item.accessories && item.accessories.length > 0 && (
@@ -767,7 +778,8 @@ export function CheckoutClient() {
                                   key={`${acc.id}-${acc.selectedColor ?? "default"}`}
                                   className="text-[10px] text-[#7a9d7f] font-bold uppercase tracking-wider"
                                 >
-                                  + {acc.name}{acc.selectedColor ? ` (${acc.selectedColor})` : ""}
+                                  + {acc.name}
+                                  {acc.selectedColor ? ` (${acc.selectedColor})` : ""}
                                 </span>
                               ))}
                             </div>
@@ -781,13 +793,13 @@ export function CheckoutClient() {
                   })}
                 </div>
 
-                <div className="px-10 py-10 bg-[#2d241c] text-white space-y-4">
+                <div className="px-7 md:px-8 py-8 bg-[#2d241c] text-white space-y-4">
                   <div className="flex justify-between items-center text-[15px] opacity-60">
                     <span>Subtotal</span>
                     <span>{formatCurrency(cartTotal)}</span>
                   </div>
                   {discountAmount > 0 && (
-                    <div className="flex justify-between items-center text-[15px] text-[#7a9d7f] font-bold">
+                    <div className="flex justify-between items-center text-[15px] text-[#a9c7ad] font-bold">
                       <span>Diskon ({appliedCoupon?.code})</span>
                       <span>-{formatCurrency(discountAmount)}</span>
                     </div>
@@ -807,46 +819,59 @@ export function CheckoutClient() {
                         : "—"}
                     </span>
                   </div>
-                  <div className="pt-8 mt-4 border-t border-white/10 flex justify-between items-end">
+                  <div className="pt-6 mt-2 border-t border-white/10 flex justify-between items-end">
                     <span className="font-bold text-[18px]">Total Bayar</span>
-                    <div className="text-right">
-                      <span className="block text-3xl font-black tracking-tight text-white">
-                        {hasShippingSelection
-                          ? formatCurrency(totalAmount)
-                          : formatCurrency(cartTotal - discountAmount)}
-                      </span>
-                    </div>
+                    <span className="block text-3xl font-black tracking-tight text-white">
+                      {formatCurrency(displayedTotal)}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="grid gap-6">
-                <div className="rounded-[32px] bg-[#fdf8f6] border border-[#c85a2d]/20 p-8 flex items-start gap-6">
-                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-[#c85a2d] shrink-0 shadow-sm">
-                    <Clock className="w-6 h-6" />
+              {/* Submit (desktop) */}
+              <button
+                type="submit"
+                form="checkout-form"
+                disabled={isSubmitting || !hasShippingSelection}
+                className="group hidden lg:flex w-full min-h-[60px] rounded-full bg-[#c85a2d] text-white font-black text-[16px] uppercase tracking-widest shadow-lift hover:bg-[#2d241c] transition-all active:scale-[0.98] disabled:opacity-40 items-center justify-center gap-3"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-white" />
+                ) : (
+                  <>
+                    <span>Pesan Sekarang</span>
+                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
+                  </>
+                )}
+              </button>
+
+              {/* Trust cards — slim */}
+              <div className="grid gap-4">
+                <div className="rounded-[24px] bg-[#fdf8f6] border border-[#c85a2d]/15 p-5 flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#c85a2d] shrink-0 shadow-sm">
+                    <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-[15px] font-black text-[#2d241c] uppercase tracking-wider">
+                    <h3 className="text-[14px] font-black text-[#2d241c] uppercase tracking-wider">
                       Produksi ±3 Minggu
                     </h3>
-                    <p className="mt-2 text-[13px] leading-relaxed text-[#6b5b4b]">
-                      Produk eksklusif handmade. Dibuat dengan cinta khusus
-                      untuk Anda setelah pembayaran dikonfirmasi.
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#6b5b4b]">
+                      Handmade, dibuat khusus untuk Anda setelah pembayaran
+                      dikonfirmasi.
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-[32px] bg-[#7a9d7f]/5 border border-[#7a9d7f]/20 p-8 flex items-start gap-6">
-                  <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-[#7a9d7f] shrink-0 shadow-sm">
-                    <ShieldCheck className="w-6 h-6" />
+                <div className="rounded-[24px] bg-[#7a9d7f]/5 border border-[#7a9d7f]/20 p-5 flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#7a9d7f] shrink-0 shadow-sm">
+                    <ShieldCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-[15px] font-black text-[#2d241c] uppercase tracking-wider">
+                    <h3 className="text-[14px] font-black text-[#2d241c] uppercase tracking-wider">
                       Jaminan Transaksi
                     </h3>
-                    <p className="mt-2 text-[13px] leading-relaxed text-[#5a6a58]">
-                      Data pribadi dan transaksi Anda terlindungi sepenuhnya.
-                      Kami menjamin keamanan setiap pengiriman.
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#5a6a58]">
+                      Data pribadi & transaksi Anda terlindungi sepenuhnya.
                     </p>
                   </div>
                 </div>
@@ -855,6 +880,35 @@ export function CheckoutClient() {
           </div>
         </section>
       </main>
+
+      {/* Sticky mobile submit bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#e8dcc8] bg-white/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-4">
+          <div className="shrink-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9a8772] leading-none">
+              Total Bayar
+            </p>
+            <p className="mt-1 text-xl font-black tracking-tight text-[#c85a2d] leading-none">
+              {formatCurrency(displayedTotal)}
+            </p>
+          </div>
+          <button
+            type="submit"
+            form="checkout-form"
+            disabled={isSubmitting || !hasShippingSelection}
+            className="flex-1 min-h-[52px] inline-flex items-center justify-center gap-2 rounded-full bg-[#c85a2d] text-white font-black text-[14px] uppercase tracking-widest shadow-lift-sm hover:bg-[#2d241c] transition-all active:scale-[0.98] disabled:opacity-40"
+          >
+            {isSubmitting ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <span>Pesan</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

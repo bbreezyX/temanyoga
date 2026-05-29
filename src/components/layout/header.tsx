@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,6 @@ const NAV_LINKS = [
 export function Header() {
   const { cartCount, isLoaded } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -34,57 +33,26 @@ export function Header() {
     router.push("/cart");
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <header className="sticky top-0 z-50 w-full pointer-events-none py-1 md:py-4">
-      <div
-        className={cn(
-          "container mx-auto px-4 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] transform-gpu",
-          isScrolled ? "max-w-4xl" : "max-w-6xl",
-        )}
-      >
-        <div
-          className={cn(
-            "relative flex items-center justify-between transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] pointer-events-auto transform-gpu",
-            isScrolled
-              ? "h-12 md:h-14 px-5 md:px-6 rounded-full border border-primary/20 bg-background/80 backdrop-blur-lg shadow-[0_8px_32px_rgba(0,0,0,0.08)]"
-              : "h-14 md:h-16 px-4 md:px-0 border-transparent bg-transparent shadow-none",
-          )}
-        >
+    <header className="pointer-events-none sticky top-0 z-50 w-full py-3 md:py-4">
+      <div className="mx-auto w-full max-w-5xl px-4">
+        {/* Consistent floating pill — same look at top and while scrolling */}
+        <div className="pointer-events-auto relative flex h-14 items-center justify-between rounded-full border border-black/5 bg-background/80 px-5 shadow-[0_8px_32px_rgba(32,32,32,0.08)] backdrop-blur-lg md:h-16 md:px-6">
           <div className="flex items-center">
             <Link
               href="/"
               className="group flex items-center gap-2.5 outline-none"
             >
-              <div
-                className={cn(
-                  "relative flex items-center justify-center transition-all duration-500 transform-gpu",
-                  isScrolled ? "scale-90" : "scale-100",
-                )}
-              >
-                <BrandLogo size={isScrolled ? 42 : 56} />
+              <div className="relative flex items-center justify-center">
+                <BrandLogo size={44} />
               </div>
-              <span
-                className={cn(
-                  "font-display font-medium tracking-tight text-foreground transition-all duration-500 transform-gpu",
-                  isScrolled
-                    ? "text-sm sm:text-base opacity-90"
-                    : "hidden sm:inline text-xl md:text-2xl",
-                )}
-              >
+              <span className="hidden font-display text-lg font-medium tracking-tight text-foreground sm:inline md:text-xl">
                 D`TEMAN <span className="font-black text-[#c85a2d]">YOGA</span>
               </span>
             </Link>
           </div>
 
-          <nav className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 items-center gap-1 lg:gap-2">
+          <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-1 md:flex lg:gap-2">
             {NAV_LINKS.map((link) => {
               const isActive =
                 pathname === link.href ||
@@ -94,39 +62,29 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "group relative px-4 py-1.5 text-sm font-bold transition-all duration-300 rounded-full outline-none",
+                    "group relative rounded-full px-4 py-1.5 text-sm font-bold outline-none transition-all duration-300",
                     isActive
-                      ? "text-primary bg-primary/5"
-                      : "text-muted-foreground hover:text-primary hover:bg-primary/5",
+                      ? "bg-primary/5 text-primary"
+                      : "text-muted-foreground hover:bg-primary/5 hover:text-primary",
                   )}
                 >
                   <span className="relative z-10">{link.label}</span>
                   {isActive && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                    <span className="absolute -bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
                   )}
                 </Link>
               );
             })}
           </nav>
 
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
-              className={cn(
-                "relative rounded-full transition-all duration-300 active:scale-95 group",
-                isScrolled
-                  ? "h-9 w-9 bg-primary/5 hover:bg-primary/10"
-                  : "h-11 w-11 hover:bg-foreground/5",
-              )}
+              className="group relative h-10 w-10 rounded-full transition-all duration-300 hover:bg-primary/5 active:scale-95"
               onClick={handleCartClick}
             >
-              <ShoppingCart
-                className={cn(
-                  "transition-transform duration-300 group-hover:scale-110",
-                  isScrolled ? "h-4 w-4" : "h-[22px] w-[22px]",
-                )}
-              />
+              <ShoppingCart className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
               {isLoaded && cartCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary p-0 text-[10px] font-bold text-primary-foreground shadow-md ring-2 ring-background">
                   {cartCount}
@@ -139,12 +97,7 @@ export function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={cn(
-                    "md:hidden rounded-full transition-all duration-300 transition-colors focus-visible:ring-primary",
-                    isScrolled
-                      ? "h-9 w-9 bg-primary/5 hover:bg-primary/10"
-                      : "h-11 w-11 hover:bg-foreground/5",
-                  )}
+                  className="h-10 w-10 rounded-full transition-colors duration-300 focus-visible:ring-primary md:hidden"
                 >
                   <div className="relative flex h-5 w-5 items-center justify-center">
                     <span
@@ -170,13 +123,13 @@ export function Header() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="fixed top-4 right-4 h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] sm:max-w-sm border bg-background rounded-[2.5rem] shadow-lift p-0 overflow-hidden"
+                className="fixed top-4 right-4 h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-hidden rounded-[2.5rem] border bg-background p-0 shadow-lift sm:max-w-sm"
               >
                 <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-                <div className="flex h-full flex-col py-10 px-8">
+                <div className="flex h-full flex-col px-8 py-10">
                   <div className="mb-12 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="relative flex items-center justify-center rotate-3 transition-transform hover:rotate-6">
+                      <div className="relative flex rotate-3 items-center justify-center transition-transform hover:rotate-6">
                         <BrandLogo size={64} />
                       </div>
                       <span className="font-display text-2xl font-medium tracking-tighter">
@@ -196,7 +149,7 @@ export function Header() {
                           href={link.href}
                           onClick={() => setMobileOpen(false)}
                           className={cn(
-                            "group flex items-center justify-between font-display text-4xl font-bold tracking-tighter transition-all animate-in slide-in-from-right duration-700 fill-mode-both",
+                            "group flex animate-in items-center justify-between fill-mode-both font-display text-4xl font-bold tracking-tighter transition-all duration-700 slide-in-from-right",
                             isActive
                               ? "text-primary"
                               : "text-foreground hover:text-primary",
@@ -217,8 +170,8 @@ export function Header() {
                     })}
                   </nav>
 
-                  <div className="mt-auto pt-10 pb-6 border-t border-border/40">
-                    <p className="text-muted-foreground text-sm font-medium">
+                  <div className="mt-auto border-t border-border/40 pt-10 pb-6">
+                    <p className="text-sm font-medium text-muted-foreground">
                       © 2026 D`TEMAN YOGA
                     </p>
                   </div>

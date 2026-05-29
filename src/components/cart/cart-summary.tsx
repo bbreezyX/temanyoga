@@ -7,12 +7,12 @@ export function CartSummary() {
   const { cartTotal, cartCount } = useCart();
 
   return (
-    <section className="rounded-[40px] bg-[#f9f9f9] border border-[#e8dcc8]/60 p-8">
-      <div className="flex items-center justify-between mb-8 pb-6 border-b border-[#e8dcc8]/40">
+    <section className="rounded-[40px] bg-white border border-[#e8dcc8]/70 shadow-soft p-6 md:p-8">
+      <div className="flex items-center justify-between mb-7 pb-6 border-b border-[#e8dcc8]/50">
         <h2 className="font-display text-[22px] tracking-tight font-black text-[#2d241c]">
           Ringkasan
         </h2>
-        <span className="text-[13px] font-bold text-[#6b5b4b]">
+        <span className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-widest">
           {cartCount} Item
         </span>
       </div>
@@ -30,7 +30,7 @@ export function CartSummary() {
             Dihitung saat checkout
           </dd>
         </div>
-        <div className="pt-6 mt-2 border-t border-[#e8dcc8]/40 flex items-center justify-between">
+        <div className="pt-6 mt-2 border-t border-[#e8dcc8]/50 flex items-center justify-between">
           <dt className="text-[16px] font-bold text-[#2d241c]">Total</dt>
           <dd className="text-2xl font-black text-[#c85a2d] tracking-tight">
             {formatCurrency(cartTotal)}
@@ -38,16 +38,16 @@ export function CartSummary() {
         </div>
       </dl>
 
-      <div className="mt-10 space-y-4">
+      <div className="mt-8 space-y-4">
         <Link
           href="/checkout"
-          className="group relative flex items-center justify-center gap-3 min-h-[64px] w-full px-8 rounded-full bg-[#c85a2d] text-white font-black text-[16px] shadow-lift hover:bg-[#2d241c] hover:shadow-none transition-all active:scale-[0.98]"
+          className="group relative flex items-center justify-center gap-3 min-h-[60px] w-full px-8 rounded-full bg-[#c85a2d] text-white font-black text-[16px] uppercase tracking-widest shadow-lift hover:bg-[#2d241c] transition-all active:scale-[0.98]"
         >
           <span>Lanjut ke Pembayaran</span>
           <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
         </Link>
         <p className="text-center text-[12px] text-[#9a8772] font-medium px-4 leading-relaxed">
-          Pajak dan biaya pengiriman akan dikonfirmasi pada langkah akhir.
+          Ongkos kirim & kupon dikonfirmasi pada langkah checkout.
         </p>
       </div>
     </section>

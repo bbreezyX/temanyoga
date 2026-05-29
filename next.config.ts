@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  // Pin Turbopack root to this project. Next.js otherwise resolves CSS imports
+  // (e.g. @import "tailwindcss") from the parent directory when lockfiles exist
+  // above the project (e.g. ~/package-lock.json).
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   outputFileTracingIncludes: {
     "/**/*": ["./src/generated/prisma/**/*"],
   },

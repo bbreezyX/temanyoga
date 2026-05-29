@@ -199,7 +199,7 @@ export function AccessoriesSelector({
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Puzzle className="w-5 h-5 text-[#c85a2d]" />
-        <span className="text-[13px] md:text-[14px] font-black text-[#3f3328] uppercase tracking-wider">
+        <span className="text-[13px] md:text-[14px] font-black text-[#2d241c] uppercase tracking-wider">
           Pilih Aksesoris
         </span>
       </div>
@@ -270,7 +270,7 @@ export function AccessoriesSelector({
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[13px] md:text-[14px] text-slate-900 truncate">{acc.name}</p>
+                    <p className="font-bold text-[13px] md:text-[14px] text-[#2d241c] truncate">{acc.name}</p>
                     {acc.description && (
                       <p className="text-[11px] md:text-[12px] text-[#6b5b4b] mt-0.5 line-clamp-1">{acc.description}</p>
                     )}
@@ -347,7 +347,7 @@ export function AccessoriesSelector({
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[13px] md:text-[14px] text-slate-900 truncate">{acc.name}</p>
+                    <p className="font-bold text-[13px] md:text-[14px] text-[#2d241c] truncate">{acc.name}</p>
                     {acc.description && (
                       <p className="text-[11px] md:text-[12px] text-[#6b5b4b] mt-0.5 line-clamp-1">{acc.description}</p>
                     )}

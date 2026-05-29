@@ -6,9 +6,10 @@ import { ArrowLeft, ShoppingBag, ArrowRight } from "lucide-react";
 import { CartItemRow } from "@/components/cart/cart-item-row";
 import { CartSummary } from "@/components/cart/cart-summary";
 import { useCart } from "@/contexts/cart-context";
+import { formatCurrency } from "@/lib/format";
 
 export default function CartPage() {
-  const { items, getItemKey, isLoaded } = useCart();
+  const { items, getItemKey, isLoaded, cartTotal } = useCart();
 
   // Scroll to top on mount
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center justify-center gap-3 w-full min-h-[64px] rounded-full bg-[#c85a2d] text-white font-black text-[16px] shadow-lift hover:bg-[#2d241c] hover:shadow-none transition-all active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-3 w-full min-h-[60px] rounded-full bg-[#c85a2d] text-white font-black text-[16px] uppercase tracking-widest shadow-lift hover:bg-[#2d241c] transition-all active:scale-[0.98]"
           >
             <span>Lihat Koleksi</span>
             <ArrowRight className="w-5 h-5" />
@@ -56,11 +57,11 @@ export default function CartPage() {
   return (
     <div className="bg-white min-h-screen text-[#2d241c] font-sans">
       <div
-        className="flex-1 px-6 md:px-12 pb-24 w-full max-w-7xl mx-auto"
+        className="flex-1 px-6 md:px-12 pb-32 lg:pb-24 w-full max-w-7xl mx-auto"
         id="top"
       >
-        <section className="pt-12 md:pt-20">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-16">
+        <section className="pt-12 md:pt-16">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 mb-4">
                 <span className="h-px w-8 bg-[#c85a2d]" />
@@ -68,7 +69,7 @@ export default function CartPage() {
                   Pilihan Anda
                 </span>
               </div>
-              <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-[0.95] tracking-tight font-black text-[#2d241c]">
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-[#2d241c]">
                 Keranjang Belanja
               </h1>
             </div>
@@ -81,23 +82,41 @@ export default function CartPage() {
             </Link>
           </div>
 
-          <div className="lg:grid lg:grid-cols-12 lg:gap-20 items-start">
-            <div className="lg:col-span-7 flex flex-col mb-16 lg:mb-0">
+          <div className="lg:grid lg:grid-cols-12 lg:gap-16 items-start">
+            <div className="lg:col-span-7 flex flex-col mb-12 lg:mb-0">
               {items.map((item) => (
                 <CartItemRow key={getItemKey(item)} item={item} />
               ))}
             </div>
 
             <div className="lg:col-span-5 lg:sticky lg:top-32">
-              <div
-                className="animate-floatIn"
-                style={{ animationDelay: "150ms" }}
-              >
+              <div className="animate-floatIn" style={{ animationDelay: "150ms" }}>
                 <CartSummary />
               </div>
             </div>
           </div>
         </section>
+      </div>
+
+      {/* Sticky mobile checkout bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#e8dcc8] bg-white/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-4">
+          <div className="shrink-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9a8772] leading-none">
+              Total
+            </p>
+            <p className="mt-1 text-xl font-black tracking-tight text-[#c85a2d] leading-none">
+              {formatCurrency(cartTotal)}
+            </p>
+          </div>
+          <Link
+            href="/checkout"
+            className="flex-1 min-h-[52px] inline-flex items-center justify-center gap-2 rounded-full bg-[#c85a2d] text-white font-black text-[14px] uppercase tracking-widest shadow-lift-sm hover:bg-[#2d241c] transition-all active:scale-[0.98]"
+          >
+            <span>Lanjut ke Pembayaran</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
     </div>
   );

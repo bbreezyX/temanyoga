@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { Manrope, Archivo } from "next/font/google";
+import { DM_Sans, Bungee } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   display: "swap",
   preload: true,
 });
 
-const archivo = Archivo({
-  variable: "--font-archivo",
+const bungee = Bungee({
+  variable: "--font-bungee",
   subsets: ["latin"],
+  weight: "400",
   display: "swap",
   preload: true,
 });
@@ -92,7 +93,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
-        className={`${manrope.variable} ${archivo.variable} antialiased font-sans`}
+        className={`${dmSans.variable} ${bungee.variable} antialiased font-sans`}
       >
         <ErrorBoundary>
           <ToastProvider>{children}</ToastProvider>

@@ -3,54 +3,52 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function ProductDetailLoading() {
   return (
     <main className="bg-white min-h-screen">
-      <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pb-16">
-        <section className="pt-6 md:pt-8">
-          <div className="flex items-center gap-2 md:gap-3">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 pb-32 lg:pb-24">
+        <section className="pt-8 md:pt-12">
+          <div className="flex items-center gap-3">
             <Skeleton className="h-5 w-16" />
-            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-1 w-1 rounded-full" />
             <Skeleton className="h-5 w-16" />
-            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-1 w-1 rounded-full" />
             <Skeleton className="h-5 w-32" />
           </div>
         </section>
-        <section className="pt-6 md:pt-10 grid gap-8 md:gap-12 lg:grid-cols-2 lg:gap-20">
-          <div className="space-y-4 md:space-y-6 lg:sticky lg:top-24 self-start">
-            <Skeleton className="aspect-square rounded-[32px] md:rounded-[40px] bg-[#f5f1ed]" />
+        <section className="pt-8 md:pt-14 grid gap-10 lg:grid-cols-12 lg:gap-16">
+          {/* Gallery */}
+          <div className="lg:col-span-7 space-y-5 lg:sticky lg:top-32 self-start">
+            <Skeleton className="aspect-[4/5] md:aspect-[3/4] lg:aspect-[4/5] rounded-[40px] bg-[#f5f1ed]" />
             <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton
                   key={i}
-                  className="h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24 shrink-0 rounded-2xl md:rounded-3xl"
+                  className="h-20 w-16 sm:h-24 sm:w-20 md:h-28 md:w-24 shrink-0 rounded-[20px]"
                 />
               ))}
             </div>
           </div>
-          <div className="flex flex-col py-0 lg:py-2">
-            <div className="mb-6 md:mb-8">
-              <Skeleton className="h-8 w-32 rounded-full mb-4" />
-              <Skeleton className="h-10 md:h-14 w-full mb-4" />
-              <Skeleton className="h-8 w-48" />
+          {/* Purchase panel */}
+          <div className="lg:col-span-5 flex flex-col gap-8">
+            <div>
+              <Skeleton className="h-5 w-40 rounded-full mb-4" />
+              <Skeleton className="h-12 md:h-16 w-full mb-3" />
+              <Skeleton className="h-9 w-48" />
             </div>
-            <div className="mb-8 md:mb-10">
-              <Skeleton className="h-5 w-full mb-2" />
-              <Skeleton className="h-5 w-full mb-2" />
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-full" />
+              <Skeleton className="h-5 w-full" />
               <Skeleton className="h-5 w-3/4" />
             </div>
-            <div className="space-y-8">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-5 w-5 rounded" />
-                <Skeleton className="h-5 w-32" />
-              </div>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                <div className="flex justify-center sm:justify-start">
-                  <Skeleton className="h-14 w-36 rounded-full" />
-                </div>
-                <Skeleton className="h-14 w-full sm:flex-1 rounded-full" />
-              </div>
-              <div className="pt-6 md:pt-8 grid grid-cols-2 gap-3 md:gap-4 border-t border-[#e8dcc8]">
-                <Skeleton className="h-24 rounded-3xl" />
-                <Skeleton className="h-24 rounded-3xl" />
-              </div>
+            {/* Buy box */}
+            <div className="rounded-[32px] border border-[#e8dcc8]/70 bg-white shadow-soft p-6 md:p-7 space-y-6">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-14 w-full rounded-2xl" />
+              <Skeleton className="h-14 w-36 rounded-2xl" />
+              <Skeleton className="h-12 w-full rounded-2xl" />
+              <Skeleton className="h-14 w-full rounded-full" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Skeleton className="h-20 rounded-2xl" />
+              <Skeleton className="h-20 rounded-2xl" />
             </div>
           </div>
         </section>

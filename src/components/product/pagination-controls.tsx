@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Pagination } from "@/types/api";
 
 export function PaginationControls({
@@ -23,43 +23,50 @@ export function PaginationControls({
     return `${basePath}?${params.toString()}`;
   };
 
+  const navBtn =
+    "flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-paper text-ink transition-colors hover:border-action hover:text-action";
+
   return (
-    <div className="flex items-center justify-center gap-1 mt-8">
-      <Button variant="outline" size="icon" asChild disabled={page <= 1}>
-        <Link
-          href={getUrl(page - 1)}
-          aria-disabled={page <= 1}
-          className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Link>
-      </Button>
+    <nav
+      aria-label="Paginasi"
+      className="flex flex-wrap items-center justify-center gap-2"
+    >
+      <Link
+        href={getUrl(page - 1)}
+        aria-disabled={page <= 1}
+        className={cn(navBtn, page <= 1 && "pointer-events-none opacity-40")}
+      >
+        <ChevronLeft className="h-4 w-4" />
+        <span className="sr-only">Sebelumnya</span>
+      </Link>
 
       {pages.map((p) => (
-        <Button
+        <Link
           key={p}
-          variant={p === page ? "default" : "outline"}
-          size="icon"
-          asChild
+          href={getUrl(p)}
+          aria-current={p === page ? "page" : undefined}
+          className={cn(
+            "flex h-11 min-w-11 items-center justify-center rounded-full px-4 text-sm font-semibold transition-colors",
+            p === page
+              ? "bg-action text-white shadow-sm"
+              : "border border-black/10 bg-paper text-ink hover:border-action hover:text-action",
+          )}
         >
-          <Link href={getUrl(p)}>{p}</Link>
-        </Button>
+          {p}
+        </Link>
       ))}
 
-      <Button
-        variant="outline"
-        size="icon"
-        asChild
-        disabled={page >= totalPages}
+      <Link
+        href={getUrl(page + 1)}
+        aria-disabled={page >= totalPages}
+        className={cn(
+          navBtn,
+          page >= totalPages && "pointer-events-none opacity-40",
+        )}
       >
-        <Link
-          href={getUrl(page + 1)}
-          aria-disabled={page >= totalPages}
-          className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </Button>
-    </div>
+        <ChevronRight className="h-4 w-4" />
+        <span className="sr-only">Berikutnya</span>
+      </Link>
+    </nav>
   );
 }

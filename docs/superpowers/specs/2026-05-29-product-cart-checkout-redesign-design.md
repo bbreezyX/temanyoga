@@ -6,11 +6,11 @@
 
 ## Ringkasan
 
-Merombak layout/UX tiga halaman customer — **Detail Produk**, **Keranjang**, dan **Checkout/Billing** — menjadi lebih modern, bersih, dan well-organized, tanpa mengubah identitas warna brand (terracotta hangat). Setelah implementasi, `DESIGN.md` ditulis ulang untuk mendokumentasikan sistem desain baru ini (menggantikan referensi gaya Ko-fi yang lama).
+Merombak layout/UX tiga halaman customer — **Detail Produk**, **Keranjang**, dan **Checkout/Billing** — menjadi lebih modern, bersih, dan well-organized, tanpa mengubah identitas warna brand (terracotta hangat). `DESIGN.md` adalah **referensi mutlak (read-only)** dan TIDAK diubah.
 
 ## Keputusan yang sudah disepakati
 
-1. **Arah:** Pertahankan palet brand terracotta/krem yang ada. Rombak struktur/tata letak. `DESIGN.md` ditulis ulang **setelah** implementasi untuk mendokumentasikan desain baru.
+1. **Arah:** Pertahankan palet brand terracotta/krem yang ada. Rombak struktur/tata letak. `DESIGN.md` adalah **referensi mutlak** dan TIDAK diubah. (Tipografi mengikuti DESIGN.md: DM Sans untuk body, Bungee sebagai substitusi `bogue-black` untuk display.)
 2. **Masalah yang dibereskan:** (a) terlalu ramai / kurang fokus, (b) spacing & ritme tidak konsisten, (c) checkout terasa panjang/menakutkan, (d) mobile kurang nyaman.
 3. **Struktur checkout:** Tetap **satu halaman**, dipecah jadi **kartu-kartu section** + progress indikator yang benar-benar mencerminkan kemajuan + sticky summary & sticky CTA mobile. (Bukan wizard multi-langkah.)
 4. **Bahasa visual:** **Soft Card System** — tiap kelompok info dalam kartu rounded konsisten di atas kanvas hangat.
@@ -138,11 +138,12 @@ Grid 7/5 (desktop), satu halaman.
 | `src/components/cart/cart-summary.tsx` | Poles ke sistem baru. |
 | `src/app/(customer)/checkout/checkout-client.tsx` | Section jadi kartu; progress nyata; submit di summary; sticky bar mobile. |
 | `src/components/checkout/address-fields.tsx` | Restyle selaras (logika tetap). |
-| `DESIGN.md` | **Tulis ulang penuh** mendokumentasikan Soft Card System (terracotta), menggantikan referensi Ko-fi. |
+| `DESIGN.md` | **TIDAK diubah** — referensi mutlak (read-only). |
+| `src/app/layout.tsx` | Ganti font display global dari Archivo → Bungee (substitusi `bogue-black`); hapus load Archivo yang jadi tak terpakai. |
 
-## Rencana penulisan ulang DESIGN.md
+## DESIGN.md — referensi mutlak (read-only)
 
-Setelah ketiga halaman jadi, `DESIGN.md` ditulis ulang dengan struktur: ringkasan brand → token warna (tabel di atas) → tipografi (Archivo display + DM Sans) → spacing & radius set → primitif kartu & komponen (buy box, kartu item, kartu section, ringkasan, tombol, input, kurir, badge progress) → pola header section → bahasa tombol → do's & don'ts → contoh prompt komponen. Diambil dari implementasi nyata supaya akurat (bukan aspirasional).
+`DESIGN.md` TIDAK diubah. Ia tetap sumber acuan gaya proyek. Implementasi mengikuti DESIGN.md pada hal yang relevan — tipografi (DM Sans untuk body/UI, Bungee untuk display sebagai substitusi `bogue-black`), tombol pill, kartu rounded, spacing lega — sambil mempertahankan palet brand terracotta yang sudah berjalan (bukan aksen biru Ko-fi).
 
 ## Kriteria sukses
 
