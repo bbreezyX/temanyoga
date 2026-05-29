@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# generated poster PDFs
+/scripts/poster/out/
+
 # production
 /build
 
