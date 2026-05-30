@@ -1,7 +1,5 @@
 import { EMAIL_DOMAIN, LEGACY_EMAIL_DOMAIN } from "@/lib/email-config";
-
-const R2_PUBLIC_URL =
-  process.env.NEXT_PUBLIC_R2_PUBLIC_URL ?? process.env.R2_PUBLIC_URL ?? "";
+import { SITE_URL } from "@/lib/site-url";
 
 const STORAGE_PREFIXES = [
   "products/",
@@ -10,16 +8,6 @@ const STORAGE_PREFIXES = [
 ] as const;
 
 const PROXY_PREFIX = "/api/r2/";
-
-export function getR2Origin(): string | null {
-  if (!R2_PUBLIC_URL) return null;
-
-  try {
-    return new URL(R2_PUBLIC_URL).origin;
-  } catch {
-    return null;
-  }
-}
 
 /** Extract R2 object key from proxy paths, bare keys, or any absolute storage URL. */
 export function extractStorageKey(url: string): string | null {
@@ -46,21 +34,13 @@ export function extractStorageKey(url: string): string | null {
 }
 
 function buildStorageUrl(key: string): string {
-  if (process.env.NODE_ENV !== "production") {
-    return `${PROXY_PREFIX}${key}`;
-  }
-
-  if (R2_PUBLIC_URL) {
-    return `${R2_PUBLIC_URL.replace(/\/$/, "")}/${key}`;
-  }
-
   return `${PROXY_PREFIX}${key}`;
 }
 
 /**
- * Returns the CDN URL for stored assets. Normalizes legacy domain URLs
- * (e.g. ditemaniyoga.com) to the current R2 public URL. In development,
- * falls back to the /api/r2 proxy.
+ * Same-origin URL for stored assets. Rewrites legacy domains and R2 CDN URLs
+ * to /api/r2/* so the browser never hits pub-*.r2.dev directly (often blocked
+ * or times out from customer networks).
  */
 export function getImageUrl(url: string): string {
   const key = extractStorageKey(url);
@@ -73,4 +53,13 @@ export function getImageUrl(url: string): string {
   }
 
   return url;
+}
+
+/** Absolute URL for JSON-LD, OG generation, and external consumers. */
+export function getAbsoluteImageUrl(url: string): string {
+  const resolved = getImageUrl(url);
+  if (resolved.startsWith("http://") || resolved.startsWith("https://")) {
+    return resolved;
+  }
+  return `${SITE_URL}${resolved}`;
 }

@@ -10,13 +10,13 @@ import { OrderStatus } from "@/generated/prisma/client";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ orderCode: string }> },
 ) {
   try {
-    const { id } = await params;
+    const { orderCode } = await params;
 
     const order = await prisma.order.findUnique({
-      where: { id },
+      where: { orderCode },
       include: {
         items: {
           include: {
@@ -43,17 +43,17 @@ export async function GET(
 
     return apiSuccess(order);
   } catch (error) {
-    console.error("GET /api/admin/orders/[id] error:", error);
+    console.error("GET /api/admin/orders/[orderCode] error:", error);
     return serverError();
   }
 }
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ orderCode: string }> },
 ) {
   try {
-    const { id } = await params;
+    const { orderCode } = await params;
     const { status } = await request.json();
 
     if (!status || !Object.values(OrderStatus).includes(status)) {
@@ -61,7 +61,7 @@ export async function PATCH(
     }
 
     const order = await prisma.order.findUnique({
-      where: { id },
+      where: { orderCode },
       select: { status: true },
     });
 
@@ -79,13 +79,13 @@ export async function PATCH(
     }
 
     const updatedOrder = await prisma.order.update({
-      where: { id },
+      where: { orderCode },
       data: { status },
     });
 
     return apiSuccess(updatedOrder);
   } catch (error) {
-    console.error("PATCH /api/admin/orders/[id] error:", error);
+    console.error("PATCH /api/admin/orders/[orderCode] error:", error);
     return serverError();
   }
 }

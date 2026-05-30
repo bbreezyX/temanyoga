@@ -23,7 +23,8 @@ import { OrderPaymentSection } from "@/components/admin/orders/order-payment-sec
 import { OrderCustomerSection } from "@/components/admin/orders/order-customer-section";
 
 export default function AdminOrderDetailPage() {
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ orderCode: string }>();
+  const orderCodeParam = decodeURIComponent(params.orderCode);
   const router = useRouter();
   const toast = useToast();
   const [order, setOrder] = useState<AdminOrderDetail | null>(null);
@@ -31,13 +32,13 @@ export default function AdminOrderDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [viewProofImage, setViewProofImage] = useState<string | null>(null);
 
-useEffect(() => {
+  const orderApiPath = `/api/admin/orders/${encodeURIComponent(orderCodeParam)}`;
+
+  useEffect(() => {
     let mounted = true;
     const fetchOrder = async () => {
       setLoading(true);
-      const res = await apiFetch<AdminOrderDetail>(
-        `/api/admin/orders/${params.id}`,
-      );
+      const res = await apiFetch<AdminOrderDetail>(orderApiPath);
       if (mounted) {
         if (res.success) {
           setOrder(res.data);
@@ -49,13 +50,11 @@ useEffect(() => {
     return () => {
       mounted = false;
     };
-  }, [params.id]);
+  }, [orderApiPath]);
 
   const fetchOrder = async () => {
     setLoading(true);
-    const res = await apiFetch<AdminOrderDetail>(
-      `/api/admin/orders/${params.id}`,
-    );
+    const res = await apiFetch<AdminOrderDetail>(orderApiPath);
     if (res.success) {
       setOrder(res.data);
     }
@@ -67,9 +66,10 @@ useEffect(() => {
     const previousStatus = order.status;
     setOrder({ ...order, status: newStatus as AdminOrderDetail["status"] });
     setActionLoading(true);
-    const res = await apiPatch(`/api/admin/orders/${order.id}/status`, {
-      status: newStatus,
-    });
+    const res = await apiPatch(
+      `/api/admin/orders/${encodeURIComponent(order.orderCode)}/status`,
+      { status: newStatus },
+    );
     setActionLoading(false);
 
     if (!res.success) {
@@ -90,10 +90,10 @@ useEffect(() => {
     const prevTracking = order.trackingNumber;
     setOrder({ ...order, courier, trackingNumber });
     setActionLoading(true);
-    const res = await apiPatch(`/api/admin/orders/${order.id}/tracking`, {
-      trackingNumber,
-      courier,
-    });
+    const res = await apiPatch(
+      `/api/admin/orders/${encodeURIComponent(order.orderCode)}/tracking`,
+      { trackingNumber, courier },
+    );
     setActionLoading(false);
 
     if (!res.success) {
@@ -112,7 +112,7 @@ useEffect(() => {
     if (!order) return;
     const prevProofs = order.paymentProofs;
     const prevStatus = order.status;
-    
+
     const updatedProofs = order.paymentProofs.map((p) =>
       p.id === proofId
         ? { ...p, status, reviewedAt: new Date().toISOString() }
@@ -125,7 +125,7 @@ useEffect(() => {
         ? ("PAID" as OrderStatus)
         : order.status;
     setOrder({ ...order, paymentProofs: updatedProofs, status: newOrderStatus });
-    
+
     setActionLoading(true);
     const res = await apiPatch(`/api/admin/payment-proofs/${proofId}`, {
       status,
@@ -143,9 +143,10 @@ useEffect(() => {
       (order.status === "PENDING_PAYMENT" ||
         order.status === "AWAITING_VERIFICATION")
     ) {
-      await apiPatch(`/api/admin/orders/${order.id}/status`, {
-        status: "PAID",
-      });
+      await apiPatch(
+        `/api/admin/orders/${encodeURIComponent(order.orderCode)}/status`,
+        { status: "PAID" },
+      );
       toast.success("Bukti disetujui & status pesanan menjadi PAID");
     } else {
       toast.success(
@@ -187,7 +188,6 @@ useEffect(() => {
         price?: number;
         estimation?: string | null;
       };
-      // For API mode, use courier_name as the display name
       if (parsed.mode === "api" && parsed.courier_name) {
         return {
           name: `${parsed.courier_name}${parsed.estimation ? ` — ${parsed.estimation}` : ""}`,

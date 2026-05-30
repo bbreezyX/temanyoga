@@ -54,7 +54,7 @@ const OrderTableRow = memo(function OrderTableRow({ order }: OrderRowProps) {
             className="h-10 w-10 rounded-full bg-terracotta text-white shadow-lg shadow-terracotta/20 hover:scale-110 hover:bg-terracotta/90 transition-all active:scale-95"
             asChild
           >
-            <Link href={`/admin/orders/${order.id}`}>
+            <Link href={`/admin/orders/${encodeURIComponent(order.orderCode)}`}>
               <Eye className="h-5 w-5" />
             </Link>
           </Button>
@@ -111,7 +111,7 @@ const OrderCard = memo(function OrderCard({ order }: OrderRowProps) {
         className="w-full bg-dark-brown text-white hover:bg-dark-brown/90 rounded-xl py-6 shadow-lg shadow-dark-brown/10"
         asChild
       >
-        <Link href={`/admin/orders/${order.id}`} className="flex items-center justify-center gap-2">
+        <Link href={`/admin/orders/${encodeURIComponent(order.orderCode)}`} className="flex items-center justify-center gap-2">
           <Eye className="h-4 w-4" />
           Lihat Detail
         </Link>

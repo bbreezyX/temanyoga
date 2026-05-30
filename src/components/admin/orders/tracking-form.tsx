@@ -19,12 +19,12 @@ const trackingFormSchema = z.object({
 type TrackingFormData = z.infer<typeof trackingFormSchema>;
 
 export function TrackingForm({
-  orderId,
+  orderCode,
   currentTracking,
   currentCourier,
   onUpdated,
 }: {
-  orderId: string;
+  orderCode: string;
   currentTracking: string | null;
   currentCourier: string | null;
   onUpdated: () => void;
@@ -44,10 +44,13 @@ export function TrackingForm({
   });
 
   const onSubmit = async (data: TrackingFormData) => {
-    const res = await apiPatch(`/api/admin/orders/${orderId}/tracking`, {
-      trackingNumber: data.trackingNumber.trim(),
-      courier: data.courier.trim(),
-    });
+    const res = await apiPatch(
+      `/api/admin/orders/${encodeURIComponent(orderCode)}/tracking`,
+      {
+        trackingNumber: data.trackingNumber.trim(),
+        courier: data.courier.trim(),
+      },
+    );
 
     if (!res.success) {
       toast.error(res.error);

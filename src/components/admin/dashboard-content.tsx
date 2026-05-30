@@ -27,19 +27,22 @@ interface DashboardContentProps {
 
 export function DashboardContent({ initialData }: DashboardContentProps) {
   const [data, setData] = useState(initialData);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updatingCode, setUpdatingCode] = useState<string | null>(null);
 
-  const handleUpdateStatus = async (id: string, newStatus: string) => {
-    setUpdatingId(id);
+  const handleUpdateStatus = async (orderCode: string, newStatus: string) => {
+    setUpdatingCode(orderCode);
     try {
-      const res = await apiPatch(`/api/admin/orders/${id}/status`, {
-        status: newStatus,
-      });
+      const res = await apiPatch(
+        `/api/admin/orders/${encodeURIComponent(orderCode)}/status`,
+        { status: newStatus },
+      );
       if (res.success) {
         setData((prev) => ({
           ...prev,
           recentOrders: prev.recentOrders.map((order) =>
-            order.id === id ? { ...order, status: newStatus as AdminDashboardStats["recentOrders"][0]["status"] } : order
+            order.orderCode === orderCode
+              ? { ...order, status: newStatus as AdminDashboardStats["recentOrders"][0]["status"] }
+              : order
           ),
         }));
       } else {
@@ -48,7 +51,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
     } catch {
       alert("Terjadi kesalahan saat memperbarui status");
     } finally {
-      setUpdatingId(null);
+      setUpdatingCode(null);
     }
   };
 
@@ -207,14 +210,14 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                   </td>
                   <td className="py-5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {updatingId === order.id ? (
+                      {updatingCode === order.orderCode ? (
                         <div className="h-9 w-9 flex items-center justify-center">
                           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                         </div>
                       ) : (
                         <>
                           {order.status === "AWAITING_VERIFICATION" && (
-                            <Link href={`/admin/orders/${order.id}`}>
+                            <Link href={`/admin/orders/${encodeURIComponent(order.orderCode)}`}>
                               <button
                                 title="Verifikasi Pembayaran"
                                 className="h-9 w-9 flex items-center justify-center rounded-full bg-sage/10 text-sage hover:bg-sage hover:text-white transition-all shadow-sm"
@@ -227,7 +230,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                             <button
                               title="Proses Pesanan"
                               onClick={() =>
-                                handleUpdateStatus(order.id, "PROCESSING")
+                                handleUpdateStatus(order.orderCode, "PROCESSING")
                               }
                               className="h-9 w-9 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm ring-1 ring-blue-600/10"
                             >
@@ -235,7 +238,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                             </button>
                           )}
                           {order.status === "PROCESSING" && (
-                            <Link href={`/admin/orders/${order.id}`}>
+                            <Link href={`/admin/orders/${encodeURIComponent(order.orderCode)}`}>
                               <button
                                 title="Kirim Pesanan"
                                 className="h-9 w-9 flex items-center justify-center rounded-full bg-terracotta/10 text-terracotta hover:bg-terracotta hover:text-white transition-all shadow-sm"
@@ -248,7 +251,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                             <button
                               title="Tandai Selesai"
                               onClick={() =>
-                                handleUpdateStatus(order.id, "COMPLETED")
+                                handleUpdateStatus(order.orderCode, "COMPLETED")
                               }
                               className="h-9 w-9 flex items-center justify-center rounded-full bg-sage/10 text-sage hover:bg-sage hover:text-white transition-all shadow-sm ring-1 ring-sage/60"
                             >
@@ -256,7 +259,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                             </button>
                           )}
 
-                          <Link href={`/admin/orders/${order.id}`}>
+                          <Link href={`/admin/orders/${encodeURIComponent(order.orderCode)}`}>
                             <button
                               title="Lihat Detail"
                               className="h-9 w-9 flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/10 hover:scale-110 transition-all active:scale-95"
@@ -311,7 +314,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
               </div>
 
               <div className="flex gap-2">
-                {updatingId === order.id ? (
+                {updatingCode === order.orderCode ? (
                   <div className="flex-1 h-10 flex items-center justify-center bg-muted/20 rounded-xl">
                     <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                   </div>
@@ -319,7 +322,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                   <>
                     {order.status === "AWAITING_VERIFICATION" && (
                       <Link
-                        href={`/admin/orders/${order.id}`}
+                        href={`/admin/orders/${encodeURIComponent(order.orderCode)}`}
                         className="flex-1"
                       >
                         <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm">
@@ -330,7 +333,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                     {order.status === "PAID" && (
                       <button
                         onClick={() =>
-                          handleUpdateStatus(order.id, "PROCESSING")
+                          handleUpdateStatus(order.orderCode, "PROCESSING")
                         }
                         className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-blue-600 text-white font-bold shadow-sm"
                       >
@@ -339,7 +342,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                     )}
                     {order.status === "PROCESSING" && (
                       <Link
-                        href={`/admin/orders/${order.id}`}
+                        href={`/admin/orders/${encodeURIComponent(order.orderCode)}`}
                         className="flex-1"
                       >
                         <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-terracotta text-white font-bold shadow-sm">
@@ -350,7 +353,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                     {order.status === "SHIPPED" && (
                       <button
                         onClick={() =>
-                          handleUpdateStatus(order.id, "COMPLETED")
+                          handleUpdateStatus(order.orderCode, "COMPLETED")
                         }
                         className="flex-1 h-10 flex items-center justify-center gap-2 rounded-xl bg-sage text-white font-bold shadow-sm"
                       >
@@ -358,7 +361,7 @@ export function DashboardContent({ initialData }: DashboardContentProps) {
                       </button>
                     )}
 
-                    <Link href={`/admin/orders/${order.id}`} className="flex-1">
+                    <Link href={`/admin/orders/${encodeURIComponent(order.orderCode)}`} className="flex-1">
                       <button className="w-full h-10 flex items-center justify-center gap-2 rounded-xl bg-card text-foreground border border-border hover:bg-muted font-bold shadow-sm">
                         <Eye className="h-4 w-4" /> Detail
                       </button>

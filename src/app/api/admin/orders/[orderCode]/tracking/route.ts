@@ -9,10 +9,10 @@ import { updateTrackingSchema } from "@/lib/validations/order";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ orderCode: string }> },
 ) {
   try {
-    const { id } = await params;
+    const { orderCode } = await params;
     const body = await request.json();
     const parsed = updateTrackingSchema.safeParse(body);
 
@@ -20,11 +20,11 @@ export async function PATCH(
       return badRequest(parsed.error.issues[0].message);
     }
 
-    const order = await prisma.order.findUnique({ where: { id } });
+    const order = await prisma.order.findUnique({ where: { orderCode } });
     if (!order) return notFound("Order");
 
     const updated = await prisma.order.update({
-      where: { id },
+      where: { orderCode },
       data: {
         trackingNumber: parsed.data.trackingNumber,
         courier: parsed.data.courier,
@@ -33,7 +33,7 @@ export async function PATCH(
 
     return apiSuccess(updated);
   } catch (error) {
-    console.error("PATCH /api/admin/orders/[id]/tracking error:", error);
+    console.error("PATCH /api/admin/orders/[orderCode]/tracking error:", error);
     return serverError();
   }
 }

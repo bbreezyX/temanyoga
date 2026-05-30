@@ -17,10 +17,10 @@ import { getStatusChangeEmail } from "@/lib/email-templates";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ orderCode: string }> },
 ) {
   try {
-    const { id } = await params;
+    const { orderCode } = await params;
     const body = await request.json();
     const parsed = updateOrderStatusSchema.safeParse(body);
 
@@ -28,7 +28,7 @@ export async function PATCH(
       return badRequest(parsed.error.issues[0].message);
     }
 
-    const order = await prisma.order.findUnique({ where: { id } });
+    const order = await prisma.order.findUnique({ where: { orderCode } });
     if (!order) return notFound("Order");
 
     try {
@@ -41,7 +41,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.order.update({
-      where: { id },
+      where: { orderCode },
       data: { status: parsed.data.status },
     });
 
@@ -64,7 +64,6 @@ export async function PATCH(
 
     broadcastNotification(notification);
 
-    // Send WhatsApp notification to customer for relevant status changes (fire-and-forget)
     const siteUrl =
       (await getSiteSetting("site_url")) || "https://temaniyoga.com";
     const tracking =
@@ -89,7 +88,6 @@ export async function PATCH(
       );
     }
 
-    // Send email notification for relevant status changes (fire-and-forget)
     const emailData = getStatusChangeEmail(
       updated.status,
       updated.orderCode,
@@ -109,7 +107,7 @@ export async function PATCH(
 
     return apiSuccess(updated);
   } catch (error) {
-    console.error("PATCH /api/admin/orders/[id]/status error:", error);
+    console.error("PATCH /api/admin/orders/[orderCode]/status error:", error);
     return serverError();
   }
 }

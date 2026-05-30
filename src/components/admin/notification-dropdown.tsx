@@ -221,7 +221,7 @@ export function NotificationDropdown() {
                       </p>
                       {notification.order && (
                         <Link
-                          href={`/admin/orders/${notification.orderId}`}
+                          href={`/admin/orders/${encodeURIComponent(notification.order!.orderCode)}`}
                           className="text-xs text-terracotta hover:underline mt-1 block font-medium"
                           onClick={(e) => {
                             e.stopPropagation();

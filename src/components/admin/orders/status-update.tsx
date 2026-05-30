@@ -31,12 +31,12 @@ const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 };
 
 export function StatusUpdate({
-  orderId,
+  orderCode,
   currentStatus,
   onUpdated,
   onOptimisticUpdate,
 }: {
-  orderId: string;
+  orderCode: string;
   currentStatus: OrderStatus;
   onUpdated: () => void;
   onOptimisticUpdate: (newStatus: OrderStatus) => void;
@@ -54,9 +54,12 @@ export function StatusUpdate({
     const statusValue = newStatus as OrderStatus;
     onOptimisticUpdate(statusValue);
     setLoading(true);
-    const res = await apiPatch(`/api/admin/orders/${orderId}/status`, {
-      status: newStatus,
-    });
+    const res = await apiPatch(
+      `/api/admin/orders/${encodeURIComponent(orderCode)}/status`,
+      {
+        status: newStatus,
+      },
+    );
     setLoading(false);
     if (!res.success) {
       toast.error((res as { error: string }).error);

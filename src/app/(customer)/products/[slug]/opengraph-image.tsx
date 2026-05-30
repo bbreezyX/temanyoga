@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
-import { getImageUrl } from "@/lib/image-url";
+import { getAbsoluteImageUrl } from "@/lib/image-url";
 import { formatCurrency } from "@/lib/utils";
 
 export const runtime = "nodejs"; // Prisma requires Node.js runtime unless using edge client
@@ -56,7 +56,7 @@ export default async function Image({
     .catch(() => null);
 
   const productImage = product.images[0]?.url
-    ? getImageUrl(product.images[0].url)
+    ? getAbsoluteImageUrl(product.images[0].url)
     : null;
 
   return new ImageResponse(

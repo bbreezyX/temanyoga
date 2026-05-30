@@ -3,7 +3,6 @@ import { DM_Sans, Bungee, Fraunces } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { SITE_URL } from "@/lib/site-url";
-import { getR2Origin } from "@/lib/image-url";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -100,18 +99,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const r2Origin = getR2Origin();
-
   return (
     <html lang="id">
-      <head>
-        {r2Origin ? (
-          <>
-            <link rel="preconnect" href={r2Origin} crossOrigin="anonymous" />
-            <link rel="dns-prefetch" href={r2Origin} />
-          </>
-        ) : null}
-      </head>
       <body
         className={`${dmSans.variable} ${bungee.variable} ${fraunces.variable} antialiased font-sans`}
       >
