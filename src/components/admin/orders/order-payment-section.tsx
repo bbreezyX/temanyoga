@@ -41,9 +41,9 @@ export function OrderPaymentSection({
         : "bg-amber-50 text-amber-600 ring-amber-600/20";
 
   return (
-    <section className="rounded-[32px] sm:rounded-[40px] bg-white p-6 sm:p-8 shadow-soft ring-1 ring-warm-sand/30">
+    <section className="rounded-[32px] sm:rounded-[40px] bg-paper p-6 sm:p-8 border border-black/5">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown">
+        <h2 className="font-serif text-lg sm:text-xl font-bold text-ink">
           Bukti Pembayaran
         </h2>
         <span
@@ -72,7 +72,7 @@ export function OrderPaymentSection({
       ) : (
         <div className="rounded-[24px] sm:rounded-[30px] aspect-[3/4] bg-cream/50 flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-warm-sand/30">
           <Receipt className="text-4xl sm:text-5xl text-warm-sand mb-4" />
-          <p className="text-xs font-bold text-warm-gray leading-relaxed">
+          <p className="text-xs font-bold text-ink/60 leading-relaxed">
             Belum ada bukti pembayaran yang diunggah.
           </p>
         </div>
@@ -86,7 +86,7 @@ export function OrderPaymentSection({
                 onReviewProof(paymentProof.id, PaymentProofStatus.APPROVED)
               }
               disabled={actionLoading}
-              className="w-full bg-terracotta text-white rounded-full py-3.5 sm:py-4 font-bold shadow-lg hover:shadow-terracotta/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
+              className="w-full bg-action text-white rounded-full py-3.5 sm:py-4 font-bold shadow-sm hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
             >
               <CheckCircle className="h-5 w-5" />
               Verifikasi Pembayaran

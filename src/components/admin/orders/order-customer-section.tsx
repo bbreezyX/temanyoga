@@ -15,16 +15,16 @@ export function OrderCustomerSection({
   customerPhone,
 }: OrderCustomerSectionProps) {
   return (
-    <section className="rounded-[32px] sm:rounded-[40px] bg-white p-6 sm:p-8 shadow-soft ring-1 ring-warm-sand/30">
-      <h2 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown mb-6">
+    <section className="rounded-[32px] sm:rounded-[40px] bg-paper p-6 sm:p-8 border border-black/5">
+      <h2 className="font-serif text-lg sm:text-xl font-bold text-ink mb-6">
         Pelanggan
       </h2>
       <div className="flex items-center gap-4 mb-6">
-        <div className="h-14 w-14 rounded-full bg-terracotta/10 flex items-center justify-center ring-2 ring-terracotta/20 shrink-0">
-          <User className="text-2xl text-terracotta" />
+        <div className="h-14 w-14 rounded-full bg-action/10 flex items-center justify-center ring-2 ring-action/20 shrink-0">
+          <User className="text-2xl text-action" />
         </div>
         <div className="min-w-0">
-          <p className="font-bold text-dark-brown leading-tight truncate">
+          <p className="font-bold text-ink leading-tight truncate">
             {customerName}
           </p>
           <p className="text-xs font-bold text-sage uppercase tracking-wider">
@@ -34,14 +34,14 @@ export function OrderCustomerSection({
       </div>
       <div className="space-y-4">
         <div className="flex items-center gap-3 text-sm">
-          <Mail className="text-warm-gray h-4 w-4 shrink-0" />
-          <span className="text-dark-brown font-medium truncate">
+          <Mail className="text-ink/60 h-4 w-4 shrink-0" />
+          <span className="text-ink font-medium truncate">
             {customerEmail}
           </span>
         </div>
         <div className="flex items-center gap-3 text-sm">
-          <Phone className="text-warm-gray h-4 w-4 shrink-0" />
-          <span className="text-dark-brown font-medium">{customerPhone}</span>
+          <Phone className="text-ink/60 h-4 w-4 shrink-0" />
+          <span className="text-ink font-medium">{customerPhone}</span>
         </div>
       </div>
       <div className="mt-6 pt-6 border-t border-warm-sand/30">
@@ -49,7 +49,7 @@ export function OrderCustomerSection({
           href={`https://wa.me/${customerPhone.replace(/\D/g, "")}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full bg-cream text-dark-brown rounded-full py-3.5 font-bold text-sm flex items-center justify-center gap-2 hover:bg-warm-sand transition-colors"
+          className="w-full bg-canvas-oat text-ink rounded-full py-3.5 font-bold text-sm flex items-center justify-center gap-2 hover:bg-warm-sand transition-colors"
         >
           <MessageCircle className="text-lg" />
           Chat Pelanggan

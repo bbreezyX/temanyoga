@@ -22,6 +22,22 @@ import { OrderDeliverySection } from "@/components/admin/orders/order-delivery-s
 import { OrderPaymentSection } from "@/components/admin/orders/order-payment-section";
 import { OrderCustomerSection } from "@/components/admin/orders/order-customer-section";
 
+const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
+  PENDING_PAYMENT: {
+    label: "Menunggu Pembayaran",
+    cls: "bg-amber-50 text-amber-700 ring-amber-600/20",
+  },
+  AWAITING_VERIFICATION: {
+    label: "Menunggu Verifikasi",
+    cls: "bg-amber-50 text-amber-700 ring-amber-600/20",
+  },
+  PAID: { label: "Dibayar", cls: "bg-sage/10 text-sage ring-sage/20" },
+  PROCESSING: { label: "Diproses", cls: "bg-action/10 text-action ring-action/20" },
+  SHIPPED: { label: "Dikirim", cls: "bg-action/10 text-action ring-action/20" },
+  COMPLETED: { label: "Selesai", cls: "bg-sage/10 text-sage ring-sage/20" },
+  CANCELLED: { label: "Dibatalkan", cls: "bg-red-50 text-red-600 ring-red-200" },
+};
+
 export default function AdminOrderDetailPage() {
   const params = useParams<{ orderCode: string }>();
   const orderCodeParam = decodeURIComponent(params.orderCode);
@@ -202,7 +218,7 @@ export default function AdminOrderDetailPage() {
   if (loading) {
     return (
       <div className="flex h-[50vh] w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-terracotta" />
+        <Loader2 className="h-8 w-8 animate-spin text-action" />
       </div>
     );
   }
@@ -210,12 +226,12 @@ export default function AdminOrderDetailPage() {
   if (!order) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <p className="text-muted-foreground font-medium">
+        <p className="text-ink/60 font-medium">
           Pesanan tidak ditemukan
         </p>
         <button
           onClick={() => router.push("/admin/orders")}
-          className="mt-4 text-terracotta border border-terracotta/20 rounded-full px-6 py-2 hover:bg-terracotta/5 transition-all text-sm font-bold"
+          className="mt-4 text-action border border-action/20 rounded-full px-6 py-2 hover:bg-action/5 transition-all text-sm font-bold"
         >
           Kembali ke Pesanan
         </button>
@@ -227,25 +243,34 @@ export default function AdminOrderDetailPage() {
     order.paymentProofs.find((p) => p.status === PaymentProofStatus.PENDING) ||
     order.paymentProofs[0];
 
+  const badge = STATUS_BADGE[order.status];
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 lg:space-y-8 animate-fade-in-up">
-      <div className="flex flex-col bg-white rounded-[32px] sm:rounded-[40px] p-6 sm:p-8 shadow-soft ring-1 ring-warm-sand/30 gap-8">
+      <div className="flex flex-col bg-paper rounded-[32px] sm:rounded-[40px] p-6 sm:p-8 border border-black/5 gap-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
           <div className="flex items-center gap-4 w-full sm:w-auto">
             <Link
               href="/admin/orders"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream text-warm-gray hover:bg-warm-sand hover:text-dark-brown transition-all"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-canvas-oat text-ink/60 hover:bg-warm-sand hover:text-ink transition-all"
             >
               <ChevronLeft className="h-5 w-5" />
             </Link>
             <div className="min-w-0 flex-1">
-              <h1 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown tracking-tight leading-none truncate">
+              <h1 className="font-display text-lg sm:text-xl font-extrabold text-ink tracking-tight leading-none truncate">
                 Pesanan #{order.orderCode}
               </h1>
-              <p className="text-[10px] sm:text-[11px] font-bold text-warm-gray uppercase tracking-widest mt-1 truncate">
+              <p className="text-[10px] sm:text-[11px] font-bold text-ink/50 uppercase tracking-widest mt-1 truncate">
                 Dipesan pada {formatDateTime(order.createdAt)}
               </p>
             </div>
+            {badge && (
+              <span
+                className={`shrink-0 inline-flex items-center rounded-full px-3 py-1 text-[10px] sm:text-[11px] font-bold uppercase tracking-wide ring-1 ring-inset ${badge.cls}`}
+              >
+                {badge.label}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
@@ -253,7 +278,7 @@ export default function AdminOrderDetailPage() {
               <button
                 onClick={() => handleUpdateStatus("CANCELLED")}
                 disabled={actionLoading}
-                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full border border-warm-sand text-warm-gray font-bold text-xs sm:text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all disabled:opacity-50"
+                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full border border-black/10 text-ink/70 font-bold text-xs sm:text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all disabled:opacity-50"
               >
                 Batalkan
               </button>
@@ -263,7 +288,7 @@ export default function AdminOrderDetailPage() {
               <button
                 onClick={() => handleUpdateStatus("PROCESSING")}
                 disabled={actionLoading}
-                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-dark-brown text-white font-bold text-xs sm:text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-action text-white font-bold text-xs sm:text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 <Package2 className="h-4 w-4" />
                 Proses Pesanan
@@ -274,7 +299,7 @@ export default function AdminOrderDetailPage() {
               <button
                 onClick={handleShipOrder}
                 disabled={actionLoading}
-                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-dark-brown text-white font-bold text-xs sm:text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-action text-white font-bold text-xs sm:text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 <Truck className="h-4 w-4" />
                 Kirim Pesanan
@@ -285,7 +310,7 @@ export default function AdminOrderDetailPage() {
               <button
                 onClick={() => handleUpdateStatus("COMPLETED")}
                 disabled={actionLoading}
-                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-sage text-white font-bold text-xs sm:text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                className="whitespace-nowrap px-4 sm:px-6 py-2 sm:py-2.5 rounded-full bg-action text-white font-bold text-xs sm:text-sm shadow-sm hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
               >
                 <CheckCircle className="h-4 w-4" />
                 Pesanan Selesai

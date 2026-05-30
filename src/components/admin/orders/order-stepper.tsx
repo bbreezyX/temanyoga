@@ -35,7 +35,7 @@ export function OrderStepper({ status }: OrderStepperProps) {
 
   return (
     <div className="w-full relative">
-      <div className="absolute top-1/2 left-0 w-full h-1 bg-cream -translate-y-1/2 rounded-full -z-0"></div>
+      <div className="absolute top-1/2 left-0 w-full h-1 bg-canvas-oat -translate-y-1/2 rounded-full -z-0"></div>
       <div
         className="absolute top-1/2 left-0 h-1 bg-sage -translate-y-1/2 rounded-full transition-all duration-500 ease-in-out -z-0"
         style={{
@@ -54,8 +54,8 @@ export function OrderStepper({ status }: OrderStepperProps) {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ring-4 ${
                   isActive
-                    ? "bg-sage text-white ring-white shadow-lg scale-110"
-                    : "bg-cream text-warm-gray ring-white"
+                    ? "bg-sage text-white ring-paper shadow-lg scale-110"
+                    : "bg-canvas-oat text-ink/50 ring-paper"
                 } ${isCurrent ? "ring-sage/20 scale-125" : ""}`}
               >
                 {isActive ? (
@@ -66,8 +66,8 @@ export function OrderStepper({ status }: OrderStepperProps) {
               </div>
               <span
                 className={`hidden sm:block text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 ${
-                  isActive ? "text-sage" : "text-warm-gray/60"
-                } ${isCurrent ? "text-dark-brown" : ""}`}
+                  isActive ? "text-sage" : "text-ink/40"
+                } ${isCurrent ? "text-ink" : ""}`}
               >
                 {step.label}
               </span>
@@ -76,7 +76,7 @@ export function OrderStepper({ status }: OrderStepperProps) {
         })}
       </div>
       <div className="mt-4 text-center sm:hidden">
-        <p className="text-xs font-black uppercase tracking-widest text-dark-brown">
+        <p className="text-xs font-black uppercase tracking-widest text-ink">
           Step {currentStep}: {ORDER_STEPS[currentStep - 1]?.label}
         </p>
       </div>

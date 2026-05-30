@@ -56,13 +56,13 @@ export function OrderItemsSection({
   const productSubtotal = totalAmount + (discountAmount ?? 0) - (shippingCost ?? 0);
 
   return (
-    <section className="rounded-[32px] sm:rounded-[40px] bg-white p-6 sm:p-8 shadow-soft ring-1 ring-warm-sand/30">
+    <section className="rounded-[32px] sm:rounded-[40px] bg-paper p-6 sm:p-8 border border-black/5">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="font-display text-lg sm:text-xl font-extrabold text-dark-brown flex items-center gap-2">
+        <h2 className="font-serif text-lg sm:text-xl font-bold text-ink flex items-center gap-2">
           <Package2 className="text-sage h-5 w-5 sm:h-6 sm:w-6" />
           Ringkasan Item
         </h2>
-        <span className="text-sm font-bold text-warm-gray">
+        <span className="text-sm font-bold text-ink/60">
           {items.length} Item
         </span>
       </div>
@@ -87,7 +87,7 @@ export function OrderItemsSection({
       {/* Desktop Table View */}
       <div className="hidden sm:block overflow-x-auto -mx-6 sm:mx-0 px-6 sm:px-0 scrollbar-hide">
         <table className="w-full min-w-[600px]">
-          <thead className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-warm-gray/60 border-b border-warm-sand/30">
+          <thead className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-ink/45 border-b border-warm-sand/30">
             <tr className="text-left">
               <th className="pb-4">Produk</th>
               <th className="pb-4 text-center">Jumlah</th>
@@ -139,10 +139,10 @@ function ItemCard({
       <div className="flex items-start gap-4">
         <ProductImage images={item.product.images} name={item.productNameSnapshot} size="sm" />
         <div className="min-w-0 pr-2">
-          <p className="font-bold text-dark-brown text-sm line-clamp-2 leading-tight">
+          <p className="font-bold text-ink text-sm line-clamp-2 leading-tight">
             {item.productNameSnapshot}
           </p>
-          <p className="text-[10px] text-warm-gray mt-1 italic font-medium">
+          <p className="text-[10px] text-ink/60 mt-1 italic font-medium">
             ID: {item.product.slug}
           </p>
           {accSnapshots.length > 0 && (
@@ -152,18 +152,18 @@ function ItemCard({
       </div>
       <div className="flex items-center justify-between pt-4 border-t border-dashed border-warm-sand/30">
         <div className="flex flex-col">
-          <span className="text-[10px] font-black uppercase tracking-widest text-warm-gray/60">
+          <span className="text-[10px] font-black uppercase tracking-widest text-ink/45">
             Qty
           </span>
-          <span className="font-bold text-dark-brown text-sm">
+          <span className="font-bold text-ink text-sm">
             {item.quantity}x
           </span>
         </div>
         <div className="flex flex-col text-right">
-          <span className="text-[10px] font-black uppercase tracking-widest text-warm-gray/60">
+          <span className="text-[10px] font-black uppercase tracking-widest text-ink/45">
             Total
           </span>
-          <span className="font-black text-terracotta text-sm">
+          <span className="font-black text-action text-sm">
             {formatCurrency(unitWithAcc * item.quantity)}
           </span>
         </div>
@@ -187,25 +187,25 @@ function ItemRow({
         <div className="flex items-center gap-3 sm:gap-4">
           <ProductImage images={item.product.images} name={item.productNameSnapshot} size="md" />
           <div className="min-w-0 pr-2">
-            <p className="font-bold text-dark-brown text-sm sm:text-base line-clamp-2">
+            <p className="font-bold text-ink text-sm sm:text-base line-clamp-2">
               {item.productNameSnapshot}
             </p>
             {accSnapshots.length > 0 && (
               <AccessoriesList accessories={accSnapshots} />
             )}
-            <p className="text-xs text-warm-gray truncate font-medium">
+            <p className="text-xs text-ink/60 truncate font-medium">
               ID: {item.product.slug}
             </p>
           </div>
         </div>
       </td>
-      <td className="py-5 text-center font-bold text-dark-brown text-sm sm:text-base">
+      <td className="py-5 text-center font-bold text-ink text-sm sm:text-base">
         {item.quantity}
       </td>
-      <td className="py-5 text-right text-sm text-warm-gray whitespace-nowrap font-medium">
+      <td className="py-5 text-right text-sm text-ink/60 whitespace-nowrap font-medium">
         {formatCurrency(unitWithAcc)}
       </td>
-      <td className="py-5 text-right font-black text-dark-brown whitespace-nowrap">
+      <td className="py-5 text-right font-black text-ink whitespace-nowrap">
         {formatCurrency(unitWithAcc * item.quantity)}
       </td>
     </tr>
@@ -234,7 +234,7 @@ function ProductImage({
           className="object-cover"
         />
       ) : (
-        <ImageIcon className="text-2xl text-warm-gray/30 absolute" />
+        <ImageIcon className="text-2xl text-ink/25 absolute" />
       )}
     </div>
   );
@@ -279,7 +279,7 @@ function TotalsSummary({
   return (
     <div className="mt-8 pt-8 border-t-2 border-dashed border-warm-sand/40 flex justify-end">
       <div className="w-full sm:w-64 space-y-3">
-        <div className="flex justify-between text-sm text-warm-gray">
+        <div className="flex justify-between text-sm text-ink/60">
           <span className="font-medium">Subtotal Produk</span>
           <span className="font-bold">{formatCurrency(productSubtotal)}</span>
         </div>
@@ -292,7 +292,7 @@ function TotalsSummary({
             <span className="font-bold">-{formatCurrency(discountAmount ?? 0)}</span>
           </div>
         )}
-        <div className="flex justify-between text-sm text-warm-gray">
+        <div className="flex justify-between text-sm text-ink/60">
           <span className="font-medium">
             Ongkir
             {shippingZoneName && ` (${shippingZoneName})`}
@@ -305,11 +305,11 @@ function TotalsSummary({
             )}
           </span>
         </div>
-        <div className="flex justify-between text-lg pt-2">
-          <span className="font-display font-black text-dark-brown">
+        <div className="flex items-end justify-between pt-2">
+          <span className="text-base font-bold text-ink">
             Grand Total
           </span>
-          <span className="font-display font-black text-terracotta">
+          <span className="text-2xl font-extrabold tracking-tight text-action">
             {formatCurrency(totalAmount)}
           </span>
         </div>
