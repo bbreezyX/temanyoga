@@ -43,6 +43,10 @@ const HAIRLINE = "#ece3d6";
 const SANS =
   "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 const SERIF = "Georgia,'Times New Roman',Times,serif";
+// Hosted brand mark. PNG (not the SVG favicon) because Gmail/Outlook/Yahoo
+// strip inline SVG and <img src="*.svg">. Always served from the verified
+// production domain so it loads even in localhost previews.
+const LOGO_URL = `https://${EMAIL_DOMAIN}/icon-512x512.png`;
 
 function formatRupiah(amount: number): string {
   return `Rp ${amount.toLocaleString("id-ID")}`;
@@ -70,16 +74,22 @@ function emailWrapper(body: string, preheader = ""): string {
 <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="${CANVAS}" style="background-color:${CANVAS};border-collapse:collapse">
 <tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;border-collapse:collapse">
-<tr><td style="padding:0 4px 16px;border-bottom:1px solid ${HAIRLINE}">
-<span style="font-family:${SERIF};font-size:21px;font-weight:700;color:${ACCENT};letter-spacing:0.04em">D'TEMAN YOGA</span>
-<span style="font-family:${SANS};font-size:12px;color:${MUTED};padding-left:10px">Teman Setia Yogamu</span>
+<tr><td style="padding:0 4px 18px;border-bottom:1px solid ${HAIRLINE}">
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse"><tr>
+<td style="padding-right:12px;vertical-align:middle">
+<img src="${LOGO_URL}" width="42" height="42" alt="D'TEMAN YOGA" style="display:block;width:42px;height:42px;border:0;outline:none;text-decoration:none">
+</td>
+<td style="vertical-align:middle">
+<div style="font-family:${SERIF};font-size:20px;font-weight:700;color:${ACCENT};letter-spacing:0.03em;line-height:1.15">D'TEMAN YOGA</div>
+<div style="font-family:${SANS};font-size:12px;color:${MUTED};line-height:1.4;padding-top:3px">Teman Setia Yogamu</div>
+</td>
+</tr></table>
 </td></tr>
 <tr><td style="padding:28px 4px">
 ${body}
 </td></tr>
 <tr><td style="padding:20px 4px 0;border-top:1px solid ${HAIRLINE}">
-<p style="margin:0;font-family:${SANS};font-size:12px;font-weight:600;color:${MUTED}">D'TEMAN YOGA &mdash; Teman Setia Yogamu</p>
-<p style="margin:6px 0 0;font-family:${SANS};font-size:11px;color:#9a8c7c">Email transaksional terkait pesanan Anda di <a href="https://${EMAIL_DOMAIN}" style="color:#9a8c7c">${EMAIL_DOMAIN}</a>.</p>
+<p style="margin:0;font-family:${SANS};font-size:11px;color:#9a8c7c">Email transaksional terkait pesanan Anda di <a href="https://${EMAIL_DOMAIN}" style="color:#9a8c7c">${EMAIL_DOMAIN}</a>.</p>
 <p style="margin:4px 0 0;font-family:${SANS};font-size:11px;color:#9a8c7c">Butuh bantuan? Balas email ini atau hubungi cs@${EMAIL_DOMAIN}</p>
 <p style="margin:4px 0 0;font-family:${SANS};font-size:11px;color:#9a8c7c">D'TEMAN YOGA &bull; Jambi, Indonesia</p>
 </td></tr>
@@ -141,7 +151,7 @@ export function orderCreatedEmail(
   const body = `
 ${greeting(order.customerName)}
 ${heading("Pesanan kamu sudah kami terima")}
-${para(`Terima kasih telah berbelanja. Pesanan <strong style="color:${INK}">${e(order.orderCode)}</strong> menunggu pembayaran. Selesaikan transfer lalu unggah buktinya untuk kami proses.`)}
+${para(`Pesanan <strong style="color:${INK}">${e(order.orderCode)}</strong> tinggal menunggu pembayaran. Setelah transfer, unggah buktinya agar bisa langsung kami proses.`)}
 ${infoPanel("Total Tagihan", formatRupiah(order.totalAmount), { size: "27px", weight: "800", color: ACCENT })}
 ${infoPanel(
   "Transfer ke rekening",
@@ -180,7 +190,7 @@ export function paymentProofReceivedEmail(
   const body = `
 ${greeting(customerName)}
 ${heading("Bukti pembayaran diterima")}
-${para(`Kami sudah menerima bukti pembayaran untuk pesanan <strong style="color:${INK}">${e(orderCode)}</strong>. Tim kami akan memverifikasinya dalam waktu maksimal 1&times;24 jam.`)}
+${para(`Bukti untuk pesanan <strong style="color:${INK}">${e(orderCode)}</strong> akan kami verifikasi dalam maksimal 1&times;24 jam. Kami akan mengabari kamu begitu selesai.`)}
 ${button(trackUrl, "Lacak Pesanan")}
 ${signoff("Terima kasih,")}`;
 
@@ -203,7 +213,7 @@ export function paymentApprovedEmail(
   const body = `
 ${greeting(customerName)}
 ${heading("Pembayaran terverifikasi")}
-${para(`Pembayaran untuk pesanan <strong style="color:${INK}">${e(orderCode)}</strong> berhasil kami verifikasi. Pesanan kamu kini sedang kami siapkan untuk pengiriman.`)}
+${para(`Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> kini sedang kami siapkan untuk pengiriman. Nomor resi akan kami kirim begitu paket diserahkan ke kurir.`)}
 ${button(trackUrl, "Lacak Pesanan")}
 ${signoff("Terima kasih,")}`;
 
@@ -234,7 +244,7 @@ export function paymentRejectedEmail(
   const body = `
 ${greeting(customerName)}
 ${heading("Bukti pembayaran perlu diperbarui")}
-${para(`Mohon maaf, bukti pembayaran untuk pesanan <strong style="color:${INK}">${e(orderCode)}</strong> belum dapat kami verifikasi. Silakan unggah ulang bukti yang valid.`)}
+${para(`Mohon maaf, bukti pembayaran untuk pesanan <strong style="color:${INK}">${e(orderCode)}</strong> belum dapat kami verifikasi. Mohon unggah ulang dengan foto yang jelas dan utuh.`)}
 ${reasonPanel}
 ${button(uploadUrl, "Unggah Ulang Bukti Pembayaran")}
 ${signoff("Terima kasih,")}`;
@@ -259,7 +269,7 @@ export function orderShippedEmail(
   const body = `
 ${greeting(customerName)}
 ${heading("Pesanan kamu sedang dalam perjalanan")}
-${para(`Kabar baik! Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> telah kami kirim.`)}
+${para(`Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> sudah kami serahkan ke kurir. Pakai nomor resi di bawah untuk memantau perjalanannya.`)}
 ${infoPanel("Kurir / No. Resi", `${e(tracking.courier)} &middot; ${e(tracking.trackingNumber)}`, { size: "16px" })}
 ${button(trackUrl, "Lacak Pengiriman")}
 ${signoff("Terima kasih,")}`;
@@ -281,7 +291,7 @@ export function orderCompletedEmail(
   const body = `
 ${greeting(customerName)}
 ${heading("Pesanan selesai")}
-${para(`Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> telah selesai. Semoga produk kami menemani perjalanan yoga kamu dengan baik.`)}
+${para(`Paket pesanan <strong style="color:${INK}">${e(orderCode)}</strong> sudah sampai di tujuan. Semoga setiap produknya menemani perjalanan yoga kamu dengan baik.`)}
 ${signoff("Sampai jumpa di pesanan berikutnya,")}`;
 
   return {
@@ -298,7 +308,7 @@ export function orderCancelledEmail(
   const body = `
 ${greeting(customerName)}
 ${heading("Pesanan dibatalkan")}
-${para(`Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> telah dibatalkan. Jika kamu tidak merasa melakukan pembatalan, silakan balas email ini agar tim kami bisa membantu.`)}
+${para(`Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> tidak akan kami proses lebih lanjut. Kalau pembatalan ini di luar sepengetahuan kamu, balas email ini dan kami bantu telusuri.`)}
 ${signoff("Terima kasih,")}`;
 
   return {
@@ -328,7 +338,7 @@ export function getStatusChangeEmail(
         html: emailWrapper(
           `${greeting(customerName)}
 ${heading("Pesanan kamu sedang dalam perjalanan")}
-${para(`Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> telah kami kirim.`)}
+${para(`Pesanan <strong style="color:${INK}">${e(orderCode)}</strong> sudah kami serahkan ke kurir dan sedang menuju alamat kamu.`)}
 ${button(`${siteUrl}/track-order/${orderCode}`, "Lacak Pesanan")}
 ${signoff("Terima kasih,")}`,
           `Pesanan ${orderCode} telah dikirim.`,
