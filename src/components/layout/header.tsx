@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/cart-context";
@@ -27,11 +27,6 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleCartClick = () => {
-    router.push("/cart");
-  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -90,9 +85,8 @@ export function Header() {
 
           <span className="mx-1 hidden h-6 w-px bg-[#2d241c]/10 md:block" />
 
-          <button
-            type="button"
-            onClick={handleCartClick}
+          <Link
+            href="/cart"
             aria-label="Keranjang"
             className="group relative inline-flex h-10 items-center gap-2 rounded-full bg-[#c85a2d] px-3.5 text-white transition-all duration-300 hover:bg-[#b14f27] active:scale-95 md:h-11 md:px-4"
           >
@@ -102,7 +96,7 @@ export function Header() {
                 {cartCount}
               </span>
             )}
-          </button>
+          </Link>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>

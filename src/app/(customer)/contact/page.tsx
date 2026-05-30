@@ -4,7 +4,9 @@ import { InfoPageShell, InfoSection } from "@/components/info/info-page-shell";
 import { createInfoPageMetadata } from "@/lib/info-page-metadata";
 import { getSiteSettings } from "@/lib/whatsapp";
 
-export const dynamic = "force-dynamic";
+// Site settings change rarely — ISR keeps navigation instant (served from cache,
+// revalidated in the background) instead of a full SSR + DB roundtrip per visit.
+export const revalidate = 600;
 
 export const metadata = createInfoPageMetadata({
   path: "/contact",

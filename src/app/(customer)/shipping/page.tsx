@@ -5,7 +5,9 @@ import { createInfoPageMetadata } from "@/lib/info-page-metadata";
 import { formatCurrency } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+// Shipping zones change rarely — ISR keeps navigation instant (served from cache,
+// revalidated in the background) instead of a full SSR + DB roundtrip per visit.
+export const revalidate = 600;
 
 export const metadata = createInfoPageMetadata({
   path: "/shipping",
