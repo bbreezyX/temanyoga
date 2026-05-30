@@ -83,10 +83,20 @@ export default async function HomePage() {
         url: SITE_URL,
         logo: {
           "@type": "ImageObject",
-          url: `${SITE_URL}/images/brand-logo.png`,
+          url: `${SITE_URL}/icon-512x512.png`,
+          width: 512,
+          height: 512,
         },
         description:
           "Boneka rajut yoga premium handmade oleh pengrajin lokal Indonesia. Simbol kedamaian dan teman setia dalam setiap asana.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: "D`TEMAN YOGA",
+        inLanguage: "id-ID",
+        publisher: { "@id": `${SITE_URL}/#organization` },
       },
     ],
   };
