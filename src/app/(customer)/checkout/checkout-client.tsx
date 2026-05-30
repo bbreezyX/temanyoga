@@ -980,7 +980,7 @@ export function CheckoutClient() {
                               NA
                             </div>
                           )}
-                          <span className="absolute -right-1 -top-1 grid h-6 w-6 place-items-center rounded-full bg-[#2d241c] text-[11px] font-bold text-white ring-2 ring-white">
+                          <span className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-[#2d241c] text-[11px] font-bold text-white ring-2 ring-white">
                             {item.quantity}
                           </span>
                         </div>
