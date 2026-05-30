@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
     "/**/*": ["./src/generated/prisma/**/*"],
   },
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
