@@ -23,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node '/Users/dany/.bridgespace/bin/bs-claude-hook.cjs' user-prompt-submit"
+            "command": "node \"C:/Users/distributorkomputer/.bridgespace/bin/bs-claude-hook.cjs\" user-prompt-submit"
           }
         ]
       }
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node '/Users/dany/.bridgespace/bin/bs-claude-hook.cjs' stop idle \"Finished working\""
+            "command": "node \"C:/Users/distributorkomputer/.bridgespace/bin/bs-claude-hook.cjs\" stop idle \"Finished working\""
           }
         ]
       }
@@ -45,7 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node '/Users/dany/.bridgespace/bin/bs-claude-hook.cjs' notification needs-input \"Needs input\""
+            "command": "node \"C:/Users/distributorkomputer/.bridgespace/bin/bs-claude-hook.cjs\" notification needs-input \"Needs input\""
           }
         ]
       }

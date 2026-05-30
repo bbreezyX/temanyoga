@@ -26,11 +26,13 @@ export default function Loading() {
         <Skeleton className="mt-16 aspect-[16/10] w-full max-w-4xl rounded-[40px] sm:aspect-[16/9] md:mt-20" />
       </section>
 
-      {/* Trust marquee */}
-      <div className="flex items-center gap-8 overflow-hidden border-y border-black/5 bg-paper px-5 py-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-4 w-40 shrink-0 rounded-full" />
-        ))}
+      {/* Trust values */}
+      <div className="px-5 py-8 sm:px-8">
+        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3 sm:gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-11 w-40 rounded-full" />
+          ))}
+        </div>
       </div>
 
       {/* Featured products */}

@@ -5,11 +5,11 @@ import Link from "next/link";
 import { ArrowLeft, ShoppingBag, ArrowRight } from "lucide-react";
 import { CartItemRow } from "@/components/cart/cart-item-row";
 import { CartSummary } from "@/components/cart/cart-summary";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/contexts/cart-context";
-import { formatCurrency } from "@/lib/format";
 
 export default function CartPage() {
-  const { items, getItemKey, isLoaded, cartTotal } = useCart();
+  const { items, getItemKey, isLoaded } = useCart();
 
   // Scroll to top on mount
   useEffect(() => {
@@ -18,11 +18,66 @@ export default function CartPage() {
 
   if (!isLoaded) {
     return (
-      <div className="bg-white min-h-screen text-[#2d241c] font-sans flex flex-col items-center justify-center p-6">
-        <div className="max-w-md w-full text-center animate-floatIn">
-          <div className="h-32 w-32 rounded-[40px] bg-[#f5f1ed] animate-pulse mx-auto mb-10" />
-          <div className="h-10 w-56 rounded-full bg-[#f5f1ed] animate-pulse mx-auto mb-4" />
-          <div className="h-5 w-72 rounded-full bg-[#f5f1ed] animate-pulse mx-auto" />
+      <div className="-mt-20 min-h-screen bg-canvas-oat pt-20 text-[#2d241c] font-sans md:-mt-24 md:pt-24">
+        <div className="flex-1 px-5 md:px-12 pb-24 w-full max-w-7xl mx-auto">
+          <section className="pt-12 md:pt-16">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+              <div>
+                <Skeleton className="h-4 w-28 rounded-full bg-[#dcd0bf] mb-4" />
+                <Skeleton className="h-12 md:h-16 w-72 max-w-full rounded-3xl bg-[#dcd0bf]" />
+              </div>
+              <Skeleton className="h-5 w-44 rounded-full bg-[#dcd0bf]" />
+            </div>
+
+            <div className="lg:grid lg:grid-cols-12 lg:gap-16 items-start">
+              <div className="lg:col-span-7 flex flex-col gap-5 mb-12 lg:mb-0">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="rounded-[28px] md:rounded-[32px] border border-[#eadfce] bg-white shadow-soft p-5 md:p-6"
+                  >
+                    <div className="flex gap-5">
+                      <Skeleton className="h-24 w-24 md:h-28 md:w-28 shrink-0 rounded-[20px] bg-[#f5f1ed]" />
+                      <div className="flex-1 min-w-0 space-y-3 pt-1">
+                        <Skeleton className="h-5 w-2/3 rounded-full" />
+                        <Skeleton className="h-4 w-24 rounded-full" />
+                      </div>
+                    </div>
+                    <div className="mt-5 pt-5 border-t border-[#eadfce] flex items-center justify-between">
+                      <Skeleton className="h-11 w-32 rounded-full" />
+                      <Skeleton className="h-8 w-24 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="lg:col-span-5 lg:sticky lg:top-32">
+                <div className="rounded-[28px] md:rounded-[40px] border border-[#eadfce] bg-white p-3 shadow-soft">
+                  <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                    <Skeleton className="h-6 w-28 rounded-full" />
+                    <Skeleton className="h-6 w-14 rounded-full" />
+                  </div>
+                  <div className="rounded-[24px] md:rounded-[32px] border border-[#eadfce] bg-[#faf6f0] p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-20 rounded-full" />
+                      <Skeleton className="h-4 w-24 rounded-full" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-16 rounded-full" />
+                      <Skeleton className="h-4 w-28 rounded-full" />
+                    </div>
+                    <div className="border-t border-[#e8dcc8] pt-4 flex items-center justify-between">
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                      <Skeleton className="h-7 w-28 rounded-full" />
+                    </div>
+                  </div>
+                  <div className="px-1 pt-3 pb-1">
+                    <Skeleton className="h-[58px] w-full rounded-full bg-[#dcd0bf]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     );
@@ -30,7 +85,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="bg-white min-h-screen text-[#2d241c] font-sans flex flex-col items-center justify-center p-6">
+      <div className="-mt-20 min-h-screen bg-canvas-oat pt-20 text-[#2d241c] font-sans flex flex-col items-center justify-center p-6 md:-mt-24 md:pt-24">
         <div className="max-w-md w-full text-center animate-floatIn">
           <div className="h-32 w-32 rounded-[40px] bg-[#f5f1ed] grid place-items-center mx-auto mb-10 transition-transform hover:rotate-6 duration-500">
             <ShoppingBag className="h-14 w-14 text-[#c85a2d]" />
@@ -44,7 +99,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center justify-center gap-3 w-full min-h-[60px] rounded-full bg-[#c85a2d] text-white font-black text-[16px] uppercase tracking-widest shadow-lift hover:bg-[#2d241c] transition-all active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-3 w-full min-h-[58px] rounded-full bg-[#c85a2d] text-white font-bold text-[15px] uppercase tracking-wide shadow-lift hover:bg-[#b14f27] transition-all active:scale-[0.98]"
           >
             <span>Lihat Koleksi</span>
             <ArrowRight className="w-5 h-5" />
@@ -55,9 +110,9 @@ export default function CartPage() {
   }
 
   return (
-    <div className="bg-white min-h-screen text-[#2d241c] font-sans">
+    <div className="-mt-20 min-h-screen bg-canvas-oat pt-20 text-[#2d241c] font-sans md:-mt-24 md:pt-24">
       <div
-        className="flex-1 px-6 md:px-12 pb-32 lg:pb-24 w-full max-w-7xl mx-auto"
+        className="flex-1 px-5 md:px-12 pb-24 w-full max-w-7xl mx-auto"
         id="top"
       >
         <section className="pt-12 md:pt-16">
@@ -96,27 +151,6 @@ export default function CartPage() {
             </div>
           </div>
         </section>
-      </div>
-
-      {/* Sticky mobile checkout bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#e8dcc8] bg-white/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-        <div className="flex items-center gap-4">
-          <div className="shrink-0">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9a8772] leading-none">
-              Total
-            </p>
-            <p className="mt-1 text-xl font-black tracking-tight text-[#c85a2d] leading-none">
-              {formatCurrency(cartTotal)}
-            </p>
-          </div>
-          <Link
-            href="/checkout"
-            className="flex-1 min-h-[52px] inline-flex items-center justify-center gap-2 rounded-full bg-[#c85a2d] text-white font-black text-[14px] uppercase tracking-widest shadow-lift-sm hover:bg-[#2d241c] transition-all active:scale-[0.98]"
-          >
-            <span>Lanjut ke Pembayaran</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
       </div>
     </div>
   );

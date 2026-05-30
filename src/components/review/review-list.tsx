@@ -17,52 +17,95 @@ function formatDate(dateString: string) {
   });
 }
 
+function Stars({ rating, className }: { rating: number; className?: string }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map((value) => (
+        <Star
+          key={value}
+          className={`${className ?? "h-3.5 w-3.5"} ${
+            value <= rating
+              ? "fill-[#c85a2d] text-[#c85a2d]"
+              : "fill-[#e8dcc8] text-[#e8dcc8]"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function ReviewList({ reviews, averageRating, totalReviews }: ReviewListProps) {
   if (totalReviews === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="text-slate-400 mb-2">Belum ada ulasan</div>
-        <p className="text-sm text-slate-500">Jadilah yang pertama memberikan ulasan!</p>
+      <div className="rounded-[28px] border border-dashed border-[#eadfce] bg-white/60 px-6 py-12 text-center">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-[#fdf3ee] text-[#c85a2d]">
+          <Star className="h-6 w-6" />
+        </div>
+        <p className="text-[16px] font-bold text-[#2d241c]">Belum ada ulasan</p>
+        <p className="mt-1 text-[14px] text-[#6b5b4b]">
+          Jadilah yang pertama memberikan ulasan!
+        </p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4 pb-4 border-b border-slate-200">
-        <div className="flex items-center gap-2">
-          <span className="text-3xl font-bold text-slate-900">{averageRating}</span>
-          <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
+      {/* Summary */}
+      <div className="flex items-center gap-5 rounded-[28px] border border-[#eadfce] bg-white p-5 shadow-soft md:p-6">
+        <div className="flex shrink-0 flex-col items-center justify-center rounded-[20px] bg-[#faf6f0] px-6 py-4">
+          <span className="font-display text-[32px] leading-none text-[#c85a2d]">
+            {averageRating.toFixed(1)}
+          </span>
+          <Stars
+            rating={Math.round(averageRating)}
+            className="mt-2 h-3.5 w-3.5"
+          />
         </div>
         <div>
-          <p className="text-sm text-slate-600">{totalReviews} ulasan</p>
+          <p className="text-[18px] font-bold text-[#2d241c]">
+            Ulasan Pelanggan
+          </p>
+          <p className="mt-0.5 text-[14px] text-[#6b5b4b]">
+            Berdasarkan {totalReviews} ulasan
+          </p>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {reviews.map((review) => (
-          <div key={review.id} className="pb-6 border-b border-slate-100 last:border-0">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex gap-0.5">
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <Star
-                    key={value}
-                    className={`w-4 h-4 ${
-                      value <= review.rating
-                        ? "fill-amber-400 text-amber-400"
-                        : "text-slate-300"
-                    }`}
-                  />
-                ))}
+      {/* Reviews */}
+      <div className="space-y-4">
+        {reviews.map((review) => {
+          const initial =
+            review.customerName.trim().charAt(0).toUpperCase() || "?";
+          return (
+            <article
+              key={review.id}
+              className="rounded-[24px] border border-[#eadfce] bg-white p-5 shadow-soft md:p-6"
+            >
+              <div className="flex items-start gap-4">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#fdf3ee] text-[15px] font-bold text-[#c85a2d]">
+                  {initial}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="truncate text-[15px] font-bold text-[#2d241c]">
+                      {review.customerName}
+                    </p>
+                    <span className="shrink-0 text-[12px] text-[#9a8772]">
+                      {formatDate(review.createdAt)}
+                    </span>
+                  </div>
+                  <Stars rating={review.rating} className="mt-1.5 h-3.5 w-3.5" />
+                  {review.comment && (
+                    <p className="mt-3 text-[15px] leading-relaxed text-[#6b5b4b]">
+                      {review.comment}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-            <p className="font-medium text-slate-900 mb-1">{review.customerName}</p>
-            <p className="text-xs text-slate-500 mb-3">{formatDate(review.createdAt)}</p>
-            {review.comment && (
-              <p className="text-slate-700 leading-relaxed">{review.comment}</p>
-            )}
-          </div>
-        ))}
+            </article>
+          );
+        })}
       </div>
     </div>
   );

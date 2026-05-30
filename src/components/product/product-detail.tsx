@@ -140,9 +140,9 @@ function ProductDetailContent({
   };
 
   return (
-    <>
+    <div className="-mt-20 min-h-screen bg-canvas-oat pt-20 text-[#2d241c] md:-mt-24 md:pt-24">
       <div
-        className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 pb-32 lg:pb-24"
+        className="flex-1 w-full max-w-7xl mx-auto px-5 md:px-12 pb-24"
         id="top"
       >
         {/* Breadcrumb */}
@@ -217,7 +217,7 @@ function ProductDetailContent({
                     onClick={() => setActiveImageIndex(idx)}
                     className={`relative h-20 w-16 sm:h-24 sm:w-20 md:h-28 md:w-24 shrink-0 overflow-hidden rounded-[20px] transition-all duration-500 ${
                       idx === activeImageIndex
-                        ? "ring-2 ring-[#c85a2d] ring-offset-2 ring-offset-white"
+                        ? "ring-2 ring-[#c85a2d] ring-offset-2 ring-offset-[#e9dfd2]"
                         : "opacity-60 hover:opacity-100 border border-[#e8dcc8]/70"
                     }`}
                   >
@@ -397,34 +397,6 @@ function ProductDetailContent({
           <ProductReviews productSlug={product.slug} />
         </Suspense>
       </div>
-
-      {/* Sticky mobile buy bar */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-[#e8dcc8] bg-white/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-        <div className="flex items-center gap-4">
-          <div className="shrink-0">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9a8772] leading-none">
-              Total
-            </p>
-            <p className="mt-1 text-xl font-black tracking-tight text-[#c85a2d] leading-none">
-              {formatCurrency(displayPrice)}
-            </p>
-          </div>
-          <button
-            onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            className="flex-1 min-h-[52px] inline-flex items-center justify-center gap-2 rounded-full bg-[#c85a2d] text-white font-black text-[14px] uppercase tracking-widest shadow-lift-sm hover:bg-[#2d241c] transition-all active:scale-[0.98] disabled:opacity-30"
-          >
-            {isEditingCartItem ? (
-              <Pencil className="w-4 h-4" />
-            ) : (
-              <ShoppingBag className="w-4 h-4" />
-            )}
-            <span>
-              {isOutOfStock ? "Habis" : isEditingCartItem ? "Simpan" : "Tambah"}
-            </span>
-          </button>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

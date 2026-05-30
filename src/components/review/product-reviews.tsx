@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Pencil } from "lucide-react";
 import { ReviewList } from "@/components/review/review-list";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/api-client";
 import type { ReviewListResponse } from "@/types/api";
 
@@ -30,29 +31,32 @@ export function ProductReviews({ productSlug }: ProductReviewsProps) {
 
   if (loading) {
     return (
-      <div className="py-8">
-        <div className="animate-pulse">
-          <div className="h-6 bg-slate-200 rounded w-32 mb-4"></div>
-          <div className="space-y-4">
-            <div className="h-20 bg-slate-100 rounded"></div>
-            <div className="h-20 bg-slate-100 rounded"></div>
-          </div>
+      <section id="ulasan" className="mt-16 border-t border-[#eadfce] pt-8">
+        <div className="mb-6 flex items-center justify-between">
+          <Skeleton className="h-8 w-32 rounded-full bg-[#dcd0bf]" />
+          <Skeleton className="h-9 w-28 rounded-full bg-[#dcd0bf]" />
         </div>
-      </div>
+        <div className="space-y-4">
+          <Skeleton className="h-24 w-full rounded-[28px] bg-[#dcd0bf]" />
+          <Skeleton className="h-28 w-full rounded-[24px] bg-[#dcd0bf]" />
+          <Skeleton className="h-28 w-full rounded-[24px] bg-[#dcd0bf]" />
+        </div>
+      </section>
     );
   }
 
   return (
-    <section id="ulasan" className="mt-16 pt-8 border-t border-slate-200">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <MessageSquare className="w-6 h-6" />
+    <section id="ulasan" className="mt-16 border-t border-[#eadfce] pt-8">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h2 className="flex items-center gap-2.5 font-display text-2xl text-[#2d241c]">
+          <MessageSquare className="h-6 w-6 text-[#c85a2d]" />
           Ulasan
         </h2>
         <Link
           href="/ulas"
-          className="text-sm font-medium text-[#c85a2d] hover:text-[#b04a25] transition-colors"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#f0e7da] px-4 py-2 text-[13px] font-bold text-[#2d241c] transition-colors hover:bg-[#e8dcc8]"
         >
+          <Pencil className="h-3.5 w-3.5" />
           Tulis Ulasan
         </Link>
       </div>

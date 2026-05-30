@@ -47,7 +47,7 @@ function WilayahSelect({
 }: WilayahSelectProps) {
   if (isLoading) {
     return (
-      <div className="h-14 w-full rounded-2xl bg-[#f9f9f9] border border-[#e8dcc8] px-6 flex items-center gap-3">
+      <div className="h-14 w-full rounded-full bg-[#faf6f0] border border-[#e8dcc8] px-6 flex items-center gap-3">
         <Loader2 className="w-4 h-4 animate-spin text-[#c85a2d]" />
         <span className="text-[14px] text-[#9a8772]">Memuat...</span>
       </div>
@@ -66,7 +66,7 @@ function WilayahSelect({
       >
         <SelectTrigger
           className={cn(
-            "!h-14 w-full !rounded-2xl bg-[#f9f9f9] border-[#e8dcc8] px-6 text-[16px]",
+            "!h-14 w-full !rounded-full bg-[#faf6f0] border-[#e8dcc8] px-6 text-[16px]",
             "text-[#2d241c] font-medium",
             "focus:ring-0 focus:border-[#c85a2d] focus:shadow-none",
             "data-[placeholder]:text-[#9a8772]",
@@ -176,7 +176,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
-        <label className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]">
+        <label className="block text-[13px] font-semibold text-[#6b5b4b] ml-1">
           Provinsi
         </label>
         <WilayahSelect
@@ -190,7 +190,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]">
+        <label className="block text-[13px] font-semibold text-[#6b5b4b] ml-1">
           Kota / Kabupaten
         </label>
         <WilayahSelect
@@ -206,7 +206,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div className="space-y-2">
-          <label className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]">
+          <label className="block text-[13px] font-semibold text-[#6b5b4b] ml-1">
             Kecamatan
           </label>
           <WilayahSelect
@@ -221,7 +221,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]">
+          <label className="block text-[13px] font-semibold text-[#6b5b4b] ml-1">
             Kelurahan
           </label>
           <WilayahSelect
@@ -239,7 +239,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
       <div className="space-y-2">
         <label
           htmlFor="streetAddress"
-          className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
+          className="block text-[13px] font-semibold text-[#6b5b4b] ml-1"
         >
           Alamat Lengkap
         </label>
@@ -249,9 +249,9 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
           onChange={handleStreetChange}
           placeholder="Nama jalan, nomor rumah, RT/RW, Kompleks/Cluster"
           className={cn(
-            "h-14 w-full rounded-2xl bg-[#f9f9f9] border px-6 text-[16px]",
+            "h-14 w-full rounded-full bg-[#faf6f0] border px-6 text-[16px]",
             "text-[#2d241c] font-medium placeholder:text-[#9a8772]",
-            "focus:outline-none focus:border-[#c85a2d] transition-all",
+            "focus:outline-none focus:border-[#c85a2d] focus:bg-white transition-colors",
             errors.streetAddress ? "border-red-300" : "border-[#e8dcc8]",
           )}
         />
@@ -265,7 +265,7 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
       <div className="space-y-2 sm:w-1/2">
         <label
           htmlFor="postalCode"
-          className="text-[12px] font-bold text-[#6b5b4b] uppercase tracking-[0.2em]"
+          className="block text-[13px] font-semibold text-[#6b5b4b] ml-1"
         >
           Kode Pos
         </label>
@@ -275,9 +275,9 @@ export function AddressFields({ value, onChange, errors }: AddressFieldsProps) {
           onChange={handlePostalChange}
           placeholder="12345"
           className={cn(
-            "h-14 w-full rounded-2xl bg-[#f9f9f9] border px-6 text-[16px]",
+            "h-14 w-full rounded-full bg-[#faf6f0] border px-6 text-[16px]",
             "text-[#2d241c] font-medium placeholder:text-[#9a8772]",
-            "focus:outline-none focus:border-[#c85a2d] transition-all",
+            "focus:outline-none focus:border-[#c85a2d] focus:bg-white transition-colors",
             errors.postalCode ? "border-red-300" : "border-[#e8dcc8]",
           )}
         />

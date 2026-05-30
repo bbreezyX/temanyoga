@@ -9,10 +9,13 @@ import {
   Leaf,
   Hand,
   Heart,
+  Gem,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
 import { SITE_URL } from "@/lib/site-url";
+import { HashScroll } from "@/components/layout/hash-scroll";
+import { HeroAnimation } from "@/components/layout/hero-animation";
 
 export const metadata: Metadata = {
   title: "Boneka Rajut Yoga Premium",
@@ -37,12 +40,10 @@ async function getFeaturedProducts() {
   }
 }
 
-const MARQUEE_ITEMS = [
-  "Handmade in Indonesia",
-  "100% Milk Cotton",
-  "Slow Handcraft",
-  "Limited Batches",
-  "Dibuat dengan Hati",
+const TRUST_VALUES = [
+  { Icon: Leaf, label: "100% Katun Susu" },
+  { Icon: Hand, label: "Dirajut Tangan" },
+  { Icon: Gem, label: "Edisi Terbatas" },
 ];
 
 const STORY_STEPS = [
@@ -96,116 +97,86 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <HashScroll />
 
       {/* ─────────────────────────  HERO  ───────────────────────── */}
-      <section className="relative px-5 pt-28 pb-20 sm:px-8 sm:pt-32 md:pb-28">
-        <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
-          {/* Eyebrow pill */}
-          <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-paper px-5 py-2 text-xs font-semibold tracking-wide text-ink-soft shadow-sm sm:text-sm animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
-            <Sparkles className="h-4 w-4 text-action" />
-            Handmade in Indonesia · Est. 2026
-          </span>
-
-          {/* Headline */}
-          <h1 className="sr-only">
-            Boneka Rajut Yoga Premium — Modern Amigurumi
-          </h1>
-          <p
-            aria-hidden="true"
-            className="mt-8 font-bungee text-[clamp(2.75rem,11vw,7.5rem)] leading-[0.95] text-ink animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 fill-mode-both"
-          >
-            MODERN
-            <span className="mt-1 block text-action">AMIGURUMI</span>
-          </p>
-
-          {/* Subhead */}
-          <p className="mt-7 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg md:text-xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200 fill-mode-both">
-            Lebih dari sekadar boneka rajut — simbol kehadiran, ketenangan, dan
-            teman setia dalam setiap perjalanan yoga Anda.
-          </p>
-
-          {/* CTAs */}
-          <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300 fill-mode-both">
-            <Link
-              href="/products"
-              className="group inline-flex items-center gap-2 rounded-full bg-action px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/50 sm:text-base"
-            >
-              Eksplorasi Kurasi
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-            <Link
-              href="#story"
-              className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-canvas-oat px-7 py-3.5 text-sm font-semibold text-ink transition-colors duration-300 hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 sm:text-base"
-            >
-              Cerita Kami
-            </Link>
-          </div>
-        </div>
-
-        {/* Hero image card */}
-        <div className="relative mx-auto mt-16 max-w-4xl md:mt-20 animate-in fade-in zoom-in-95 duration-1000 delay-500 fill-mode-both">
-          <div className="relative aspect-[16/10] overflow-hidden rounded-[40px] border border-ink/15 bg-paper shadow-[0_30px_80px_-30px_rgba(32,32,32,0.35)] sm:aspect-[16/9]">
-            <Image
-              src="/images/crochet.png"
-              alt="Yoga Companion Amigurumi"
-              fill
-              priority
-              className="object-cover object-center"
-              sizes="(max-width: 768px) 100vw, 900px"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/15 to-transparent" />
-          </div>
-
-          {/* Floating badge */}
-          <div className="absolute -bottom-6 left-4 z-20 rounded-[24px] border-2 border-ink bg-paper px-6 py-4 shadow-lg sm:left-8">
-            <span className="block font-bungee text-3xl leading-none text-action">
-              100%
+      <section className="relative px-5 pt-8 pb-20 sm:px-8 sm:pt-12 md:pb-28">
+        <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 lg:gap-16">
+          {/* Text column */}
+          <div className="flex flex-col items-center text-center md:items-start md:text-left">
+            {/* Eyebrow pill */}
+            <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-paper px-5 py-2 text-xs font-semibold tracking-wide text-ink-soft shadow-sm sm:text-sm animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+              <Sparkles className="h-4 w-4 text-action" />
+              Handmade in Indonesia · Est. 2026
             </span>
-            <span className="mt-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-ink">
-              Cotton Milk Premium
-            </span>
+
+            {/* Headline */}
+            <h1 className="sr-only">
+              Boneka Rajut Yoga Premium — Modern Amigurumi
+            </h1>
+            <p
+              aria-hidden="true"
+              className="mt-8 font-bungee text-[clamp(2.75rem,9vw,5.25rem)] leading-[0.95] text-ink animate-in fade-in slide-in-from-bottom-6 duration-700 delay-100 fill-mode-both"
+            >
+              MODERN
+              <span className="mt-1 block text-action">AMIGURUMI</span>
+            </p>
+
+            {/* Subhead */}
+            <p className="mt-7 max-w-md text-base leading-relaxed text-ink-soft sm:text-lg md:text-xl animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200 fill-mode-both">
+              Lebih dari sekadar boneka rajut — simbol kehadiran, ketenangan,
+              dan teman setia dalam setiap perjalanan yoga Anda.
+            </p>
+
+            {/* CTAs */}
+            <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300 fill-mode-both">
+              <Link
+                href="/products"
+                className="group inline-flex items-center gap-2 rounded-full bg-action px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action/50 sm:text-base"
+              >
+                Eksplorasi Kurasi
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+              <Link
+                href="#story"
+                className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-canvas-oat px-7 py-3.5 text-sm font-semibold text-ink transition-colors duration-300 hover:bg-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 sm:text-base"
+              >
+                Cerita Kami
+              </Link>
+            </div>
           </div>
 
-          {/* Spinning sticker */}
-          <div className="absolute -top-6 right-4 z-30 flex h-20 w-20 items-center justify-center rounded-full bg-ink text-cream sm:right-8 sm:h-24 sm:w-24 animate-[spin_14s_linear_infinite]">
-            <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full">
-              <path
-                id="sticker-curve"
-                d="M 50 50 m -37 0 a 37 37 0 1 1 74 0 a 37 37 0 1 1 -74 0"
-                fill="transparent"
-              />
-              <text className="fill-current text-[10px] font-semibold uppercase tracking-[0.18em]">
-                <textPath href="#sticker-curve" startOffset="0%">
-                  • Authentic • Mindful • Crafted •
-                </textPath>
-              </text>
-            </svg>
-            <Sparkles className="h-6 w-6 text-action" />
-          </div>
+          {/* Animated yoga character — Lottie when available, photo-card fallback */}
+          <HeroAnimation
+            fallback={
+              <div className="relative mx-auto aspect-square w-full max-w-md md:max-w-none">
+                <Image
+                  src="/images/knittedyoga-cutout.png"
+                  alt="Boneka rajut yoga sedang bermeditasi"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 520px"
+                  className="animate-hero-float object-contain drop-shadow-[0_24px_34px_rgba(63,51,40,0.18)]"
+                />
+              </div>
+            }
+          />
         </div>
       </section>
 
-      {/* ───────────────────────  TRUST MARQUEE  ─────────────────── */}
-      <section className="overflow-hidden border-y border-black/5 bg-paper py-4">
-        <div className="flex w-max animate-marquee-ltr">
-          {[0, 1].map((dup) => (
-            <ul
-              key={dup}
-              aria-hidden={dup === 1 ? "true" : undefined}
-              className="flex items-center gap-8 pr-8"
+      {/* ───────────────────────  TRUST VALUES  ──────────────────── */}
+      <section className="px-5 py-8 sm:px-8">
+        <ul className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3 sm:gap-4">
+          {TRUST_VALUES.map(({ Icon, label }) => (
+            <li
+              key={label}
+              className="inline-flex items-center gap-2.5 rounded-full border border-black/5 bg-paper px-5 py-2.5 text-sm font-semibold text-ink shadow-sm"
             >
-              {MARQUEE_ITEMS.map((item) => (
-                <li
-                  key={`${dup}-${item}`}
-                  className="flex items-center gap-8 whitespace-nowrap text-sm font-semibold uppercase tracking-[0.18em] text-ink-soft"
-                >
-                  {item}
-                  <span className="h-1.5 w-1.5 rounded-full bg-action" />
-                </li>
-              ))}
-            </ul>
+              <Icon className="h-4 w-4 shrink-0 text-action" />
+              {label}
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       {/* ────────────────────  FEATURED COLLECTION  ──────────────── */}
@@ -275,7 +246,10 @@ export default async function HomePage() {
       </section>
 
       {/* ─────────────────────  THE ARTISAN WAY  ─────────────────── */}
-      <section id="story" className="px-5 py-20 sm:px-8 md:py-28">
+      <section
+        id="story"
+        className="scroll-mt-24 px-5 py-20 sm:px-8 md:scroll-mt-28 md:py-28"
+      >
         <div className="mx-auto mb-14 max-w-3xl text-center md:mb-16">
           <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-paper px-5 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">
             Process & Soul

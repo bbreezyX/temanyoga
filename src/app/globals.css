@@ -121,17 +121,9 @@
     }
   }
 
-  @keyframes marquee-ltr {
-    from {
-      transform: translateX(-50%);
-    }
-    to {
-      transform: translateX(0);
-    }
-  }
-
   @keyframes pulse-slow {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 0.2;
       transform: translate(-50%, -50%) scale(1);
     }
@@ -142,7 +134,8 @@
   }
 
   @keyframes bounce-slow {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0);
     }
     50% {
@@ -150,9 +143,19 @@
     }
   }
 
+  @keyframes heroFloat {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-16px);
+    }
+  }
+
   --animate-floatIn: floatIn 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-hero-float: heroFloat 6s ease-in-out infinite;
   --animate-shine: shine 3s ease-in-out infinite;
-  --animate-marquee-ltr: marquee-ltr 20s linear infinite;
   --animate-pulse-slow: pulse-slow 8s ease-in-out infinite;
   --animate-bounce-slow: bounce-slow 4s ease-in-out infinite;
   --animate-gradient: gradient-move 15s ease infinite;
