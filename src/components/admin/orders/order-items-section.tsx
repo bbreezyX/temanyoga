@@ -2,9 +2,8 @@
 
 import { useMemo } from "react";
 import { Package2, Image as ImageIcon } from "lucide-react";
-import Image from "next/image";
 import { formatCurrency } from "@/lib/format";
-import { getImageUrl } from "@/lib/image-url";
+import { StorageImage } from "@/components/storage-image";
 import type { AccessorySnapshot } from "@/types/api";
 
 type OrderItem = {
@@ -227,8 +226,8 @@ function ProductImage({
       className={`${dimensions} rounded-2xl bg-warm-sand/20 flex shrink-0 items-center justify-center ring-1 ring-warm-sand/50 overflow-hidden relative`}
     >
       {images?.[0]?.url ? (
-        <Image
-          src={getImageUrl(images[0].url)}
+        <StorageImage
+          storageUrl={images[0].url}
           alt={name}
           fill
           className="object-cover"

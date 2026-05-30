@@ -17,16 +17,15 @@ const bungee = Bungee({
   subsets: ["latin"],
   weight: "400",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
-// Editorial heading tier — variable weight + optical sizing (auto high-contrast at display sizes)
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   axes: ["opsz"],
   display: "swap",
-  preload: true,
+  preload: false,
 });
 
 export const metadata: Metadata = {

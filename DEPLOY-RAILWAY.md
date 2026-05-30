@@ -64,7 +64,8 @@ settings live in [`railway.json`](./railway.json).
 | `R2_ACCESS_KEY_ID` | ✅ | |
 | `R2_SECRET_ACCESS_KEY` | ✅ | |
 | `R2_BUCKET_NAME` | ✅ | |
-| `R2_PUBLIC_URL` | ✅ | Must match an entry in `next.config.ts` `images.remotePatterns` |
+| `R2_PUBLIC_URL` | ✅ | `https://cdn.temaniyoga.com` — URLs saved on upload |
+| `NEXT_PUBLIC_R2_PUBLIC_URL` | ✅ | Same CDN URL — product images in the browser |
 | `UPSTASH_REDIS_REST_URL` | ✅ | Login rate limiting (Upstash stays external) |
 | `UPSTASH_REDIS_REST_TOKEN` | ✅ | |
 | `RESEND_API_KEY` | ⬜ | Email — omit to disable |

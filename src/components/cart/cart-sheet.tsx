@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { StorageImage } from "@/components/storage-image";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +15,6 @@ import { Separator } from "@/components/ui/separator";
 import { Minus, Plus, Trash2, ShoppingBag, Pencil } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/format";
-import { getImageUrl } from "@/lib/image-url";
 
 export function CartSheet({ children }: { children: React.ReactNode }) {
   const { items, updateQuantity, removeItem, cartTotal, getItemKey, isLoaded } = useCart();
@@ -70,8 +69,8 @@ export function CartSheet({ children }: { children: React.ReactNode }) {
                 <div key={key} className="flex gap-3">
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
                     {item.image ? (
-                      <Image
-                        src={getImageUrl(item.image)}
+                      <StorageImage
+                        storageUrl={item.image}
                         alt={item.name}
                         fill
                         className="object-cover"

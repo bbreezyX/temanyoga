@@ -2,6 +2,9 @@ import Link from "next/link";
 import { FaqList, InfoPageShell } from "@/components/info/info-page-shell";
 import { createInfoPageMetadata } from "@/lib/info-page-metadata";
 
+// Static content — long ISR window; no DB roundtrip per visit.
+export const revalidate = 86400;
+
 export const metadata = createInfoPageMetadata({
   path: "/faq",
   title: "Pertanyaan Umum",

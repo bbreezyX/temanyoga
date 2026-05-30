@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 
 const WILAYAH_BASE = "https://wilayah.id/api";
 
-const CACHE_HEADERS = {
-  "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
-};
+/** Wilayah.id data changes rarely — cache at CDN + Next.js data cache. */
+export const revalidate = 86400;
+
+const CACHE_CONTROL =
+  "public, s-maxage=86400, stale-while-revalidate=604800";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -53,6 +55,7 @@ export async function GET(request: Request) {
       headers: {
         "User-Agent": "Temanyoga/1.0",
       },
+      next: { revalidate: 86400 },
     });
 
     if (!res.ok) {
@@ -64,7 +67,7 @@ export async function GET(request: Request) {
 
     const data = await res.json();
 
-    return NextResponse.json(data, { headers: CACHE_HEADERS });
+    return NextResponse.json(data, { headers: { "Cache-Control": CACHE_CONTROL } });
   } catch (error) {
     console.error("Wilayah API error:", error);
     return NextResponse.json(

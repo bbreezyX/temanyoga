@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { StorageImage } from "@/components/storage-image";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ export function ProofImageDialog({
   open,
   onClose,
 }: {
-  /** Already normalized via getImageUrl() by the caller. */
+  /** Raw URL/key from DB (payment-proofs/...) */
   imageUrl: string | null;
   open: boolean;
   onClose: () => void;
@@ -23,8 +23,8 @@ export function ProofImageDialog({
         <DialogTitle className="sr-only">Bukti Pembayaran</DialogTitle>
         {imageUrl && (
           <div className="relative aspect-[3/4] w-full">
-            <Image
-              src={imageUrl}
+            <StorageImage
+              storageUrl={imageUrl}
               alt="Bukti pembayaran"
               fill
               className="object-contain"

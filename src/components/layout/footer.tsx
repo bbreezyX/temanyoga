@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BrandLogo } from "@/components/layout/brand-logo";
+import { BrandLogoMark } from "@/components/layout/brand-logo-mark";
 import { Instagram, MessageCircle, Send, ArrowRight } from "lucide-react";
 
 const NAV_LINKS = [
@@ -23,7 +23,7 @@ export function Footer() {
           <div className="flex flex-col items-start gap-6 lg:col-span-5">
             <div className="group flex items-center gap-4">
               <div className="relative transition-transform duration-500 group-hover:rotate-3">
-                <BrandLogo size={56} />
+                <BrandLogoMark size={56} idPrefix="footer" />
               </div>
               <div className="flex flex-col gap-1">
                 <span className="font-display text-[2rem] leading-none font-semibold tracking-[-0.03em] md:text-[2.25rem]">

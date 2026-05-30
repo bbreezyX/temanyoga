@@ -1,8 +1,7 @@
 "use client";
 
 import { Receipt, CheckCircle, XCircle, Maximize2 } from "lucide-react";
-import Image from "next/image";
-import { getImageUrl } from "@/lib/image-url";
+import { StorageImage } from "@/components/storage-image";
 import { PaymentProofStatus } from "@/generated/prisma";
 
 type PaymentProof = {
@@ -55,8 +54,8 @@ export function OrderPaymentSection({
 
       {paymentProof ? (
         <div className="group relative overflow-hidden rounded-[24px] sm:rounded-[30px] aspect-[3/4] bg-cream shadow-inner flex items-center justify-center bg-gray-100">
-          <Image
-            src={getImageUrl(paymentProof.imageUrl)}
+          <StorageImage
+            storageUrl={paymentProof.imageUrl}
             alt="Payment Proof"
             fill
             className="object-cover"
@@ -64,7 +63,7 @@ export function OrderPaymentSection({
           />
           <div
             className="absolute inset-0 bg-dark-brown/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10 cursor-zoom-in"
-            onClick={() => onViewImage(getImageUrl(paymentProof.imageUrl))}
+            onClick={() => onViewImage(paymentProof.imageUrl)}
           >
             <Maximize2 className="text-3xl text-white" />
           </div>

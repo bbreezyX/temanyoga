@@ -1,12 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { StorageImage } from "@/components/storage-image";
 import { Minus, Plus, Trash2, ShoppingBag, Pencil } from "lucide-react";
 
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/format";
-import { getImageUrl } from "@/lib/image-url";
 import type { CartItem } from "@/types/api";
 
 export function CartItemRow({ item }: { item: CartItem }) {
@@ -22,10 +21,11 @@ export function CartItemRow({ item }: { item: CartItem }) {
         <div className="shrink-0">
           <div className="relative grid h-24 w-24 place-items-center overflow-hidden rounded-[20px] bg-[#f5f1ed] transition-transform duration-500 group-hover:scale-[1.02] md:h-28 md:w-28">
             {item.image ? (
-              <Image
-                src={getImageUrl(item.image)}
+              <StorageImage
+                storageUrl={item.image}
                 alt={item.name}
                 fill
+                sizes="(max-width: 768px) 96px, 112px"
                 className="object-cover"
               />
             ) : (

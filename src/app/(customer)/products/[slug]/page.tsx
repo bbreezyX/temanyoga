@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ProductDetail } from "@/components/product/product-detail";
-import { prisma } from "@/lib/prisma";
+import { ProductReviewsSection } from "@/components/review/product-reviews-section";
+import { getProductBySlug } from "@/lib/product-queries";
+import { getActiveAccessories } from "@/lib/accessory-queries";
+import { getProductReviews } from "@/lib/review-queries";
 import { SITE_URL } from "@/lib/site-url";
 import { getAbsoluteImageUrl } from "@/lib/image-url";
-import type { ProductDetail as ProductDetailType } from "@/types/api";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,6 +17,7 @@ export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
+  const { prisma } = await import("@/lib/prisma");
   const products = await prisma.product.findMany({
     where: { isActive: true },
     select: { slug: true },
@@ -21,18 +25,9 @@ export async function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
 }
 
-async function getProduct(slug: string) {
-  const product = await prisma.product.findUnique({
-    where: { slug, isActive: true },
-    include: { images: { orderBy: { order: "asc" } } },
-  });
-  if (!product) return null;
-  return JSON.parse(JSON.stringify(product)) as ProductDetailType;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await getProductBySlug(slug);
   if (!product) return { title: "Produk Tidak Ditemukan" };
 
   const productUrl = `${SITE_URL}/products/${product.slug}`;
@@ -59,26 +54,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
+  const [accessories, reviewData] = await Promise.all([
+    getActiveAccessories(),
+    getProductReviews(product.id),
+  ]);
+
   const productUrl = `${SITE_URL}/products/${product.slug}`;
+  const { reviews, averageRating, totalReviews } = reviewData;
 
-  const reviews = await prisma.review.findMany({
-    where: { productId: product.id },
-    select: { rating: true, comment: true, customerName: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-  });
-  const totalReviews = reviews.length;
-  const averageRating =
-    totalReviews > 0
-      ? Math.round(
-          (reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews) * 10,
-        ) / 10
-      : 0;
-
-  // Google requires aggregateRating/review only when real ratings exist —
-  // these are verified-purchase reviews (gated to completed orders).
   const reviewNodes = reviews
     .filter((r) => r.comment && r.comment.trim().length > 0)
     .slice(0, 5)
@@ -91,7 +77,7 @@ export default async function ProductDetailPage({ params }: Props) {
         worstRating: 1,
       },
       author: { "@type": "Person", name: r.customerName },
-      datePublished: r.createdAt.toISOString().split("T")[0],
+      datePublished: r.createdAt.split("T")[0],
       reviewBody: r.comment,
     }));
 
@@ -163,7 +149,6 @@ export default async function ProductDetailPage({ params }: Props) {
     <main className="bg-white min-h-screen">
       <script
         type="application/ld+json"
-        // escape `<` → < so customer-submitted review text can't break out of the tag
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
@@ -174,7 +159,15 @@ export default async function ProductDetailPage({ params }: Props) {
           __html: JSON.stringify(breadcrumbLd).replace(/</g, "\\u003c"),
         }}
       />
-      <ProductDetail product={product} />
+      <Suspense>
+        <ProductDetail
+          product={product}
+          accessories={accessories}
+          reviewSummary={{ averageRating, totalReviews }}
+        >
+          <ProductReviewsSection {...reviewData} />
+        </ProductDetail>
+      </Suspense>
     </main>
   );
 }

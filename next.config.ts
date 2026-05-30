@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import path from "path";
+import { getStorageImageHostnames } from "./src/lib/image-url";
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -14,15 +15,11 @@ const nextConfig: NextConfig = {
     "/**/*": ["./src/generated/prisma/**/*"],
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "pub-38c629e713a54e8e9ed0a762c8f2666d.r2.dev",
-      },
-    ],
-    // Serve AVIF to capable browsers (~25% smaller than the WebP we already
-    // serve). WebP stays as the fallback. Caching is already optimal: the
-    // /api/r2 upstream sends max-age=31536000 and the optimizer cache is HIT.
+    remotePatterns: getStorageImageHostnames().map((hostname) => ({
+      protocol: "https" as const,
+      hostname,
+    })),
+    // Catalog images use CDN + unoptimized; payment proofs use /api/r2 + optimizer.
     formats: ["image/avif", "image/webp"],
   },
   async headers() {

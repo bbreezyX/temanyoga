@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { CheckoutClient } from "./checkout-client";
+import dynamic from "next/dynamic";
+import { CheckoutSkeleton } from "./checkout-skeleton";
+
+const CheckoutClient = dynamic(
+  () =>
+    import("./checkout-client").then((mod) => ({ default: mod.CheckoutClient })),
+  { loading: () => <CheckoutSkeleton /> },
+);
 
 export const metadata: Metadata = {
   title: "Checkout",

@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useCallback, Suspense } from "react";
-import dynamic from "next/dynamic";
+import { useState, useCallback, type ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { StorageImage } from "@/components/storage-image";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Minus,
@@ -16,47 +15,30 @@ import {
 } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
 import { formatCurrency } from "@/lib/format";
-import { getImageUrl } from "@/lib/image-url";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ProductReviews } from "@/components/review/product-reviews";
+import { AccessoriesSelector } from "@/components/product/accessories-selector";
 import type {
   ProductDetail as ProductDetailType,
   CartAccessory,
   CartItem,
+  AccessoryItem,
 } from "@/types/api";
 
-const AccessoriesSelector = dynamic(
-  () => import("./accessories-selector").then((mod) => mod.AccessoriesSelector),
-  {
-    loading: () => (
-      <div className="flex items-center gap-3 py-2">
-        <div className="w-5 h-5 rounded animate-pulse bg-[#c85a2d]/20" />
-        <div className="h-4 w-32 animate-pulse bg-[#f9f9f9] rounded" />
-      </div>
-    ),
-    ssr: false,
-  },
-);
-
-function AccessoriesSkeleton() {
-  return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-3">
-        <div className="w-5 h-5 rounded animate-pulse bg-[#c85a2d]/20" />
-        <div className="h-4 w-32 animate-pulse bg-[#f9f9f9] rounded" />
-      </div>
-      <div className="space-y-3">
-        <div className="h-4 w-24 animate-pulse bg-[#f9f9f9] rounded" />
-        <div className="grid grid-cols-1 gap-2">
-          <div className="h-14 rounded-2xl animate-pulse bg-[#f9f9f9]" />
-          <div className="h-14 rounded-2xl animate-pulse bg-[#f9f9f9]" />
-        </div>
-      </div>
-    </div>
-  );
+interface ReviewSummary {
+  averageRating: number;
+  totalReviews: number;
 }
 
-export function ProductDetail({ product }: { product: ProductDetailType }) {
+export function ProductDetail({
+  product,
+  accessories,
+  reviewSummary,
+  children,
+}: {
+  product: ProductDetailType;
+  accessories: AccessoryItem[];
+  reviewSummary: ReviewSummary;
+  children: ReactNode;
+}) {
   const searchParams = useSearchParams();
   const { items, getItemKey, isLoaded } = useCart();
 
@@ -72,23 +54,33 @@ export function ProductDetail({ product }: { product: ProductDetailType }) {
     <ProductDetailContent
       key={`${product.id}:${selectionKey}`}
       product={product}
+      accessories={accessories}
+      reviewSummary={reviewSummary}
       editLineId={editLineId}
       editingCartItem={editingCartItem}
       selectionKey={selectionKey}
-    />
+    >
+      {children}
+    </ProductDetailContent>
   );
 }
 
 function ProductDetailContent({
   product,
+  accessories,
+  reviewSummary,
   editLineId,
   editingCartItem,
   selectionKey,
+  children,
 }: {
   product: ProductDetailType;
+  accessories: AccessoryItem[];
+  reviewSummary: ReviewSummary;
   editLineId: string | null;
   editingCartItem: CartItem | null;
   selectionKey: string;
+  children: ReactNode;
 }) {
   const router = useRouter();
   const { addItem, replaceItem, getItemKey } = useCart();
@@ -175,8 +167,8 @@ function ProductDetailContent({
             <div className="relative aspect-[4/5] md:aspect-[3/4] lg:aspect-[4/5] overflow-hidden rounded-[40px] bg-[#f5f1ed] border border-[#e8dcc8]/70 group">
               <div className="absolute inset-0">
                 {activeImage.url ? (
-                  <Image
-                    src={getImageUrl(activeImage.url)}
+                  <StorageImage
+                    storageUrl={activeImage.url}
                     alt={product.name}
                     fill
                     className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
@@ -191,22 +183,24 @@ function ProductDetailContent({
               </div>
 
               {/* Reviews badge */}
-              <div className="absolute bottom-6 left-6">
-                <a
-                  href="#ulasan"
-                  className="group/badge inline-flex items-center gap-2.5 rounded-full bg-white/95 backdrop-blur px-4 py-2.5 shadow-lift-sm hover:bg-[#2d241c] hover:text-white transition-all hover:-translate-y-0.5"
-                >
-                  <span className="text-[13px] font-black">
-                    4.9{" "}
-                    <span className="text-[#c85a2d] group-hover/badge:text-white leading-none">
-                      ★
+              {reviewSummary.totalReviews > 0 && (
+                <div className="absolute bottom-6 left-6">
+                  <a
+                    href="#ulasan"
+                    className="group/badge inline-flex items-center gap-2.5 rounded-full bg-white/95 backdrop-blur px-4 py-2.5 shadow-lift-sm hover:bg-[#2d241c] hover:text-white transition-all hover:-translate-y-0.5"
+                  >
+                    <span className="text-[13px] font-black">
+                      {reviewSummary.averageRating.toFixed(1)}{" "}
+                      <span className="text-[#c85a2d] group-hover/badge:text-white leading-none">
+                        ★
+                      </span>
                     </span>
-                  </span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest opacity-60 group-hover/badge:opacity-100">
-                    Ulasan
-                  </span>
-                </a>
-              </div>
+                    <span className="text-[11px] font-bold uppercase tracking-widest opacity-60 group-hover/badge:opacity-100">
+                      Ulasan
+                    </span>
+                  </a>
+                </div>
+              )}
             </div>
 
             {images.length > 1 && (
@@ -221,8 +215,8 @@ function ProductDetailContent({
                         : "opacity-60 hover:opacity-100 border border-[#e8dcc8]/70"
                     }`}
                   >
-                    <Image
-                      src={getImageUrl(img.url)}
+                    <StorageImage
+                      storageUrl={img.url}
                       alt={`Tampilan ${idx + 1}`}
                       fill
                       className="object-cover"
@@ -268,13 +262,12 @@ function ProductDetailContent({
 
             {/* Block 3 — Buy box */}
             <div className="rounded-[32px] border border-[#e8dcc8]/70 bg-white shadow-soft p-6 md:p-7 space-y-7">
-              <Suspense fallback={<AccessoriesSkeleton />}>
-                <AccessoriesSelector
-                  key={selectionKey}
-                  onAccessoriesChange={handleAccessoriesChange}
-                  initialAccessories={editingCartItem?.accessories ?? []}
-                />
-              </Suspense>
+              <AccessoriesSelector
+                key={selectionKey}
+                accessories={accessories}
+                onAccessoriesChange={handleAccessoriesChange}
+                initialAccessories={editingCartItem?.accessories ?? []}
+              />
 
               {/* Quantity */}
               <div className="space-y-3">
@@ -377,25 +370,7 @@ function ProductDetailContent({
           </div>
         </section>
 
-        {/* Reviews */}
-        <Suspense
-          fallback={
-            <section
-              id="ulasan"
-              className="mt-16 pt-8 border-t border-[#e8dcc8]/60"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <Skeleton className="h-8 w-32" />
-              </div>
-              <div className="space-y-4">
-                <Skeleton className="h-20 w-full rounded" />
-                <Skeleton className="h-20 w-full rounded" />
-              </div>
-            </section>
-          }
-        >
-          <ProductReviews productSlug={product.slug} />
-        </Suspense>
+        {children}
       </div>
     </div>
   );

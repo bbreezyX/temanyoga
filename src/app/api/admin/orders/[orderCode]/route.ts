@@ -5,6 +5,7 @@ import {
   serverError,
   badRequest,
 } from "@/lib/api-response";
+import { getAdminOrderDetail } from "@/lib/admin-order-detail";
 import { validateStatusTransition } from "@/lib/order-status";
 import { OrderStatus } from "@/generated/prisma/client";
 
@@ -14,30 +15,7 @@ export async function GET(
 ) {
   try {
     const { orderCode } = await params;
-
-    const order = await prisma.order.findUnique({
-      where: { orderCode },
-      include: {
-        items: {
-          include: {
-            product: {
-              select: {
-                slug: true,
-                isActive: true,
-                images: {
-                  take: 1,
-                  orderBy: { order: "asc" },
-                  select: { url: true },
-                },
-              },
-            },
-          },
-        },
-        paymentProofs: {
-          orderBy: { createdAt: "desc" },
-        },
-      },
-    });
+    const order = await getAdminOrderDetail(orderCode);
 
     if (!order) return notFound("Order");
 

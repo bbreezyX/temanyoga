@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { apiFetch } from "@/lib/api-client";
 import { formatCurrency, cn } from "@/lib/utils";
-import { OrderStatus } from "@/generated/prisma";
 import type { OrderStatusResponse } from "@/types/api";
 import { useToast } from "@/components/ui/toast";
 
@@ -144,7 +143,7 @@ const StatusFlow = memo(function StatusFlow({
 const OrderStatusBadge = memo(function OrderStatusBadge({
   status,
 }: {
-  status: OrderStatus;
+  status: OrderStatusResponse["status"];
 }) {
   const displayStatus = status.replace(/_/g, " ");
 
@@ -342,52 +341,53 @@ const TrackingInfo = memo(function TrackingInfo({
 
 export default function TrackOrderContent({
   initialCode = "",
+  initialOrder = null,
 }: {
   initialCode?: string;
+  initialOrder?: OrderStatusResponse | null;
 }) {
   const router = useRouter();
   const toast = useToast();
   const [code, setCode] = useState(initialCode);
-  const [order, setOrder] = useState<OrderStatusResponse | null>(null);
-  const [loading, setLoading] = useState(!!initialCode);
+  const [order, setOrder] = useState<OrderStatusResponse | null>(initialOrder);
+  const [loading, setLoading] = useState(
+    !!initialCode?.trim() && !initialOrder,
+  );
   const [error, setError] = useState("");
 
-  const fetchOrder = useCallback(
-    async (targetCode: string) => {
-      setLoading(true);
-      setError("");
+  const fetchOrder = useCallback(async (targetCode: string) => {
+    setLoading(true);
+    setError("");
 
-      const res = await apiFetch<OrderStatusResponse>(
-        `/api/orders/${targetCode}/status`,
+    const res = await apiFetch<OrderStatusResponse>(
+      `/api/orders/${targetCode}/status`,
+    );
+
+    setLoading(false);
+
+    if (!res.success) {
+      setError(
+        res.error || "Pesanan tidak ditemukan. Periksa kembali kode Anda.",
       );
-
-      setLoading(false);
-
-      if (!res.success) {
-        setError(
-          res.error || "Pesanan tidak ditemukan. Periksa kembali kode Anda.",
-        );
-        // If specific error, we might want to clear order, but keeping it for now in case of transient error
-        // though normally if not found, we should clear it.
-        if (!order) setOrder(null); // Ensure order is null if we didn't have one and failed
-      } else {
-        setOrder(res.data);
-        if (res.data.status !== order?.status) {
-          // Status updated, content will refresh automatically
-        }
-      }
-    },
-    [order],
-  );
+      setOrder(null);
+    } else {
+      setOrder(res.data);
+    }
+  }, []);
 
   useEffect(() => {
-    if (initialCode?.trim()) {
-      // Clear previous order data when code changes (navigation) to avoid mismatched data display
-      setOrder(null);
-      fetchOrder(initialCode.trim());
+    setCode(initialCode);
+    if (initialOrder) {
+      setOrder(initialOrder);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialCode]);
+  }, [initialCode, initialOrder]);
+
+  useEffect(() => {
+    if (!initialCode?.trim()) return;
+    if (initialOrder?.orderCode === initialCode.trim()) return;
+    setOrder(null);
+    fetchOrder(initialCode.trim());
+  }, [initialCode, initialOrder, fetchOrder]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {

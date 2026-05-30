@@ -1,49 +1,27 @@
-import { prisma } from "@/lib/prisma";
+import { getProductReviewsBySlug } from "@/lib/review-queries";
 import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
 import type { NextRequest } from "next/server";
 
+export const revalidate = 60;
+
+const CACHE_CONTROL =
+  "public, s-maxage=60, stale-while-revalidate=300";
+
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await params;
+    const data = await getProductReviewsBySlug(slug);
 
-    const product = await prisma.product.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-
-    if (!product) {
+    if (!data) {
       return badRequest("Produk tidak ditemukan");
     }
 
-    const reviews = await prisma.review.findMany({
-      where: { productId: product.id },
-      select: {
-        id: true,
-        rating: true,
-        comment: true,
-        customerName: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const totalReviews = reviews.length;
-    const averageRating =
-      totalReviews > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / totalReviews
-        : 0;
-
-    return apiSuccess({
-      reviews: reviews.map((r) => ({
-        ...r,
-        createdAt: r.createdAt.toISOString(),
-      })),
-      averageRating: Math.round(averageRating * 10) / 10,
-      totalReviews,
-    });
+    const response = apiSuccess(data);
+    response.headers.set("Cache-Control", CACHE_CONTROL);
+    return response;
   } catch (error) {
     console.error("GET /api/products/[slug]/reviews error:", error);
     return serverError();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { StorageImage } from "@/components/storage-image";
 import { useToast } from "@/components/ui/toast";
 import { Check, X, Loader2, ZoomIn } from "lucide-react";
 import { PaymentProofStatus } from "@/generated/prisma";
@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProofImageDialog } from "./proof-image-dialog";
 import { apiPatch } from "@/lib/api-client";
-import { getImageUrl } from "@/lib/image-url";
 import { formatDateTime, getProofStatusLabel, getProofStatusVariant } from "@/lib/format";
 import type { AdminPaymentProof } from "@/types/api";
 
@@ -64,10 +63,10 @@ export function PaymentProofReview({
             >
               <div
                 className="relative h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded border"
-                onClick={() => setViewImage(getImageUrl(proof.imageUrl))}
+                onClick={() => setViewImage(proof.imageUrl)}
               >
-                <Image
-                  src={getImageUrl(proof.imageUrl)}
+                <StorageImage
+                  storageUrl={proof.imageUrl}
                   alt="Payment proof"
                   fill
                   className="object-cover"

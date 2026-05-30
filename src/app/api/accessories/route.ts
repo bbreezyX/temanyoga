@@ -1,24 +1,17 @@
-import { prisma } from "@/lib/prisma";
+import { getActiveAccessories } from "@/lib/accessory-queries";
 import { apiSuccess, serverError } from "@/lib/api-response";
+
+export const revalidate = 60;
+
+const CACHE_CONTROL =
+  "public, s-maxage=60, stale-while-revalidate=300";
 
 export async function GET() {
   try {
-    const accessories = await prisma.accessory.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        groupName: true,
-        colorOptions: true,
-        imageUrl: true,
-        sortOrder: true,
-      },
-    });
-
-    return apiSuccess(accessories);
+    const accessories = await getActiveAccessories();
+    const response = apiSuccess(accessories);
+    response.headers.set("Cache-Control", CACHE_CONTROL);
+    return response;
   } catch (error) {
     console.error("GET /api/accessories error:", error);
     return serverError();

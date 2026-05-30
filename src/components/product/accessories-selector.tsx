@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Puzzle, Loader2 } from "lucide-react";
+import { Puzzle } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { apiFetch } from "@/lib/api-client";
 import type { AccessoryItem, CartAccessory } from "@/types/api";
 
 interface AccessoriesSelectorProps {
+  accessories: AccessoryItem[];
   onAccessoriesChange: (accessories: CartAccessory[], total: number) => void;
   initialAccessories?: CartAccessory[];
 }
@@ -36,11 +36,10 @@ function buildInitialSelectedColors(initialAccessories: CartAccessory[]) {
 }
 
 export function AccessoriesSelector({
+  accessories,
   onAccessoriesChange,
   initialAccessories = [],
 }: AccessoriesSelectorProps) {
-  const [accessories, setAccessories] = useState<AccessoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedAccessories, setSelectedAccessories] = useState<Map<string, string>>(
     () => buildInitialGroupedSelections(initialAccessories),
   );
@@ -67,17 +66,6 @@ export function AccessoriesSelector({
       ? selectedColor
       : accessory.colorOptions[0] ?? null;
   }, [selectedColors]);
-
-  useEffect(() => {
-    async function loadAccessories() {
-      const res = await apiFetch<AccessoryItem[]>("/api/accessories");
-      if (res.success) {
-        setAccessories(res.data);
-      }
-      setLoading(false);
-    }
-    loadAccessories();
-  }, []);
 
   useEffect(() => {
     const result: CartAccessory[] = [];
@@ -183,15 +171,6 @@ export function AccessoriesSelector({
       return next;
     });
   };
-
-  if (loading) {
-    return (
-      <div className="flex items-center gap-3 py-4">
-        <Loader2 className="w-5 h-5 animate-spin text-[#c85a2d]" />
-        <span className="text-[14px] text-[#6b5b4b]">Memuat aksesoris...</span>
-      </div>
-    );
-  }
 
   if (accessories.length === 0) return null;
 

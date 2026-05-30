@@ -2,6 +2,9 @@ import Link from "next/link";
 import { InfoPageShell, InfoSection } from "@/components/info/info-page-shell";
 import { createInfoPageMetadata } from "@/lib/info-page-metadata";
 
+// Static content — long ISR window; no DB roundtrip per visit.
+export const revalidate = 86400;
+
 export const metadata = createInfoPageMetadata({
   path: "/terms",
   title: "Syarat Layanan",

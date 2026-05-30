@@ -1,0 +1,32 @@
+<svg width="520" height="520" viewBox="0 0 520 520" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Boneka rajut yoga">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#f5f1ed"/>
+      <stop offset="100%" stop-color="#e9dfd2"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-10%" width="140%" height="130%">
+      <feDropShadow dx="0" dy="24" stdDeviation="17" flood-color="#3f3328" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+  <rect width="520" height="520" rx="48" fill="url(#bgGlow)"/>
+  <g filter="url(#softShadow)">
+    <!-- Body -->
+    <ellipse cx="260" cy="310" rx="88" ry="96" fill="#c85a2d"/>
+    <!-- Legs (lotus) -->
+    <path d="M172 360C172 390 210 420 260 420C310 420 348 390 348 360C348 332 318 318 260 318C202 318 172 332 172 360Z" fill="#b14f27"/>
+    <!-- Left arm -->
+    <path d="M188 268C150 248 132 210 148 178C162 150 196 158 210 188" stroke="#8a9a5b" stroke-width="28" stroke-linecap="round"/>
+    <!-- Right arm -->
+    <path d="M332 268C370 248 388 210 372 178C358 150 324 158 310 188" stroke="#8a9a5b" stroke-width="28" stroke-linecap="round"/>
+    <!-- Head -->
+    <circle cx="260" cy="198" r="62" fill="#f5f1ed" stroke="#4a6fa5" stroke-width="10"/>
+    <!-- Face -->
+    <circle cx="238" cy="192" r="6" fill="#3f3328"/>
+    <circle cx="282" cy="192" r="6" fill="#3f3328"/>
+    <path d="M248 218C256 228 264 228 272 218" stroke="#3f3328" stroke-width="5" stroke-linecap="round"/>
+    <!-- Hair bun -->
+    <circle cx="260" cy="148" r="22" fill="#4a6fa5"/>
+    <!-- Core -->
+    <path d="M260 248V292" stroke="#d4a373" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>

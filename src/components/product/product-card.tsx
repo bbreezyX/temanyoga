@@ -1,8 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ImageOff } from "lucide-react";
+import { StorageImage } from "@/components/storage-image";
 import { formatCurrency } from "@/lib/utils";
-import { getImageUrl } from "@/lib/image-url";
 import type { ProductListItem } from "@/types/api";
 
 export function ProductCard({
@@ -22,8 +21,8 @@ export function ProductCard({
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-[18px] bg-canvas-oat sm:rounded-[24px]">
         {image ? (
-          <Image
-            src={getImageUrl(image.url)}
+          <StorageImage
+            storageUrl={image.url}
             alt={product.name}
             fill
             className={`object-cover transition-transform duration-700 group-hover:scale-105 ${

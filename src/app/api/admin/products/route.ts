@@ -2,73 +2,33 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
 import { createProductSchema } from "@/lib/validations/product";
+import {
+  getAdminProductList,
+  parseAdminProductCatalogParams,
+} from "@/lib/admin-products";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = request.nextUrl;
-    const page = Math.max(1, Number(searchParams.get("page")) || 1);
     const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit")) || 20));
-    const skip = (page - 1) * limit;
-    const search = searchParams.get("search")?.trim() || "";
-    const isActive = searchParams.get("isActive");
-    const stockFilter = searchParams.get("stock")?.trim() || "all";
-
-    const filters = [];
-
-    if (search) {
-      filters.push({
-        OR: [
-          { name: { contains: search, mode: "insensitive" as const } },
-          { description: { contains: search, mode: "insensitive" as const } },
-        ],
-      });
-    }
-
-    if (isActive !== null) {
-      filters.push({ isActive: isActive === "true" });
-    }
-
-    if (stockFilter === "in-stock") {
-      filters.push({
-        OR: [{ stock: null }, { stock: { gt: 10 } }],
-      });
-    }
-
-    if (stockFilter === "low-stock") {
-      filters.push({ stock: { gt: 0, lte: 10 } });
-    }
-
-    if (stockFilter === "out-of-stock") {
-      filters.push({ stock: 0 });
-    }
-
-    const where = filters.length > 0 ? { AND: filters } : {};
-
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        include: {
-          images: { orderBy: { order: "asc" }, take: 1 },
-          _count: { select: { orderItems: true } },
-        },
-        orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
-      }),
-      prisma.product.count({ where }),
-    ]);
-
-    return apiSuccess({
-      products,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+    const params = parseAdminProductCatalogParams({
+      page: searchParams.get("page") ?? undefined,
+      search: searchParams.get("search") ?? undefined,
+      stock: searchParams.get("stock") ?? undefined,
+      status:
+        searchParams.get("status") ??
+        (searchParams.get("isActive") === "true"
+          ? "active"
+          : searchParams.get("isActive") === "false"
+            ? "inactive"
+            : undefined),
     });
+
+    const data = await getAdminProductList({ ...params, limit });
+
+    return apiSuccess(data);
   } catch (error) {
     console.error("GET /api/admin/products error:", error);
     return serverError();
@@ -86,7 +46,6 @@ export async function POST(request: Request) {
 
     let slug = slugify(parsed.data.name, { lower: true, strict: true });
 
-    // Ensure slug uniqueness
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (existing) {
       slug = `${slug}-${nanoid(4)}`;

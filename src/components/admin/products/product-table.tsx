@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import {
   Pencil,
@@ -28,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatCurrency } from "@/lib/format";
-import { getImageUrl } from "@/lib/image-url";
+import { StorageImage } from "@/components/storage-image";
 import { apiPatch, apiDelete } from "@/lib/api-client";
 import { ImageUpload } from "./image-upload";
 import type { AdminProductListItem } from "@/types/api";
@@ -209,8 +208,8 @@ export function ProductTable({
                   {/* Image panel (inset) */}
                   <div className="relative aspect-square overflow-hidden rounded-[20px] bg-cream">
                     {product.images[0] ? (
-                      <Image
-                        src={getImageUrl(product.images[0].url)}
+                      <StorageImage
+                        storageUrl={product.images[0].url}
                         alt={product.name}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
@@ -354,8 +353,8 @@ export function ProductTable({
                           <div className="flex items-center gap-4">
                             <div className="h-16 w-16 shrink-0 rounded-2xl bg-warm-sand/50 flex items-center justify-center overflow-hidden ring-1 ring-warm-sand/50 relative">
                               {product.images[0] ? (
-                                <Image
-                                  src={getImageUrl(product.images[0].url)}
+                                <StorageImage
+                                  storageUrl={product.images[0].url}
                                   alt={product.name}
                                   fill
                                   className="object-cover"
@@ -476,8 +475,8 @@ export function ProductTable({
                     <div className="flex gap-3">
                       <div className="h-20 w-20 shrink-0 rounded-2xl bg-warm-sand/50 overflow-hidden ring-1 ring-warm-sand/50 relative flex items-center justify-center">
                         {product.images[0] ? (
-                          <Image
-                            src={getImageUrl(product.images[0].url)}
+                          <StorageImage
+                            storageUrl={product.images[0].url}
                             alt={product.name}
                             fill
                             className="object-cover"
@@ -603,8 +602,8 @@ export function ProductTable({
                         key={img.id}
                         className="group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-warm-sand/50"
                       >
-                        <Image
-                          src={getImageUrl(img.url)}
+                        <StorageImage
+                          storageUrl={img.url}
                           alt={`Foto ${idx + 1}`}
                           fill
                           className="object-cover"

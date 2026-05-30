@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
+import { StorageImage } from "@/components/storage-image";
 import { cn } from "@/lib/utils";
-import { getImageUrl } from "@/lib/image-url";
 import type { ProductImage } from "@/types/api";
 
 export function ImageGallery({ images }: { images: ProductImage[] }) {
@@ -20,8 +19,8 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
   return (
     <div className="space-y-3">
       <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-        <Image
-          src={getImageUrl(images[selected].url)}
+        <StorageImage
+          storageUrl={images[selected].url}
           alt="Product image"
           fill
           className="object-cover"
@@ -40,8 +39,8 @@ export function ImageGallery({ images }: { images: ProductImage[] }) {
                 i === selected ? "border-primary" : "border-transparent"
               )}
             >
-              <Image
-                src={getImageUrl(img.url)}
+              <StorageImage
+                storageUrl={img.url}
                 alt={`Thumbnail ${i + 1}`}
                 fill
                 className="object-cover"

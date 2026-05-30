@@ -19,7 +19,6 @@ import { LogoutButton } from "./logout-button";
 import { apiFetch } from "@/lib/api-client";
 import { useSidebar } from "@/contexts/sidebar-context";
 import { BrandLogo } from "@/components/layout/brand-logo";
-import type { AdminDashboardStats } from "@/types/api";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -38,7 +37,9 @@ export function AdminSidebar() {
 
   useEffect(() => {
     const fetchPendingCount = async () => {
-      const res = await apiFetch<AdminDashboardStats>("/api/admin/dashboard");
+      const res = await apiFetch<{ pendingPayments: number }>(
+        "/api/admin/orders/pending-count",
+      );
       if (res.success) {
         setPendingCount(res.data.pendingPayments);
       }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
+import { StorageImage } from "@/components/storage-image";
 import {
   Sparkles,
   ArrowRight,
@@ -12,10 +12,12 @@ import {
   Gem,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { getImageUrl } from "@/lib/image-url";
+import { getFeaturedProducts } from "@/lib/product-queries";
 import { SITE_URL } from "@/lib/site-url";
 import { HashScroll } from "@/components/layout/hash-scroll";
 import { HeroAnimation } from "@/components/layout/hero-animation";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Boneka Rajut Yoga Premium",
@@ -26,19 +28,7 @@ export const metadata: Metadata = {
   },
 };
 
-async function getFeaturedProducts() {
-  try {
-    const products = await prisma.product.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-      take: 4,
-      include: { images: { orderBy: { order: "asc" } } },
-    });
-    return products;
-  } catch {
-    return [];
-  }
-}
+const HERO_FALLBACK_SRC = "/images/hero-yoga.svg";
 
 const TRUST_VALUES = [
   { Icon: Leaf, label: "100% Katun Susu" },
@@ -72,6 +62,10 @@ const STORY_STEPS = [
 
 export default async function HomePage() {
   const products = await getFeaturedProducts();
+  const heroImage = products.find((p) => p.images[0])?.images[0];
+  const heroAlt = heroImage
+    ? "Boneka rajut yoga — kurasi D'TEMAN YOGA"
+    : "Ilustrasi boneka rajut yoga sedang bermeditasi";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -160,14 +154,25 @@ export default async function HomePage() {
           <HeroAnimation
             fallback={
               <div className="relative mx-auto aspect-square w-full max-w-md md:max-w-none">
-                <Image
-                  src="/images/knittedyoga-cutout.png"
-                  alt="Boneka rajut yoga sedang bermeditasi"
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 520px"
-                  className="animate-hero-float object-contain drop-shadow-[0_24px_34px_rgba(63,51,40,0.18)]"
-                />
+                {heroImage ? (
+                  <StorageImage
+                    storageUrl={heroImage.url}
+                    alt={heroAlt}
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 520px"
+                    className="animate-hero-float object-contain drop-shadow-[0_24px_34px_rgba(63,51,40,0.18)]"
+                  />
+                ) : (
+                  <Image
+                    src={HERO_FALLBACK_SRC}
+                    alt={heroAlt}
+                    fill
+                    priority
+                    sizes="(max-width: 768px) 100vw, 520px"
+                    className="animate-hero-float object-contain drop-shadow-[0_24px_34px_rgba(63,51,40,0.18)]"
+                  />
+                )}
               </div>
             }
           />
@@ -212,7 +217,7 @@ export default async function HomePage() {
 
           {products.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-4">
-              {products.map((product, index) => (
+              {products.map((product) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.slug}`}
@@ -220,13 +225,13 @@ export default async function HomePage() {
                 >
                   <div className="relative aspect-[4/5] overflow-hidden rounded-[24px] bg-canvas-oat">
                     {product.images[0] ? (
-                      <Image
-                        src={getImageUrl(product.images[0].url)}
+                      <StorageImage
+                        storageUrl={product.images[0].url}
                         alt={product.name}
                         fill
+                        loading="lazy"
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, 25vw"
-                        priority={index < 4}
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-ink/20">

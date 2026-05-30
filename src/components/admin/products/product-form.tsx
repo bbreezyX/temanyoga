@@ -15,13 +15,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { apiPost, apiPatch, apiDelete, apiUpload } from "@/lib/api-client";
-import { getImageUrl } from "@/lib/image-url";
+import { StorageImage } from "@/components/storage-image";
 import {
   isHeicImageFile,
   prepareProductImageFile,
   PRODUCT_IMAGE_ACCEPT,
 } from "@/lib/product-image-upload";
-import Image from "next/image";
 import type { AdminProductListItem, ProductImage } from "@/types/api";
 
 const productFormSchema = z.object({
@@ -453,8 +452,8 @@ export function ProductForm({
                     {/* Existing images (edit mode) */}
                     {isEdit && existingImages.map((img, i) => (
                       <div key={img.id} className="group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-warm-sand/20">
-                        <Image
-                          src={getImageUrl(img.url)}
+                        <StorageImage
+                          storageUrl={img.url}
                           alt={`Foto ${i + 1}`}
                           fill
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
