@@ -241,6 +241,45 @@
   }
 }
 
+/* ── Global custom scrollbar — brand-aligned, theme-aware ──────────────────
+   Default for every scroll container. `.no-scrollbar` (utilities layer) still
+   wins where scrollbars must be hidden: it sets display/scrollbar-width on the
+   element itself, which overrides this regardless of layer order. */
+html {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #e8dcc8 transparent; /* warm-sand */
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #e8dcc8; /* warm-sand */
+  border-radius: 9999px;
+  border: 2px solid transparent; /* + background-clip = slim thumb with breathing room */
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #c85a2d; /* terracotta */
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark theme: light translucent thumb so it reads on the dark forest surfaces */
+.dark {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #c85a2d; /* terracotta */
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
