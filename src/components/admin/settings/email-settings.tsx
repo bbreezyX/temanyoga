@@ -10,6 +10,7 @@ import {
   DEFAULT_EMAIL_FROM,
   DEFAULT_EMAIL_REPLY_TO,
   EMAIL_DOMAIN,
+  LEGACY_EMAIL_DOMAIN,
   usesLegacyEmailDomain,
 } from "@/lib/email-config";
 
@@ -99,7 +100,9 @@ export function EmailSettings() {
     <div className="space-y-6">
       {hasLegacyDomain ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-950">
-          <p className="font-bold">Domain pengirim masih ditemaniyoga.com</p>
+          <p className="font-bold">
+            Domain pengirim masih {LEGACY_EMAIL_DOMAIN}
+          </p>
           <p className="mt-1 text-xs leading-6">
             Ganti ke{" "}
             <span className="font-mono font-semibold">{EMAIL_DOMAIN}</span> lalu

@@ -6,13 +6,13 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getImageUrl } from "@/lib/image-url";
 
 export function ProofImageDialog({
   imageUrl,
   open,
   onClose,
 }: {
+  /** Already normalized via getImageUrl() by the caller. */
   imageUrl: string | null;
   open: boolean;
   onClose: () => void;
@@ -24,7 +24,7 @@ export function ProofImageDialog({
         {imageUrl && (
           <div className="relative aspect-[3/4] w-full">
             <Image
-              src={getImageUrl(imageUrl)}
+              src={imageUrl}
               alt="Bukti pembayaran"
               fill
               className="object-contain"

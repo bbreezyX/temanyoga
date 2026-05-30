@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ProductDetail } from "@/components/product/product-detail";
 import { prisma } from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site-url";
+import { getImageUrl } from "@/lib/image-url";
 import type { ProductDetail as ProductDetailType } from "@/types/api";
 
 interface Props {
@@ -104,7 +105,7 @@ export default async function ProductDetailPage({ params }: Props) {
     name: product.name,
     description: product.description,
     url: productUrl,
-    image: product.images.map((img) => img.url),
+    image: product.images.map((img) => getImageUrl(img.url)),
     brand: {
       "@type": "Brand",
       name: "D`TEMAN YOGA",

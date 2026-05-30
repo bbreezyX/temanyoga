@@ -1,6 +1,6 @@
 # AGENTS.md — Temanyoga Coding Agent Guidelines
 
-Next.js 16 e-commerce app for D'TEMAN YOGA — handmade yoga boneka (plushies). Indonesian-language storefront (`lang="id"`) with cart/checkout/order tracking/reviews + admin dashboard for product/order/coupon/accessory/user management with real-time SSE notifications. Live at `https://ditemaniyoga.com`.
+Next.js 16 e-commerce app for D'TEMAN YOGA — handmade yoga boneka (plushies). Indonesian-language storefront (`lang="id"`) with cart/checkout/order tracking/reviews + admin dashboard for product/order/coupon/accessory/user management with real-time SSE notifications. Live at `https://temaniyoga.com`.
 
 ## Tech Stack
 
