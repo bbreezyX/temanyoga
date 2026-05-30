@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeEmailSetting } from "@/lib/email-config";
 
 export const updateSettingsSchema = z.object({
   whatsapp_enabled: z.enum(["true", "false"]).optional(),
@@ -7,12 +8,21 @@ export const updateSettingsSchema = z.object({
     .max(30, "Phone number too long")
     .optional(),
   email_enabled: z.enum(["true", "false"]).optional(),
-  email_from: z.string().max(200).optional(),
-  email_reply_to: z.string().max(200).optional(),
+  email_from: z
+    .string()
+    .max(200)
+    .transform(normalizeEmailSetting)
+    .optional(),
+  email_reply_to: z
+    .string()
+    .max(200)
+    .transform(normalizeEmailSetting)
+    .optional(),
   site_url: z
     .string()
     .url("Invalid URL format")
     .max(500)
+    .transform(normalizeEmailSetting)
     .optional(),
   bank_name: z.string().max(100).optional(),
   bank_account_number: z.string().max(100).optional(),

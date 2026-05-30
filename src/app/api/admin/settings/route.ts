@@ -1,10 +1,37 @@
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, badRequest, serverError } from "@/lib/api-response";
 import {
+  normalizeEmailSetting,
+  usesLegacyEmailDomain,
+} from "@/lib/email-config";
+import {
   updateSettingsSchema,
   SETTING_KEYS,
 } from "@/lib/validations/settings";
 import { sendWhatsAppTest } from "@/lib/whatsapp";
+
+const LEGACY_DOMAIN_SETTING_KEYS = [
+  "email_from",
+  "email_reply_to",
+  "site_url",
+] as const;
+
+async function migrateLegacyDomainSettings(
+  map: Record<string, string>,
+): Promise<void> {
+  for (const key of LEGACY_DOMAIN_SETTING_KEYS) {
+    const value = map[key];
+    if (!usesLegacyEmailDomain(value)) continue;
+
+    const normalized = normalizeEmailSetting(value);
+    await prisma.siteSetting.upsert({
+      where: { key },
+      update: { value: normalized },
+      create: { key, value: normalized },
+    });
+    map[key] = normalized;
+  }
+}
 
 export async function GET() {
   try {
@@ -16,6 +43,8 @@ export async function GET() {
     for (const s of settings) {
       map[s.key] = s.value;
     }
+
+    await migrateLegacyDomainSettings(map);
 
     return apiSuccess(map);
   } catch (error) {
@@ -39,12 +68,19 @@ export async function PATCH(request: Request) {
     for (const [key, value] of Object.entries(updates)) {
       if (value === undefined) continue;
 
+      const normalized =
+        LEGACY_DOMAIN_SETTING_KEYS.includes(
+          key as (typeof LEGACY_DOMAIN_SETTING_KEYS)[number],
+        ) && typeof value === "string"
+          ? normalizeEmailSetting(value)
+          : value;
+
       await prisma.siteSetting.upsert({
         where: { key },
-        update: { value },
-        create: { key, value },
+        update: { value: normalized },
+        create: { key, value: normalized },
       });
-      results[key] = value;
+      results[key] = normalized;
     }
 
     return apiSuccess(results);

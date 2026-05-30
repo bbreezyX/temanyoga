@@ -72,9 +72,14 @@ async function main() {
   ];
 
   for (const setting of defaultSettings) {
+    const migrateValue =
+      setting.key === "email_from" ||
+      setting.key === "email_reply_to" ||
+      setting.key === "site_url";
+
     await prisma.siteSetting.upsert({
       where: { key: setting.key },
-      update: {},
+      update: migrateValue ? { value: setting.value } : {},
       create: setting,
     });
     console.log("Setting created:", setting.key);

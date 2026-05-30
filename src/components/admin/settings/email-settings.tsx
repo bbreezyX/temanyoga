@@ -10,6 +10,7 @@ import {
   DEFAULT_EMAIL_FROM,
   DEFAULT_EMAIL_REPLY_TO,
   EMAIL_DOMAIN,
+  usesLegacyEmailDomain,
 } from "@/lib/email-config";
 
 type SettingsMap = Record<string, string>;
@@ -80,6 +81,9 @@ export function EmailSettings() {
     toast.success(res.data.message);
   }
 
+  const hasLegacyDomain =
+    usesLegacyEmailDomain(emailFrom) || usesLegacyEmailDomain(emailReplyTo);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -93,6 +97,17 @@ export function EmailSettings() {
 
   return (
     <div className="space-y-6">
+      {hasLegacyDomain ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-950">
+          <p className="font-bold">Domain pengirim masih ditemaniyoga.com</p>
+          <p className="mt-1 text-xs leading-6">
+            Ganti ke{" "}
+            <span className="font-mono font-semibold">{EMAIL_DOMAIN}</span> lalu
+            simpan. Domain lama tidak terverifikasi di Resend.
+          </p>
+        </div>
+      ) : null}
+
       <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-950">
         <p className="font-bold">Setup Resend — {EMAIL_DOMAIN}</p>
         <p className="mt-1 text-xs leading-6 text-amber-900/90">

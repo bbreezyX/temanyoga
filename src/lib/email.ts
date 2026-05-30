@@ -4,6 +4,7 @@ import {
   DEFAULT_EMAIL_FROM,
   DEFAULT_EMAIL_REPLY_TO,
   EMAIL_DOMAIN,
+  normalizeEmailSetting,
 } from "@/lib/email-config";
 
 type SendResult = {
@@ -23,11 +24,14 @@ function getResend(): Resend | null {
 }
 
 async function getFromAddress(): Promise<string> {
-  return (await getSiteSetting("email_from")) || DEFAULT_EMAIL_FROM;
+  const raw = (await getSiteSetting("email_from")) || DEFAULT_EMAIL_FROM;
+  return normalizeEmailSetting(raw);
 }
 
 async function getReplyToAddress(): Promise<string> {
-  return (await getSiteSetting("email_reply_to")) || DEFAULT_EMAIL_REPLY_TO;
+  const raw =
+    (await getSiteSetting("email_reply_to")) || DEFAULT_EMAIL_REPLY_TO;
+  return normalizeEmailSetting(raw);
 }
 
 /**
