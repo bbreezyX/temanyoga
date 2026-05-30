@@ -388,7 +388,7 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
             id="upload-section"
             className="rounded-[40px] border border-black/5 bg-paper p-6 sm:p-8 md:p-10"
           >
-            <h2 className="text-xl font-bold tracking-tight text-ink">
+            <h2 className="font-serif text-xl font-bold tracking-tight text-ink">
               Pembayaran
             </h2>
             <p className="mt-1 text-sm text-ink-soft">
@@ -503,7 +503,7 @@ function PaymentUploadContent({ orderCode }: { orderCode: string }) {
           {/* Order Summary */}
           <section className="flex flex-col overflow-hidden rounded-[40px] border border-black/5 bg-paper">
             <div className="flex-1 space-y-6 p-6 sm:p-8 md:p-10">
-              <h2 className="text-xl font-bold tracking-tight text-ink">
+              <h2 className="font-serif text-xl font-bold tracking-tight text-ink">
                 Ringkasan Pesanan
               </h2>
 

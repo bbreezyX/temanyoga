@@ -100,8 +100,8 @@ export default async function HomePage() {
       <HashScroll />
 
       {/* ─────────────────────────  HERO  ───────────────────────── */}
-      <section className="relative px-5 pt-8 pb-20 sm:px-8 sm:pt-12 md:pb-28">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-2 lg:gap-16">
+      <section className="relative flex min-h-[calc(100svh-5rem)] items-center px-5 pt-8 pb-20 sm:px-8 sm:pt-12 md:min-h-[calc(100svh-6rem)] md:pb-28">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-12 md:grid-cols-2 lg:gap-16">
           {/* Text column */}
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
             {/* Eyebrow pill */}
@@ -166,13 +166,13 @@ export default async function HomePage() {
 
       {/* ───────────────────────  TRUST VALUES  ──────────────────── */}
       <section className="px-5 py-8 sm:px-8">
-        <ul className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3 sm:gap-4">
+        <ul className="mx-auto flex w-full max-w-3xl flex-col divide-y divide-black/5 overflow-hidden rounded-3xl border border-black/5 bg-paper shadow-sm sm:flex-row sm:divide-x sm:divide-y-0 sm:rounded-full">
           {TRUST_VALUES.map(({ Icon, label }) => (
             <li
               key={label}
-              className="inline-flex items-center gap-2.5 rounded-full border border-black/5 bg-paper px-5 py-2.5 text-sm font-semibold text-ink shadow-sm"
+              className="flex flex-1 items-center justify-center gap-3 px-6 py-4 text-sm font-semibold text-ink sm:text-base"
             >
-              <Icon className="h-4 w-4 shrink-0 text-action" />
+              <Icon className="h-5 w-5 shrink-0 text-action" />
               {label}
             </li>
           ))}
@@ -187,7 +187,7 @@ export default async function HomePage() {
               <span className="text-xs font-semibold uppercase tracking-[0.25em] text-action">
                 Selected Works
               </span>
-              <h2 className="mt-3 font-bungee text-[clamp(2rem,5vw,3.25rem)] leading-[1] text-ink">
+              <h2 className="mt-3 font-serif text-[clamp(2.25rem,5.5vw,3.75rem)] font-black leading-[1.02] tracking-[-0.02em] text-ink">
                 Kurasi Terpilih
               </h2>
             </div>
@@ -254,7 +254,7 @@ export default async function HomePage() {
           <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-paper px-5 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-ink-soft">
             Process & Soul
           </span>
-          <h2 className="mt-5 font-bungee text-[clamp(2rem,6vw,3.75rem)] leading-[1] text-ink">
+          <h2 className="mt-5 font-serif text-[clamp(2.25rem,6vw,4rem)] font-black leading-[1.02] tracking-[-0.02em] text-ink">
             The Artisan Way
           </h2>
         </div>
@@ -274,7 +274,7 @@ export default async function HomePage() {
                     imageFirst ? "md:order-1" : "md:order-2"
                   }`}
                 >
-                  <span className="font-bungee text-[clamp(4rem,14vw,9rem)] leading-none text-ink/10 select-none">
+                  <span className="font-serif text-[clamp(4rem,14vw,9rem)] font-black leading-none text-ink/10 select-none">
                     {step.no}
                   </span>
                   <span className="absolute flex h-16 w-16 items-center justify-center rounded-full bg-paper text-action shadow-md">
@@ -287,7 +287,7 @@ export default async function HomePage() {
                   <span className="text-xs font-semibold uppercase tracking-[0.22em] text-action">
                     {step.no} — {step.eyebrow}
                   </span>
-                  <h3 className="mt-3 font-bungee text-2xl leading-tight text-ink md:text-3xl">
+                  <h3 className="mt-3 font-serif text-2xl font-bold leading-tight text-ink md:text-3xl">
                     {step.title}
                   </h3>
                   <p className="mt-4 text-base leading-relaxed text-ink-soft">
@@ -309,7 +309,7 @@ export default async function HomePage() {
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-white/80">
               Filosofi Kami
             </span>
-            <p className="mx-auto mt-5 max-w-3xl font-bungee text-[clamp(1.5rem,4.2vw,3rem)] leading-[1.05]">
+            <p className="mx-auto mt-5 max-w-3xl font-serif text-[clamp(1.75rem,4.5vw,3.25rem)] font-semibold leading-[1.12] tracking-[-0.01em]">
               Yoga bukan tentang menyentuh jari kaki.
             </p>
             <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/85 md:text-lg">
@@ -326,7 +326,7 @@ export default async function HomePage() {
           <span className="text-xs font-semibold uppercase tracking-[0.22em] text-action">
             Temukan Teman Baru
           </span>
-          <h2 className="mt-4 font-bungee text-[clamp(2rem,6vw,3.75rem)] leading-[1] text-ink">
+          <h2 className="mt-4 font-serif text-[clamp(2.25rem,6vw,4rem)] font-black leading-[1.02] tracking-[-0.02em] text-ink">
             Pilih Karaktermu
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-soft md:text-lg">

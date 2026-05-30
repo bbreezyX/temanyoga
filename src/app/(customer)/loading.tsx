@@ -4,7 +4,7 @@ export default function Loading() {
   return (
     <div className="-mt-20 min-h-screen overflow-hidden bg-canvas-oat pt-20 md:-mt-24 md:pt-24">
       {/* Hero */}
-      <section className="mx-auto flex max-w-5xl flex-col items-center px-5 pt-10 pb-16 text-center sm:px-8 sm:pt-14 md:pb-24">
+      <section className="mx-auto flex min-h-[calc(100svh-5rem)] max-w-5xl flex-col items-center justify-center px-5 pt-10 pb-16 text-center sm:px-8 sm:pt-14 md:min-h-[calc(100svh-6rem)] md:pb-24">
         <Skeleton className="h-9 w-56 rounded-full" />
 
         <div className="mt-8 flex w-full flex-col items-center gap-3">
@@ -28,11 +28,7 @@ export default function Loading() {
 
       {/* Trust values */}
       <div className="px-5 py-8 sm:px-8">
-        <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-3 sm:gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-11 w-40 rounded-full" />
-          ))}
-        </div>
+        <Skeleton className="mx-auto h-40 w-full max-w-3xl rounded-3xl sm:h-14 sm:rounded-full" />
       </div>
 
       {/* Featured products */}

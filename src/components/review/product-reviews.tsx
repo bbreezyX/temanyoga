@@ -48,7 +48,7 @@ export function ProductReviews({ productSlug }: ProductReviewsProps) {
   return (
     <section id="ulasan" className="mt-16 border-t border-[#eadfce] pt-8">
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 className="flex items-center gap-2.5 font-display text-2xl text-[#2d241c]">
+        <h2 className="flex items-center gap-2.5 font-serif text-2xl font-bold text-[#2d241c]">
           <MessageSquare className="h-6 w-6 text-[#c85a2d]" />
           Ulasan
         </h2>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Bungee } from "next/font/google";
+import { DM_Sans, Bungee, Fraunces } from "next/font/google";
 import { ToastProvider } from "@/components/ui/toast";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { SITE_URL } from "@/lib/site-url";
@@ -16,6 +16,15 @@ const bungee = Bungee({
   variable: "--font-bungee",
   subsets: ["latin"],
   weight: "400",
+  display: "swap",
+  preload: true,
+});
+
+// Editorial heading tier — variable weight + optical sizing (auto high-contrast at display sizes)
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  axes: ["opsz"],
   display: "swap",
   preload: true,
 });
@@ -93,7 +102,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
-        className={`${dmSans.variable} ${bungee.variable} antialiased font-sans`}
+        className={`${dmSans.variable} ${bungee.variable} ${fraunces.variable} antialiased font-sans`}
       >
         <ErrorBoundary>
           <ToastProvider>{children}</ToastProvider>

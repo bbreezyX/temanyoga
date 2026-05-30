@@ -848,7 +848,7 @@ export function CheckoutClient() {
             <div className="flex flex-col gap-5 lg:col-span-5 lg:sticky lg:top-28">
               <div className="rounded-[28px] border border-[#eadfce] bg-white p-3 shadow-soft md:rounded-[40px]">
                 <div className="flex items-center justify-between px-4 pb-3 pt-4">
-                  <h2 className="font-display text-lg text-[#2d241c]">
+                  <h2 className="font-serif text-lg font-semibold text-[#2d241c]">
                     Ringkasan
                   </h2>
                   <span className="rounded-full bg-[#faf6f0] px-3 py-1 text-[12px] font-semibold text-[#6b5b4b]">

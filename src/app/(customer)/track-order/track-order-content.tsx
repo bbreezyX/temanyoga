@@ -307,7 +307,7 @@ const TrackingInfo = memo(function TrackingInfo({
             <p className="mb-1 text-[12px] font-semibold uppercase tracking-wide text-action">
               Informasi Pengiriman
             </p>
-            <h3 className="mb-2 text-2xl font-bold tracking-tight sm:text-3xl">
+            <h3 className="mb-2 font-serif text-2xl font-bold tracking-tight sm:text-3xl">
               {status === "COMPLETED" ? "Pesanan Tiba!" : "Paket Dikirim"}
             </h3>
             <p className="text-sm font-medium text-white/60">
@@ -491,7 +491,7 @@ export default function TrackOrderContent({
           <div className="rounded-[40px] border border-black/5 bg-paper p-6 sm:p-9 md:p-12">
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight text-ink">
+                <h2 className="font-serif text-2xl font-bold tracking-tight text-ink">
                   Status Pesanan
                 </h2>
                 <div className="mt-2 flex items-center gap-2">
