@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   useProvinces,
@@ -16,6 +8,7 @@ import {
   useVillages,
   type WilayahItem,
 } from "@/hooks/use-wilayah";
+import { WilayahSelect } from "@/components/wilayah/wilayah-select";
 
 export interface AddressData {
   province: { code: string; name: string } | null;
@@ -24,81 +17,6 @@ export interface AddressData {
   village: { code: string; name: string } | null;
   streetAddress: string;
   postalCode: string;
-}
-
-interface WilayahSelectProps {
-  placeholder: string;
-  items: WilayahItem[] | undefined;
-  value: string | null;
-  onChange: (item: WilayahItem | null) => void;
-  isLoading: boolean;
-  disabled?: boolean;
-  error?: string;
-}
-
-function WilayahSelect({
-  placeholder,
-  items,
-  value,
-  onChange,
-  isLoading,
-  disabled,
-  error,
-}: WilayahSelectProps) {
-  if (isLoading) {
-    return (
-      <div className="h-14 w-full rounded-full bg-[#faf6f0] border border-[#e8dcc8] px-6 flex items-center gap-3">
-        <Loader2 className="w-4 h-4 animate-spin text-[#c85a2d]" />
-        <span className="text-[14px] text-[#9a8772]">Memuat...</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <Select
-        value={value ?? undefined}
-        onValueChange={(val) => {
-          const item = items?.find((i) => i.code === val);
-          onChange(item ?? null);
-        }}
-        disabled={disabled}
-      >
-        <SelectTrigger
-          className={cn(
-            "!h-14 w-full !rounded-full bg-[#faf6f0] border-[#e8dcc8] px-6 text-[16px]",
-            "text-[#2d241c] font-medium",
-            "focus:ring-0 focus:border-[#c85a2d] focus:shadow-none",
-            "data-[placeholder]:text-[#9a8772]",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            error && "border-red-300",
-          )}
-        >
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent
-          className="max-h-60 rounded-2xl w-[var(--radix-select-trigger-width)]"
-          position="popper"
-          sideOffset={4}
-        >
-          <div className="max-h-56 overflow-y-auto p-1">
-            {items?.map((item) => (
-              <SelectItem
-                key={item.code}
-                value={item.code}
-                className="text-[15px] font-medium py-3 px-3 rounded-xl focus:bg-[#fdf8f6] focus:text-[#2d241c]"
-              >
-                {item.name}
-              </SelectItem>
-            ))}
-          </div>
-        </SelectContent>
-      </Select>
-      {error && (
-        <p className="text-xs text-red-500 font-medium px-1">{error}</p>
-      )}
-    </div>
-  );
 }
 
 interface AddressFieldsProps {

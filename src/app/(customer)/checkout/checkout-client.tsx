@@ -260,6 +260,7 @@ export function CheckoutClient() {
   const toast = useToast();
 
   const [selectedCourierCode, setSelectedCourierCode] = useState<string | null>(null);
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
 
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
@@ -307,12 +308,41 @@ export function CheckoutClient() {
   const isAllowedCourierUnavailable = shippingError === NO_ALLOWED_COURIER_MESSAGE;
   const isShippingServiceUnavailable =
     shippingError === SHIPPING_API_UNAVAILABLE_MESSAGE;
-  const shippingCost =
-    shippingResult?.couriers?.find((c) => c.courier_code === selectedCourierCode)
-      ?.price ?? 0;
-  const hasShippingSelection = !!shippingResult?.couriers?.some(
-    (courier) => courier.courier_code === selectedCourierCode,
-  );
+  const shippingCost = (() => {
+    if (shippingResult?.mode === "api") {
+      return (
+        shippingResult.couriers?.find((c) => c.courier_code === selectedCourierCode)
+          ?.price ?? 0
+      );
+    }
+    if (shippingResult?.mode === "fallback") {
+      return shippingResult.zones?.find((z) => z.id === selectedZoneId)?.price ?? 0;
+    }
+    return 0;
+  })();
+  const hasShippingSelection = (() => {
+    if (shippingResult?.mode === "api") {
+      return !!shippingResult.couriers?.some(
+        (courier) => courier.courier_code === selectedCourierCode,
+      );
+    }
+    if (shippingResult?.mode === "fallback") {
+      return !!shippingResult.zones?.some((zone) => zone.id === selectedZoneId);
+    }
+    return false;
+  })();
+  const selectedShippingLabel = (() => {
+    if (shippingResult?.mode === "api" && selectedCourierCode) {
+      return (
+        shippingResult.couriers?.find((c) => c.courier_code === selectedCourierCode)
+          ?.courier_name ?? ""
+      );
+    }
+    if (shippingResult?.mode === "fallback" && selectedZoneId) {
+      return shippingResult.zones?.find((z) => z.id === selectedZoneId)?.name ?? "";
+    }
+    return "";
+  })();
 
   const discountAmount = appliedCoupon
     ? appliedCoupon.discountType === "PERCENTAGE"
@@ -376,6 +406,7 @@ export function CheckoutClient() {
 
     if (currentVillageCode !== nextVillageCode) {
       setSelectedCourierCode(null);
+      setSelectedZoneId(null);
     }
 
     setAddressData(nextAddress);
@@ -457,13 +488,17 @@ export function CheckoutClient() {
         })),
       };
 
-      if (selectedCourierCode && shippingResult?.couriers) {
-        const courier = shippingResult.couriers.find(
+      if (shippingResult?.mode === "api" && selectedCourierCode) {
+        const courier = shippingResult.couriers?.find(
           (c) => c.courier_code === selectedCourierCode,
         );
         orderPayload.destinationVillageCode = addressData.village?.code;
         orderPayload.selectedCourierCode = selectedCourierCode;
         orderPayload.selectedCourierName = courier?.courier_name || selectedCourierCode;
+        orderPayload.expectedShippingCost = shippingCost;
+      } else if (shippingResult?.mode === "fallback" && selectedZoneId) {
+        orderPayload.shippingZoneId = selectedZoneId;
+        orderPayload.expectedShippingCost = shippingCost;
       }
 
       const res = await apiPost<CreateOrderResponse>("/api/orders", orderPayload);
@@ -488,6 +523,8 @@ export function CheckoutClient() {
       hasShippingSelection,
       shippingResult,
       selectedCourierCode,
+      selectedZoneId,
+      shippingCost,
       appliedCoupon,
       items,
       clearCart,
@@ -671,8 +708,12 @@ export function CheckoutClient() {
                 <div className={cardClass}>
                   <SectionHeader
                     icon={Truck}
-                    title="Pilih Kurir"
-                    hint="Ongkir dihitung otomatis dari alamat"
+                    title={shippingResult?.mode === "fallback" ? "Zona Pengiriman" : "Pilih Kurir"}
+                    hint={
+                      shippingResult?.mode === "fallback"
+                        ? "Perhitungan otomatis belum tersedia"
+                        : "Ongkir dihitung otomatis dari alamat"
+                    }
                   />
 
                   {!addressData.village?.code ? (
@@ -706,7 +747,9 @@ export function CheckoutClient() {
                         {shippingError}
                       </p>
                     )
-                  ) : shippingResult?.couriers && shippingResult.couriers.length > 0 ? (
+                  ) : shippingResult?.mode === "api" &&
+                    shippingResult.couriers &&
+                    shippingResult.couriers.length > 0 ? (
                     <div className="grid gap-3">
                       {shippingResult.couriers.map((courier) => {
                         const isSelected = selectedCourierCode === courier.courier_code;
@@ -750,6 +793,62 @@ export function CheckoutClient() {
                             </div>
                             <span className="shrink-0 text-[16px] font-bold text-[#c85a2d]">
                               {formatCurrency(courier.price)}
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : shippingResult?.mode === "fallback" &&
+                    shippingResult.zones &&
+                    shippingResult.zones.length > 0 ? (
+                    <div className="grid gap-3">
+                      <ShippingNotice
+                        icon={AlertTriangle}
+                        title="Menggunakan zona manual"
+                        body="Layanan cek ongkir otomatis belum tersedia untuk alamat ini. Pilih zona pengiriman berikut."
+                      />
+                      {shippingResult.zones.map((zone) => {
+                        const isSelected = selectedZoneId === zone.id;
+                        return (
+                          <label
+                            key={zone.id}
+                            className={`flex cursor-pointer items-center gap-4 rounded-3xl border p-4 transition-colors md:p-5 ${
+                              isSelected
+                                ? "border-[#c85a2d] bg-[#fdf3ee]"
+                                : "border-[#e8dcc8] bg-white hover:border-[#c85a2d]/40 hover:bg-[#faf6f0]"
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="shippingZone"
+                              value={zone.id}
+                              checked={isSelected}
+                              onChange={() => setSelectedZoneId(zone.id)}
+                              className="sr-only"
+                            />
+                            <div
+                              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                                isSelected
+                                  ? "border-[#c85a2d] bg-[#c85a2d]"
+                                  : "border-[#e8dcc8] bg-white"
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="h-2.5 w-2.5 rounded-full bg-white" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[15px] font-bold text-[#2d241c]">
+                                {zone.name}
+                              </p>
+                              {zone.description && (
+                                <p className="mt-0.5 text-[13px] text-[#6b5b4b]">
+                                  {zone.description}
+                                </p>
+                              )}
+                            </div>
+                            <span className="shrink-0 text-[16px] font-bold text-[#c85a2d]">
+                              {formatCurrency(zone.price)}
                             </span>
                           </label>
                         );
@@ -927,9 +1026,7 @@ export function CheckoutClient() {
                   <div className="flex items-center justify-between text-[14px] text-[#6b5b4b]">
                     <span>
                       Ongkir
-                      {selectedCourierCode && shippingResult?.couriers
-                        ? ` (${shippingResult.couriers.find((c) => c.courier_code === selectedCourierCode)?.courier_name || ""})`
-                        : ""}
+                      {selectedShippingLabel ? ` (${selectedShippingLabel})` : ""}
                     </span>
                     <span className="font-semibold text-[#2d241c]">
                       {hasShippingSelection

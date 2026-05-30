@@ -212,7 +212,7 @@ export default async function HomePage() {
 
           {products.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-4">
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <Link
                   key={product.id}
                   href={`/products/${product.slug}`}
@@ -226,6 +226,7 @@ export default async function HomePage() {
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                         sizes="(max-width: 768px) 100vw, 25vw"
+                        priority={index < 4}
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-ink/20">

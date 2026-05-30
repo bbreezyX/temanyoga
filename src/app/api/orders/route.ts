@@ -13,6 +13,7 @@ import { createOrderSchema } from "@/lib/validations/order";
 import { generateOrderCode } from "@/lib/order-code";
 import { broadcastNotification } from "@/lib/notification-broadcast";
 import { rateLimiters, getClientIp } from "@/lib/rate-limit";
+import { fetchExpeditionShippingCost } from "@/lib/expedition-shipping";
 import { isAllowedShippingCourier } from "@/lib/shipping-couriers";
 import {
   sendWhatsAppToCustomer,
@@ -80,6 +81,7 @@ export async function POST(request: Request) {
       destinationVillageCode,
       selectedCourierCode,
       selectedCourierName,
+      expectedShippingCost,
       couponCode,
       ...customerData
     } = parsed.data;
@@ -281,31 +283,24 @@ export async function POST(request: Request) {
       }
 
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => controller.abort(), 10000);
 
       try {
-        const url = new URL("https://use.api.co.id/expedition/shipping-cost");
-        url.searchParams.set("origin_village_code", originSetting.value);
-        url.searchParams.set("destination_village_code", destinationVillageCode.replace(/\./g, ""));
-        url.searchParams.set("weight", String(weight));
-
-        const apiRes = await fetch(url.toString(), {
-          headers: { "x-api-co-id": apiKey },
+        const apiData = await fetchExpeditionShippingCost({
+          originVillageCode: originSetting.value,
+          destinationVillageCode,
+          weight,
+          apiKey,
           signal: controller.signal,
         });
         clearTimeout(timeout);
 
-        if (!apiRes.ok) {
-          return badRequest("Ongkir tidak dapat diverifikasi");
-        }
-
-        const apiData = await apiRes.json();
         if (!apiData.is_success || !apiData.data?.couriers) {
           return badRequest("Ongkir tidak dapat diverifikasi");
         }
 
         const courier = apiData.data.couriers.find(
-          (c: { courier_code: string }) => c.courier_code === selectedCourierCode,
+          (c) => c.courier_code === selectedCourierCode,
         );
         if (!courier || !isAllowedShippingCourier(courier) || courier.price <= 0) {
           return badRequest("Kurir tidak tersedia untuk rute ini");
@@ -341,6 +336,13 @@ export async function POST(request: Request) {
       });
     } else {
       return badRequest("Wajib pilih kurir atau zona pengiriman");
+    }
+
+    if (
+      expectedShippingCost !== undefined &&
+      expectedShippingCost !== shippingCost
+    ) {
+      return badRequest("Harga ongkir berubah, silakan pilih ulang kurir atau zona");
     }
 
     const totalAmount = subtotal - discountAmount + shippingCost;
@@ -421,7 +423,7 @@ export async function POST(request: Request) {
       settingsMap[s.key] = s.value;
     }
 
-    const siteUrl = settingsMap.site_url || "https://ditemaniyoga.com";
+    const siteUrl = settingsMap.site_url || "https://temaniyoga.com";
     const bankData = {
       bankName: settingsMap.bank_name || "BCA",
       accountNumber: settingsMap.bank_account_number || "1234567890",

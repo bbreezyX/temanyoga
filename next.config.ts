@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   reactCompiler: true,
   // Pin Turbopack root to this project. Next.js otherwise resolves CSS imports
   // (e.g. @import "tailwindcss") from the parent directory when lockfiles exist
@@ -13,13 +14,13 @@ const nextConfig: NextConfig = {
     "/**/*": ["./src/generated/prisma/**/*"],
   },
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "pub-38c629e713a54e8e9ed0a762c8f2666d.r2.dev",
       },
     ],
-    qualities: [75, 90, 95],
   },
   async headers() {
     return [

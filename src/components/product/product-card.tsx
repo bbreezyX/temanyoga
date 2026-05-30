@@ -5,7 +5,13 @@ import { formatCurrency } from "@/lib/utils";
 import { getImageUrl } from "@/lib/image-url";
 import type { ProductListItem } from "@/types/api";
 
-export function ProductCard({ product }: { product: ProductListItem }) {
+export function ProductCard({
+  product,
+  priority = false,
+}: {
+  product: ProductListItem;
+  priority?: boolean;
+}) {
   const image = product.images[0];
   const outOfStock = product.stock !== null && product.stock <= 0;
 
@@ -24,7 +30,8 @@ export function ProductCard({ product }: { product: ProductListItem }) {
               outOfStock ? "opacity-70" : ""
             }`}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            loading="lazy"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-ink/20">

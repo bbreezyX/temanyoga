@@ -49,6 +49,7 @@ export const createOrderSchema = z.object({
   destinationVillageCode: z.string().max(20).optional(),
   selectedCourierCode: z.string().max(50).optional(),
   selectedCourierName: z.string().max(100).optional(),
+  expectedShippingCost: z.number().int().nonnegative().optional(),
   notes: z.string().max(1000).transform((val) => val.trim()).optional(),
   couponCode: z
     .string()

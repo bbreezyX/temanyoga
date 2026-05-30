@@ -71,7 +71,7 @@ export async function PATCH(
 
     // Send WhatsApp notification to customer (fire-and-forget)
     const siteUrl =
-      (await getSiteSetting("site_url")) || "https://ditemaniyoga.com";
+      (await getSiteSetting("site_url")) || "https://temaniyoga.com";
 
     if (parsed.data.status === PaymentProofStatus.APPROVED) {
       sendWhatsAppToCustomer(

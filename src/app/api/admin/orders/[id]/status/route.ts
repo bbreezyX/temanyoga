@@ -66,7 +66,7 @@ export async function PATCH(
 
     // Send WhatsApp notification to customer for relevant status changes (fire-and-forget)
     const siteUrl =
-      (await getSiteSetting("site_url")) || "https://ditemaniyoga.com";
+      (await getSiteSetting("site_url")) || "https://temaniyoga.com";
     const tracking =
       updated.trackingNumber && updated.courier
         ? {

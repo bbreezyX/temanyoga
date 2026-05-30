@@ -65,7 +65,10 @@ async function main() {
   const defaultSettings = [
     { key: "whatsapp_enabled", value: "true" },
     { key: "whatsapp_admin_phone", value: "" },
-    { key: "site_url", value: "https://temanyoga.com" },
+    { key: "site_url", value: "https://temaniyoga.com" },
+    { key: "email_enabled", value: "false" },
+    { key: "email_from", value: "D'TEMAN YOGA <notifikasi@temaniyoga.com>" },
+    { key: "email_reply_to", value: "cs@temaniyoga.com" },
   ];
 
   for (const setting of defaultSettings) {

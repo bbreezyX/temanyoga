@@ -4,15 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
-    "poster:generate": "tsx scripts/poster/generate.tsx",
-    "poster:preview": "tsx scripts/poster/preview.tsx"
+    "poster:generate": "npm run generate --prefix scripts/poster",
+    "poster:preview": "npm run preview --prefix scripts/poster",
+    "poster:install": "npm install --prefix scripts/poster"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -42,6 +43,7 @@
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
     "resend": "^6.9.2",
+    "sharp": "^0.34.5",
     "slugify": "^1.6.6",
     "swr": "^2.4.0",
     "tailwind-merge": "^3.4.1",
@@ -56,7 +58,6 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "puppeteer": "^25.1.0",
     "shadcn": "^3.8.5",
     "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",

@@ -1,4 +1,6 @@
 import type { OrderStatus } from "@/generated/prisma/client";
+import { escapeHtml } from "@/lib/sanitize";
+import { EMAIL_DOMAIN } from "@/lib/email-config";
 
 type OrderData = {
   orderCode: string;
@@ -30,6 +32,10 @@ function formatRupiah(amount: number): string {
   return `Rp ${amount.toLocaleString("id-ID")}`;
 }
 
+function e(value: string): string {
+  return escapeHtml(value);
+}
+
 function emailWrapper(body: string): string {
   return `<!DOCTYPE html>
 <html lang="id" xmlns="http://www.w3.org/1999/xhtml">
@@ -52,7 +58,8 @@ ${body}
 </td></tr>
 <tr><td style="padding-top:32px;border-top:1px solid #f3f4f6">
 <p style="margin:0;color:#6b7280;font-size:12px;font-weight:500">D'TEMAN YOGA &mdash; Teman Setia Yogamu</p>
-<p style="margin:4px 0 0;color:#9ca3af;font-size:11px">Anda menerima email ini karena melakukan pemesanan di ditemaniyoga.com.</p>
+<p style="margin:4px 0 0;color:#9ca3af;font-size:11px">Email transaksional terkait pesanan Anda di <a href="https://${EMAIL_DOMAIN}" style="color:#9ca3af">${EMAIL_DOMAIN}</a>.</p>
+<p style="margin:4px 0 0;color:#9ca3af;font-size:11px">Butuh bantuan? Balas email ini atau hubungi cs@${EMAIL_DOMAIN}</p>
 <p style="margin:4px 0 0;color:#9ca3af;font-size:11px">D'TEMAN YOGA &bull; Jambi, Indonesia</p>
 </td></tr>
 </table>
@@ -64,7 +71,7 @@ ${body}
 
 function linkButton(url: string, label: string): string {
   return `<div style="margin:24px 0">
-<a href="${url}" style="color:#c85a2d;font-weight:700;text-decoration:underline;font-size:15px">${label} &rarr;</a>
+<a href="${e(url)}" style="color:#c85a2d;font-weight:700;text-decoration:underline;font-size:15px">${e(label)} &rarr;</a>
 </div>`;
 }
 
@@ -75,9 +82,10 @@ export function orderCreatedEmail(
   siteUrl: string,
   bank?: BankData,
 ): EmailContent {
+  const uploadUrl = `${siteUrl}/checkout/success/${order.orderCode}`;
   const body = `
-<p style="margin:0 0 16px;font-size:16px">Halo <strong>${order.customerName}</strong>,</p>
-<p style="margin:0 0 24px;font-size:15px">Terima kasih telah berbelanja. Pesanan Anda <strong>${order.orderCode}</strong> telah kami terima dan menunggu pembayaran.</p>
+<p style="margin:0 0 16px;font-size:16px">Halo <strong>${e(order.customerName)}</strong>,</p>
+<p style="margin:0 0 24px;font-size:15px">Terima kasih telah berbelanja. Pesanan Anda <strong>${e(order.orderCode)}</strong> telah kami terima dan menunggu pembayaran.</p>
 
 <div style="background-color:#f9fafb;padding:20px;border-radius:8px;margin-bottom:24px">
 <p style="margin:0 0 4px;font-size:13px;color:#6b7280">Total Tagihan:</p>
@@ -86,19 +94,30 @@ export function orderCreatedEmail(
 
 <p style="margin:0 0 12px;font-size:15px;font-weight:700">Silakan transfer ke rekening:</p>
 <p style="margin:0 0 16px;font-size:14px;line-height:1.6">
-<strong>Bank ${bank?.bankName || "BCA"}</strong>: ${bank?.accountNumber || "1234567890"}<br>
-a/n ${bank?.accountName || "D'TEMAN YOGA Studio"}
+<strong>Bank ${e(bank?.bankName || "BCA")}</strong>: ${e(bank?.accountNumber || "1234567890")}<br>
+a/n ${e(bank?.accountName || "D'TEMAN YOGA Studio")}
 </p>
 
 <p style="margin:0 0 8px;font-size:15px">Konfirmasi pembayaran Anda di sini:</p>
-${linkButton(`${siteUrl}/checkout/success/${order.orderCode}`, "Unggah Bukti Pembayaran")}
+${linkButton(uploadUrl, "Unggah Bukti Pembayaran")}
 
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Terima kasih,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Pesanan Baru ${order.orderCode}`,
+    subject: `[D'TEMAN YOGA] Pesanan ${order.orderCode} — menunggu pembayaran`,
     html: emailWrapper(body),
-    text: `Halo ${order.customerName}, pesanan Anda ${order.orderCode} berhasil dibuat. Total: ${formatRupiah(order.totalAmount)}. Silakan transfer ke ${bank?.bankName || "BCA"} ${bank?.accountNumber || "1234567890"} a/n ${bank?.accountName || "D'TEMAN YOGA Studio"}.`,
+    text: [
+      `Halo ${order.customerName},`,
+      ``,
+      `Pesanan ${order.orderCode} telah kami terima.`,
+      `Total: ${formatRupiah(order.totalAmount)}`,
+      ``,
+      `Transfer ke ${bank?.bankName || "BCA"} ${bank?.accountNumber || "1234567890"} a/n ${bank?.accountName || "D'TEMAN YOGA Studio"}`,
+      ``,
+      `Unggah bukti pembayaran: ${uploadUrl}`,
+      ``,
+      `Tim D'TEMAN YOGA`,
+    ].join("\n"),
   };
 }
 
@@ -107,16 +126,17 @@ export function paymentProofReceivedEmail(
   customerName: string,
   siteUrl: string,
 ): EmailContent {
+  const trackUrl = `${siteUrl}/track-order/${orderCode}`;
   const body = `
-<p style="margin:0 0 16px;font-size:16px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 24px;font-size:15px">Kami telah menerima bukti pembayaran untuk pesanan <strong>${orderCode}</strong>. Tim kami akan segera melakukan verifikasi dalam waktu maksimal 1x24 jam.</p>
-${linkButton(`${siteUrl}/track-order/${orderCode}`, "Lacak Pesanan")}
+<p style="margin:0 0 16px;font-size:16px">Halo <strong>${e(customerName)}</strong>,</p>
+<p style="margin:0 0 24px;font-size:15px">Kami telah menerima bukti pembayaran untuk pesanan <strong>${e(orderCode)}</strong>. Tim kami akan segera melakukan verifikasi dalam waktu maksimal 1x24 jam.</p>
+${linkButton(trackUrl, "Lacak Pesanan")}
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Terima kasih,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Bukti Pembayaran Diterima - ${orderCode}`,
+    subject: `[D'TEMAN YOGA] Bukti pembayaran diterima — ${orderCode}`,
     html: emailWrapper(body),
-    text: `Halo ${customerName}, bukti pembayaran untuk ${orderCode} telah kami terima dan sedang dalam proses verifikasi.`,
+    text: `Halo ${customerName}, bukti pembayaran untuk ${orderCode} telah kami terima.\n\nLacak pesanan: ${trackUrl}`,
   };
 }
 
@@ -125,16 +145,17 @@ export function paymentApprovedEmail(
   customerName: string,
   siteUrl: string,
 ): EmailContent {
+  const trackUrl = `${siteUrl}/track-order/${orderCode}`;
   const body = `
-<p style="margin:0 0 16px;font-size:16px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 24px;font-size:15px">Pembayaran Anda untuk pesanan <strong>${orderCode}</strong> telah berhasil diverifikasi. Pesanan Anda kini sedang kami siapkan untuk pengiriman.</p>
-${linkButton(`${siteUrl}/track-order/${orderCode}`, "Lacak Pesanan")}
+<p style="margin:0 0 16px;font-size:16px">Halo <strong>${e(customerName)}</strong>,</p>
+<p style="margin:0 0 24px;font-size:15px">Pembayaran Anda untuk pesanan <strong>${e(orderCode)}</strong> telah berhasil diverifikasi. Pesanan Anda kini sedang kami siapkan untuk pengiriman.</p>
+${linkButton(trackUrl, "Lacak Pesanan")}
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Terima kasih,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Pembayaran Berhasil Diverifikasi - ${orderCode}`,
+    subject: `[D'TEMAN YOGA] Pembayaran terverifikasi — ${orderCode}`,
     html: emailWrapper(body),
-    text: `Halo ${customerName}, pembayaran untuk ${orderCode} telah berhasil diverifikasi. Pesanan Anda sedang diproses.`,
+    text: `Halo ${customerName}, pembayaran untuk ${orderCode} telah diverifikasi.\n\nLacak pesanan: ${trackUrl}`,
   };
 }
 
@@ -144,18 +165,19 @@ export function paymentRejectedEmail(
   siteUrl: string,
   reason?: string,
 ): EmailContent {
+  const uploadUrl = `${siteUrl}/checkout/success/${orderCode}`;
   const body = `
-<p style="margin:0 0 16px;font-size:16px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 16px;font-size:15px">Mohon maaf, bukti pembayaran untuk pesanan <strong>${orderCode}</strong> tidak dapat kami verifikasi.</p>
-${reason ? `<p style="margin:0 0 16px;padding:12px;background-color:#fff1f2;color:#e11d48;border-radius:4px;font-size:14px"><strong>Alasan:</strong> ${reason}</p>` : ""}
+<p style="margin:0 0 16px;font-size:16px">Halo <strong>${e(customerName)}</strong>,</p>
+<p style="margin:0 0 16px;font-size:15px">Mohon maaf, bukti pembayaran untuk pesanan <strong>${e(orderCode)}</strong> tidak dapat kami verifikasi.</p>
+${reason ? `<p style="margin:0 0 16px;padding:12px;background-color:#fff1f2;color:#e11d48;border-radius:4px;font-size:14px"><strong>Alasan:</strong> ${e(reason)}</p>` : ""}
 <p style="margin:0 0 8px;font-size:15px">Silakan unggah kembali bukti pembayaran yang valid:</p>
-${linkButton(`${siteUrl}/checkout/success/${orderCode}`, "Unggah Ulang Bukti Pembayaran")}
+${linkButton(uploadUrl, "Unggah Ulang Bukti Pembayaran")}
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Terima kasih,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Perhatian: Pembayaran Perlu Diperbarui - ${orderCode}`,
+    subject: `[D'TEMAN YOGA] Bukti pembayaran perlu diperbarui — ${orderCode}`,
     html: emailWrapper(body),
-    text: `Halo ${customerName}, pembayaran untuk ${orderCode} ditolak. Alasan: ${reason || "Bukti tidak valid"}. Mohon unggah ulang bukti pembayaran.`,
+    text: `Halo ${customerName}, bukti pembayaran untuk ${orderCode} ditolak.${reason ? ` Alasan: ${reason}.` : ""}\n\nUnggah ulang: ${uploadUrl}`,
   };
 }
 
@@ -165,22 +187,23 @@ export function orderShippedEmail(
   tracking: TrackingData,
   siteUrl: string,
 ): EmailContent {
+  const trackUrl = `${siteUrl}/track-order/${orderCode}`;
   const body = `
-<p style="margin:0 0 16px;font-size:16px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 24px;font-size:15px">Pesanan <strong>${orderCode}</strong> telah dikirim!</p>
+<p style="margin:0 0 16px;font-size:16px">Halo <strong>${e(customerName)}</strong>,</p>
+<p style="margin:0 0 24px;font-size:15px">Pesanan <strong>${e(orderCode)}</strong> telah dikirim!</p>
 
 <div style="border:1px solid #f3f4f6;padding:16px;border-radius:8px;margin-bottom:24px">
 <p style="margin:0 0 4px;font-size:13px;color:#6b7280">Kurir / No. Resi:</p>
-<p style="margin:0;font-size:16px;font-weight:700">${tracking.courier} &mdash; ${tracking.trackingNumber}</p>
+<p style="margin:0;font-size:16px;font-weight:700">${e(tracking.courier)} &mdash; ${e(tracking.trackingNumber)}</p>
 </div>
 
-${linkButton(`${siteUrl}/track-order/${orderCode}`, "Lacak Pengiriman")}
+${linkButton(trackUrl, "Lacak Pengiriman")}
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Terima kasih,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Pesanan Anda Telah Dikirim - ${orderCode}`,
+    subject: `[D'TEMAN YOGA] Pesanan dikirim — ${orderCode}`,
     html: emailWrapper(body),
-    text: `Halo ${customerName}, pesanan ${orderCode} telah dikirim via ${tracking.courier} dengan resi ${tracking.trackingNumber}.`,
+    text: `Halo ${customerName}, pesanan ${orderCode} dikirim via ${tracking.courier}, resi ${tracking.trackingNumber}.\n\nLacak: ${trackUrl}`,
   };
 }
 
@@ -189,12 +212,12 @@ export function orderCompletedEmail(
   customerName: string,
 ): EmailContent {
   const body = `
-<p style="margin:0 0 16px;font-size:16px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 16px;font-size:15px">Pesanan <strong>${orderCode}</strong> Anda telah selesai. Kami harap produk kami dapat menemani perjalanan yoga Anda dengan baik.</p>
+<p style="margin:0 0 16px;font-size:16px">Halo <strong>${e(customerName)}</strong>,</p>
+<p style="margin:0 0 16px;font-size:15px">Pesanan <strong>${e(orderCode)}</strong> Anda telah selesai. Kami harap produk kami dapat menemani perjalanan yoga Anda dengan baik.</p>
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Sampai jumpa di pesanan berikutnya,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Pesanan Selesai - Terima kasih! ${orderCode}`,
+    subject: `[D'TEMAN YOGA] Pesanan selesai — ${orderCode}`,
     html: emailWrapper(body),
     text: `Halo ${customerName}, pesanan ${orderCode} telah selesai. Terima kasih telah berbelanja di D'TEMAN YOGA!`,
   };
@@ -205,12 +228,12 @@ export function orderCancelledEmail(
   customerName: string,
 ): EmailContent {
   const body = `
-<p style="margin:0 0 16px;font-size:16px">Halo <strong>${customerName}</strong>,</p>
-<p style="margin:0 0 16px;font-size:15px">Informasi bahwa pesanan <strong>${orderCode}</strong> telah dibatalkan. Jika Anda tidak merasa melakukan pembatalan, silakan hubungi tim kami.</p>
+<p style="margin:0 0 16px;font-size:16px">Halo <strong>${e(customerName)}</strong>,</p>
+<p style="margin:0 0 16px;font-size:15px">Informasi bahwa pesanan <strong>${e(orderCode)}</strong> telah dibatalkan. Jika Anda tidak merasa melakukan pembatalan, silakan hubungi tim kami.</p>
 <p style="margin:24px 0 0;font-size:14px;color:#6b7280">Terima kasih,<br>Tim D'TEMAN YOGA</p>`;
 
   return {
-    subject: `Informasi Pembatalan Pesanan - ${orderCode}`,
+    subject: `[D'TEMAN YOGA] Pesanan dibatalkan — ${orderCode}`,
     html: emailWrapper(body),
     text: `Halo ${customerName}, pesanan ${orderCode} telah dibatalkan. Hubungi kami jika Anda memiliki pertanyaan.`,
   };
@@ -232,11 +255,11 @@ export function getStatusChangeEmail(
         return orderShippedEmail(orderCode, customerName, tracking, siteUrl);
       }
       return {
-        subject: `Pesanan Dikirim - ${orderCode}`,
+        subject: `[D'TEMAN YOGA] Pesanan dikirim — ${orderCode}`,
         html: emailWrapper(
-          `<p style="margin:0 0 24px;font-size:15px">Pesanan <strong>${orderCode}</strong> telah dikirim.</p>${linkButton(`${siteUrl}/track-order/${orderCode}`, "Lacak Pesanan")}`,
+          `<p style="margin:0 0 24px;font-size:15px">Pesanan <strong>${e(orderCode)}</strong> telah dikirim.</p>${linkButton(`${siteUrl}/track-order/${orderCode}`, "Lacak Pesanan")}`,
         ),
-        text: `Halo ${customerName}, pesanan ${orderCode} telah dikirim.`,
+        text: `Halo ${customerName}, pesanan ${orderCode} telah dikirim.\n\nLacak: ${siteUrl}/track-order/${orderCode}`,
       };
     case "COMPLETED":
       return orderCompletedEmail(orderCode, customerName);

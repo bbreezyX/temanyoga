@@ -17,9 +17,10 @@ const s3 = new S3Client({
 export async function uploadToR2(
   file: Buffer,
   folder: string,
-  contentType: string
+  contentType: string,
+  extension?: string,
 ): Promise<{ url: string; key: string }> {
-  const ext = contentType.split("/")[1] || "bin";
+  const ext = extension ?? contentType.split("/")[1]?.replace("+xml", "") ?? "bin";
   const key = `${folder}/${nanoid()}.${ext}`;
 
   await s3.send(
@@ -28,6 +29,7 @@ export async function uploadToR2(
       Key: key,
       Body: file,
       ContentType: contentType,
+      CacheControl: "public, max-age=31536000, immutable",
     })
   );
 

@@ -16,8 +16,12 @@ export function ProductGrid({ products }: { products: ProductListItem[] }) {
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 md:gap-6 lg:grid-cols-4 lg:gap-8">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, index) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          priority={index < 4}
+        />
       ))}
     </div>
   );

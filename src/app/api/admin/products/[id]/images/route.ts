@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { apiSuccess, badRequest, notFound, serverError } from "@/lib/api-response";
+import { processProductImage } from "@/lib/image-process";
 import { uploadToR2 } from "@/lib/r2";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -40,7 +41,25 @@ export async function POST(
     const nextOrder = (lastImage?.order ?? -1) + 1;
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const { url, key } = await uploadToR2(buffer, "products", file.type);
+
+    let contentType = file.type;
+    let extension: string | undefined;
+    let uploadBuffer: Buffer = buffer;
+
+    try {
+      uploadBuffer = Buffer.from(await processProductImage(buffer));
+      contentType = "image/webp";
+      extension = "webp";
+    } catch (processError) {
+      console.error("Product image processing failed, storing original:", processError);
+    }
+
+    const { url, key } = await uploadToR2(
+      uploadBuffer,
+      "products",
+      contentType,
+      extension,
+    );
 
     const image = await prisma.productImage.create({
       data: {

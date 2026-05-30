@@ -19,6 +19,7 @@
 
 # generated poster PDFs
 /scripts/poster/out/
+/scripts/poster/node_modules/
 
 # production
 /build
