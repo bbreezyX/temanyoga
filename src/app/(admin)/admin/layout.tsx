@@ -25,8 +25,8 @@ export default async function AdminLayout({
           </div>
           <div className="flex flex-1 flex-col overflow-hidden relative">
             <AdminHeader />
-            <main className="flex-1 overflow-y-auto p-4 md:p-10 no-scrollbar relative bg-canvas-oat">
-              <div className="w-full">{children}</div>
+            <main className="flex-1 overflow-y-auto overscroll-y-contain p-3 sm:p-4 md:p-10 no-scrollbar relative bg-canvas-oat">
+              <div className="mx-auto w-full min-w-0 max-w-[1600px]">{children}</div>
             </main>
           </div>
         </div>

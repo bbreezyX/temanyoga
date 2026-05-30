@@ -1,8 +1,13 @@
+import { memo } from "react";
 import { ProductCard } from "./product-card";
 import { Sparkles } from "lucide-react";
 import type { ProductListItem } from "@/types/api";
 
-export function ProductGrid({ products }: { products: ProductListItem[] }) {
+export const ProductGrid = memo(function ProductGrid({
+  products,
+}: {
+  products: ProductListItem[];
+}) {
   if (products.length === 0) {
     return (
       <div className="rounded-[32px] border border-black/5 bg-paper px-8 py-16 text-center">
@@ -25,4 +30,4 @@ export function ProductGrid({ products }: { products: ProductListItem[] }) {
       ))}
     </div>
   );
-}
+});

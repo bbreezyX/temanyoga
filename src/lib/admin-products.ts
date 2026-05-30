@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@/generated/prisma/client";
 import type { AdminProductListItem, AdminProductListResponse } from "@/types/api";
 
-export const ADMIN_PRODUCTS_PER_PAGE = 20;
+export const ADMIN_PRODUCTS_PER_PAGE = 16;
 
 export type AdminProductCatalogParams = {
   page: number;

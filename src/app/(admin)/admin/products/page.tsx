@@ -13,9 +13,6 @@ export default async function AdminProductsPage({
 }) {
   const params = parseAdminProductCatalogParams(await searchParams);
   const data = await getAdminProductList(params);
-  const catalogKey = `${params.page}|${params.search}|${params.stock}|${params.status}`;
 
-  return (
-    <AdminProductsCatalog key={catalogKey} data={data} params={params} />
-  );
+  return <AdminProductsCatalog data={data} params={params} />;
 }

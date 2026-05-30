@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ProductGrid } from "@/components/product/product-grid";
 import { PaginationControls } from "@/components/product/pagination-controls";
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
-import type { ProductListItem } from "@/types/api";
+import { getProductListPage } from "@/lib/product-queries";
 import { cn } from "@/lib/utils";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -25,48 +23,6 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-async function getProducts(
-  page: number,
-  limit: number,
-  sort: string = "latest",
-) {
-  const orderBy: Prisma.ProductOrderByWithRelationInput = {};
-  switch (sort) {
-    case "price-asc":
-      orderBy.price = "asc";
-      break;
-    case "price-desc":
-      orderBy.price = "desc";
-      break;
-    case "oldest":
-      orderBy.createdAt = "asc";
-      break;
-    default:
-      orderBy.createdAt = "desc";
-  }
-
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where: { isActive: true },
-      orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
-      include: { images: { orderBy: { order: "asc" } } },
-    }),
-    prisma.product.count({ where: { isActive: true } }),
-  ]);
-
-  return {
-    products,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
-}
-
 export default async function ProductsPage({
   searchParams,
 }: {
@@ -75,7 +31,7 @@ export default async function ProductsPage({
   const { page: pageParam, sort: sortParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const sort = sortParam || "latest";
-  const data = await getProducts(page, 12, sort);
+  const data = await getProductListPage(page, 12, sort);
 
   const dateActive = sort === "latest" || sort === "oldest";
   const priceActive = sort.startsWith("price");
@@ -111,7 +67,7 @@ export default async function ProductsPage({
             <Link
               href={`/products?sort=${sort === "latest" ? "oldest" : "latest"}&page=1`}
               className={cn(
-                "flex h-11 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-5 text-xs font-semibold uppercase tracking-[0.16em] transition-all sm:text-[13px]",
+                "flex h-11 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors sm:text-[13px]",
                 dateActive
                   ? "bg-action text-white shadow-sm"
                   : "border border-black/10 bg-paper text-ink hover:border-action",
@@ -123,7 +79,7 @@ export default async function ProductsPage({
             <Link
               href={`/products?sort=${sort === "price-asc" ? "price-desc" : "price-asc"}&page=1`}
               className={cn(
-                "flex h-11 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-5 text-xs font-semibold uppercase tracking-[0.16em] transition-all sm:text-[13px]",
+                "flex h-11 shrink-0 snap-start items-center whitespace-nowrap rounded-full px-5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors sm:text-[13px]",
                 priceActive
                   ? "bg-action text-white shadow-sm"
                   : "border border-black/10 bg-paper text-ink hover:border-action",
@@ -139,7 +95,7 @@ export default async function ProductsPage({
           </div>
         </div>
 
-        <ProductGrid products={data.products as unknown as ProductListItem[]} />
+        <ProductGrid products={data.products} />
 
         <div className="mt-14 flex justify-center md:mt-16">
           <PaginationControls

@@ -28,7 +28,9 @@ export const metadata: Metadata = {
   },
 };
 
-const HERO_FALLBACK_SRC = "/images/hero-yoga.svg";
+const HERO_IMAGE_SRC = "/images/knittedyoga-cutout.png";
+const HERO_IMAGE_ALT =
+  "Boneka rajut yoga D'TEMAN YOGA — ilustrasi cutout karakter meditasi";
 
 const TRUST_VALUES = [
   { Icon: Leaf, label: "100% Katun Susu" },
@@ -62,10 +64,6 @@ const STORY_STEPS = [
 
 export default async function HomePage() {
   const products = await getFeaturedProducts();
-  const heroImage = products.find((p) => p.images[0])?.images[0];
-  const heroAlt = heroImage
-    ? "Boneka rajut yoga — kurasi D'TEMAN YOGA"
-    : "Ilustrasi boneka rajut yoga sedang bermeditasi";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -154,25 +152,14 @@ export default async function HomePage() {
           <HeroAnimation
             fallback={
               <div className="relative mx-auto aspect-square w-full max-w-md md:max-w-none">
-                {heroImage ? (
-                  <StorageImage
-                    storageUrl={heroImage.url}
-                    alt={heroAlt}
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 100vw, 520px"
-                    className="animate-hero-float object-contain drop-shadow-[0_24px_34px_rgba(63,51,40,0.18)]"
-                  />
-                ) : (
-                  <Image
-                    src={HERO_FALLBACK_SRC}
-                    alt={heroAlt}
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 100vw, 520px"
-                    className="animate-hero-float object-contain drop-shadow-[0_24px_34px_rgba(63,51,40,0.18)]"
-                  />
-                )}
+                <Image
+                  src={HERO_IMAGE_SRC}
+                  alt={HERO_IMAGE_ALT}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 520px"
+                  className="animate-hero-float object-contain drop-shadow-[0_24px_34px_rgba(63,51,40,0.18)]"
+                />
               </div>
             }
           />
