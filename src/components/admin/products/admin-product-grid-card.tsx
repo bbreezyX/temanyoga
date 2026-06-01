@@ -87,7 +87,11 @@ export const AdminProductGridCard = memo(function AdminProductGridCard({
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-cream sm:aspect-square sm:rounded-[20px]">
         {image ? (
-          <AdminProductThumbnail storageUrl={image.url} alt={product.name} />
+          <AdminProductThumbnail
+            storageUrl={image.url}
+            alt={product.name}
+            size="grid"
+          />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-warm-gray/40">
             <ImageIcon className="h-10 w-10" />

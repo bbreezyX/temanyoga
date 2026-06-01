@@ -22,7 +22,7 @@ import { formatCurrency } from "@/lib/format";
 import { AdminProductGrid } from "@/components/admin/products/admin-product-grid";
 import type { AdminProductGridCardActions } from "@/components/admin/products/admin-product-grid-card";
 import { AdminProductListMobileRow } from "@/components/admin/products/admin-product-list-mobile-row";
-import { StorageImage } from "@/components/storage-image";
+import { AdminProductThumbnail } from "@/components/admin/products/admin-product-thumbnail";
 import { apiPatch, apiDelete } from "@/lib/api-client";
 import { ImageUpload } from "./image-upload";
 import type { AdminProductListItem } from "@/types/api";
@@ -231,18 +231,16 @@ export function ProductTable({
                         return (
                       <tr
                         key={product.id}
-                        className="group hover:bg-cream/30 transition-colors"
+                        className="group hover:bg-cream/30 transition-colors [content-visibility:auto] [contain-intrinsic-size:auto_88px]"
                       >
                         <td className="py-4 pl-6 lg:pl-8">
                           <div className="flex items-center gap-4">
                             <div className="h-16 w-16 shrink-0 rounded-2xl bg-warm-sand/50 flex items-center justify-center overflow-hidden ring-1 ring-warm-sand/50 relative">
                               {product.images[0] ? (
-                                <StorageImage
+                                <AdminProductThumbnail
                                   storageUrl={product.images[0].url}
                                   alt={product.name}
-                                  fill
-                                  className="object-cover"
-                                  sizes="64px"
+                                  size="list"
                                 />
                               ) : (
                                 <ImageIcon className="h-6 w-6 text-warm-gray/40" />
@@ -401,12 +399,10 @@ export function ProductTable({
                         key={img.id}
                         className="group relative aspect-square overflow-hidden rounded-2xl ring-1 ring-warm-sand/50"
                       >
-                        <StorageImage
+                        <AdminProductThumbnail
                           storageUrl={img.url}
                           alt={`Foto ${idx + 1}`}
-                          fill
-                          className="object-cover"
-                          sizes="120px"
+                          size="dialog"
                         />
                         {idx === 0 && (
                           <div className="absolute top-1.5 left-1.5 bg-terracotta text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">

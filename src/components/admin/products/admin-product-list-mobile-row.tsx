@@ -79,11 +79,15 @@ export function AdminProductListMobileRow({
   const canDelete = product._count.orderItems === 0;
 
   return (
-    <article className="p-3 sm:p-4">
+    <article className="p-3 sm:p-4 [content-visibility:auto] [contain-intrinsic-size:auto_180px] [contain:paint]">
       <div className="flex gap-3 sm:gap-4">
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-warm-sand/50 ring-1 ring-warm-sand/50 sm:h-20 sm:w-20">
           {image ? (
-            <AdminProductThumbnail storageUrl={image.url} alt={product.name} />
+            <AdminProductThumbnail
+              storageUrl={image.url}
+              alt={product.name}
+              size="list"
+            />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <ImageIcon className="h-7 w-7 text-warm-gray/40" />
